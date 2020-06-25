@@ -7,4 +7,5 @@ tests:
   stage: test
   script:
     - python -m pytest --cov=./ --cov-report=xml
+    - apt update && apt install curl
     - bash <(curl -s https://codecov.io/bash)
