@@ -2,7 +2,8 @@ image: continuumio/miniconda3:latest
 before_script:
   - conda env create -f environment.yml
   - source activate cmelab
+  - python -m pip install pytest pytest-cov
 tests:
   stage: test
   script:
-    - pytest -v
+    - python -m pytest --cov=./ --cov-report=xml
