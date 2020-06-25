@@ -4,7 +4,7 @@ before_script:
   - source activate cmelab
   - python -m pip install pytest pytest-cov
 tests:
-  stage: test and report to codecov
+  stage: test
   script:
     - python -m pytest --cov=./ --cov-report=xml
     - bash <(curl -s https://codecov.io/bash)
