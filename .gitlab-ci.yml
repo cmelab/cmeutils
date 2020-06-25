@@ -1,7 +1,7 @@
 image: continuumio/miniconda3:latest
 before_script:
   - conda env create -f environment.yml
-  - source activate cme_lab
+  - source activate cmelab
 tests:
   stage: test
   script:
