@@ -23,10 +23,8 @@ def frame_get_type_position(gsdfile, typename, frame=-1):
     -------
     numpy.ndarray
     """
-    with open(gsdfile, "rb") as file:
-        f = gsd.pygsd.GSDFile(file)
-        t = gsd.hoomd.HOOMDTrajectory(f)
-        snap = t[frame]
+    with gsd.hoomd.open(name=gsdfile, mode='rb') as f:
+        snap = f[frame]
     typepos = snap.particles.position[
             snap.particles.typeid == snap.particles.types.index(typename)
             ]
