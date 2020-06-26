@@ -1,6 +1,5 @@
 import gsd
 import gsd.hoomd
-import gsd.pygsd
 
 
 def frame_get_type_position(gsdfile, typename, frame=-1):
