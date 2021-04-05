@@ -2,6 +2,8 @@ name: cmeutils
 channels:
   - conda-forge
 dependencies:
-  - python=3.7
-  - pip
   - numpy
+  - pip
+  - python=3.7
+  - pytest
+  - pytest-cov
