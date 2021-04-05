@@ -1,4 +1,4 @@
-name: cmelab
+name: cmeutils
 channels:
   - conda-forge
 dependencies:
