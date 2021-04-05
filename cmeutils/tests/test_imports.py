@@ -1,5 +1,3 @@
-import sys
-import numpy
 
-def test_import_numpy():
-    assert "numpy" in sys.modules
+def test_import():
+    import cmeutils

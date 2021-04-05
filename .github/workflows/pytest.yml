@@ -5,10 +5,14 @@ on:
     branches: [ master ]
     paths:
       - 'cmeutils/*'
+      - 'cmeutils/tests/*'
   pull_request:
     branches: [ master ]
     paths:
       - 'cmeutils/*'
+      - 'cmeutils/tests/*'
+  # Allows workflow to be manually triggered
+  workflow_dispatch:
 
 jobs:
   pytest:
