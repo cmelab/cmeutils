@@ -1,7 +1,15 @@
+import os
 from setuptools import setup
 
-setup(name='cmeutils',
-      version='0.0',
+
+NAME = "cmeutils"
+here = os.path.abspath(os.path.dirname(__file__))
+about = {}
+with open(os.path.join(here, NAME, "__version__.py")) as f:
+    exec(f.read(), about)
+
+setup(name=NAME,
+      version=about["__version__"],
       description='Helpful functions used in the CME lab'
       url='https://github.com/cmelab/cmeutils',
       author='CME Lab',
