@@ -10,7 +10,7 @@ with open(os.path.join(here, NAME, "__version__.py")) as f:
 
 setup(name=NAME,
       version=about["__version__"],
-      description='Helpful functions used in the CME lab'
+      description='Helpful functions used in the CME lab',
       url='https://github.com/cmelab/cmeutils',
       author='CME Lab',
       author_email='ericjankowski@boisestate.edu',
