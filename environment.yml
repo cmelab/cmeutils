@@ -1,8 +1,10 @@
-name: cme-utils
+name: cmeutils
 channels:
   - conda-forge
 dependencies:
-  - python=3.7
-  - pip
-  - numpy
   - gsd
+  - numpy
+  - pip
+  - python=3.7
+  - pytest
+  - pytest-cov
