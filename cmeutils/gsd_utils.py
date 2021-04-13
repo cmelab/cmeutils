@@ -2,7 +2,6 @@ import freud
 import gsd
 import gsd.hoomd
 import numpy as np
-from scipy.sparse import csr_matrix
 
 
 def frame_get_type_position(gsdfile, typename, frame=-1):
