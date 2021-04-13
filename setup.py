@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 NAME = "cmeutils"
@@ -15,6 +15,7 @@ setup(name=NAME,
       author='CME Lab',
       author_email='ericjankowski@boisestate.edu',
       license='GPLv3',
-      packages=['cmeutils'],
+      packages=find_packages(),
+      package_dir={'cmeutils': 'cmeutils'},
       zip_safe=False,
       )
