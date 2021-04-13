@@ -28,7 +28,7 @@ def get_type_position(type_name, gsd_file=None, snap=None, gsd_frame=-1):
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     type_pos = snap.particles.position[
-            snap.particles.typeid == snap.particles.types.index(typename)
+            snap.particles.typeid == snap.particles.types.index(type_name)
             ]
     return type_pos
 
