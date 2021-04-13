@@ -3,7 +3,7 @@ import gsd.hoomd
 import freud
 
 
-def get_type_position(gsd_file=None, snap=None, type_name, gsd_frame=-1):
+def get_type_position(type_name, gsd_file=None, snap=None, gsd_frame=-1):
     """
     This function returns the  positions of a particular particle
     type from a frame of a gsd trajectory file or from a snapshot.
@@ -11,13 +11,13 @@ def get_type_position(gsd_file=None, snap=None, type_name, gsd_frame=-1):
 
     Parameters
     ----------
+    type_name : str,
+               name of particles of which to get the positions
+               (found in gsd.hoomd.Snapshot.particles.types)
     gsd_file : str,
               filename of the gsd trajectory (default = None)
     snap : gsd.hoomd.Snapshot
             Trajectory snapshot (default = None)
-    type_name : str,
-               name of particles of which to get the positions
-               (found in gsd.hoomd.Snapshot.particles.types)
     gsd_frame : int,
             frame number to get positions from. Supports
             negative indexing. (default = -1)
