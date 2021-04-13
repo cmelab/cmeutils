@@ -13,6 +13,11 @@ class BaseTest:
         create_gsd(filename)
         return filename
 
+    @pytest.fixture
+    def test_snap(self, test_gsd):
+        with gsd.hoomd.open(name=test_gsd, mode="rb") as f:
+            snap = f[-1]
+        return snap
 
 
 def create_frame(i, seed=42):
