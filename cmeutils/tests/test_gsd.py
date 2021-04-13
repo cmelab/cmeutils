@@ -22,4 +22,6 @@ class TestGSD(BaseTest):
         with pytest.raises(AssertionError):
             snap = gsd_utils._validate_inputs(None, test_gsd, 1)
 
-
+    def test_get_all_types(self, test_gsd):
+        types = gsd_utils.get_all_types(test_gsd)
+        assert types == ['A', 'B']

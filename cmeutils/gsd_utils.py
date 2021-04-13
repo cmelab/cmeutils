@@ -32,7 +32,7 @@ def get_type_position(type_name, gsd_file=None, snap=None, gsd_frame=-1):
             ]
     return type_pos
 
-def get_all_types(gsd_file, snap, gsd_frame=-1):
+def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
     """
     Returns all particle types in a hoomd trajectory
     
