@@ -10,7 +10,7 @@ class TestGSD(BaseTest):
     def test_get_type_position(self, test_gsd):
         from cmeutils.gsd_utils import get_type_position
 
-        pos_array = get_type_position(gsd_file = test_gsd, type_name = 'A')
+        pos_array = get_type_position(gsd_file = test_gsd, typename = 'A')
         assert type(pos_array) is type(np.array([]))
         assert pos_array.shape == (2,3)
 
