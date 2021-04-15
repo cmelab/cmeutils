@@ -22,6 +22,8 @@ class TestGSD(BaseTest):
             snap = gsd_utils._validate_inputs(test_gsd, None, 1.0)
         with pytest.raises(AssertionError):
             snap = gsd_utils._validate_inputs(None, test_gsd, 1)
+        with pytest.raises(OSError):
+            gsd_utils._validate_inputs("bad_gsd_file", None, 0)
 
     def test_get_all_types(self, test_gsd):
         types = gsd_utils.get_all_types(test_gsd)

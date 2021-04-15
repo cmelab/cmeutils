@@ -99,7 +99,7 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
                 snap = f[gsd_frame]
         except Exception as e:
             print("Unable to open the gsd_file")
-            print(e)
+            raise e
     elif snap:
         assert isinstance(snap, gsd.hoomd.Snapshot)
     return snap
