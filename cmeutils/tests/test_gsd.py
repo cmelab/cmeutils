@@ -1,29 +1,34 @@
-from os import path
-
-import gsd
-import gsd.hoomd
 import numpy as np
+import pytest
 
-from cme_lab_utils import gsd_utils
+from cmeutils import gsd_utils
+from base_test import BaseTest
 
-def create_frame(i):
-    s = gsd.hoomd.Snapshot()
-    s.configuration.step = i
-    s.particles.N = 4
-    s.particles.types = ['A', 'B']
-    s.particles.typeid = [0,0,1,1]
-    s.particles.position = np.random.random(size=(4,3))
-    s.configuration.box = [3, 3, 3, 0, 0, 0]
-    return s
 
-def create_gsd():
-    f = gsd.hoomd.open(name='test.gsd', mode='wb')
-    f.extend((create_frame(i) for i in range(10)))
+class TestGSD(BaseTest):
 
-def test_frame_get_type_position():
-    if not path.exists('test.gsd'):
-        create_gsd()
-    pos_array = gsd_utils.frame_get_type_position('test.gsd', 'A')
-    assert type(pos_array) is type(np.array([]))
-    assert pos_array.shape == (2,3)
+    def test_get_type_position(self, test_gsd):
+        from cmeutils.gsd_utils import get_type_position
+
+        pos_array = get_type_position(gsd_file = test_gsd, type_name = 'A')
+        assert type(pos_array) is type(np.array([]))
+        assert pos_array.shape == (2,3)
+
+    def test_validate_inputs(self, test_gsd, test_snap):
+        # Catch error with both gsd_file and snap are passed
+        with pytest.raises(ValueError):
+            snap = gsd_utils._validate_inputs(test_gsd, test_snap, 1)
+        with pytest.raises(AssertionError):
+            snap = gsd_utils._validate_inputs(test_gsd, None, 1.0)
+        with pytest.raises(AssertionError):
+            snap = gsd_utils._validate_inputs(None, test_gsd, 1)
+        with pytest.raises(OSError):
+            gsd_utils._validate_inputs("bad_gsd_file", None, 0)
+
+    def test_get_all_types(self, test_gsd):
+        types = gsd_utils.get_all_types(test_gsd)
+        assert types == ['A', 'B']
+
+    def test_snap_molecule_cluster(self, test_gsd_bonded):
+        cluster = gsd_utils.snap_molecule_cluster(gsd_file=test_gsd_bonded)
 
