@@ -25,3 +25,7 @@ class TestGSD(BaseTest):
     def test_get_all_types(self, test_gsd):
         types = gsd_utils.get_all_types(test_gsd)
         assert types == ['A', 'B']
+
+    def test_snap_molecule_cluster(self, test_gsd_bonded):
+        cluster = gsd_utils.snap_molecule_cluster(gsd_file=test_gsd_bonded)
+        
