@@ -1,9 +1,10 @@
+import freud
 import gsd
 import gsd.hoomd
-import freud
+import numpy as np
 
 
-def get_type_position(type_name, gsd_file=None, snap=None, gsd_frame=-1):
+def get_type_position(typename, gsd_file=None, snap=None, gsd_frame=-1):
     """
     This function returns the  positions of a particular particle
     type from a frame of a gsd trajectory file or from a snapshot.
@@ -11,26 +12,26 @@ def get_type_position(type_name, gsd_file=None, snap=None, gsd_frame=-1):
 
     Parameters
     ----------
-    type_name : str,
-               name of particles of which to get the positions
-               (found in gsd.hoomd.Snapshot.particles.types)
-    gsd_file : str,
-              filename of the gsd trajectory (default = None)
-    snap : gsd.hoomd.Snapshot
-            Trajectory snapshot (default = None)
-    gsd_frame : int,
-            frame number to get positions from. Supports
-            negative indexing. (default = -1)
+    typename : str,
+        Name of particles of which to get the positions
+        (found in gsd.hoomd.Snapshot.particles.types)
+    gsd_file : str, default None
+        Filename of the gsd trajectory
+    snap : gsd.hoomd.Snapshot, default None
+        Trajectory snapshot
+    gsd_frame : int, default -1
+        Frame number to get positions from. Supports negative indexing.
 
     Returns
     -------
     numpy.ndarray
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
-    type_pos = snap.particles.position[
-            snap.particles.typeid == snap.particles.types.index(type_name)
-            ]
-    return type_pos
+    typepos = snap.particles.position[
+        snap.particles.typeid == snap.particles.types.index(typename)
+    ]
+    return typepos
+
 
 def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
     """
@@ -38,13 +39,12 @@ def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
 
     Parameters
     ----------
-    gsd_file : str,
-              filename of the gsd trajectory (default = None)
-    snap : gsd.hoomd.Snapshot
-            Trajectory snapshot (default = None)
-    gsd_frame : int,
-            frame number to get positions from. Supports
-            negative indexing. (default = -1)
+    gsd_file : str, default None
+        Filename of the gsd trajectory
+    snap : gsd.hoomd.Snapshot, default None
+        Trajectory snapshot
+    gsd_frame : int, default -1
+        Frame number to get positions from. Supports negative indexing.
 
     Returns
     -------
@@ -52,6 +52,7 @@ def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     return snap.particles.types
+
 
 def snap_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
     """Find molecule index for each particle.
@@ -62,12 +63,12 @@ def snap_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
 
     Parameters
     ----------
-    gsd_file : str,
-        Filename of the gsd trajectory (default = None)
-    snap : gsd.hoomd.Snapshot
-        Trajectory snapshot. (default = None)
-    gsd_frame : int,
-        Frame number of gsd_file to use in computing clusters. (default = -1)
+    gsd_file : str, default None
+        Filename of the gsd trajectory
+    snap : gsd.hoomd.Snapshot, default None
+        Trajectory snapshot.
+    gsd_frame : int, default -1
+        Frame number of gsd_file to use to compute clusters.
 
     Returns
     -------
@@ -86,7 +87,7 @@ def snap_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
     )
     cluster = freud.cluster.Cluster()
     cluster.compute(system=system, neighbors=nlist)
-    return cluster
+    return cluster.cluster_idx
 
 
 def _validate_inputs(gsd_file, snap, gsd_frame):
@@ -95,7 +96,7 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
     if gsd_file:
         assert isinstance(gsd_frame, int)
         try:
-            with gsd.hoomd.open(name=gsd_file, mode='rb') as f:
+            with gsd.hoomd.open(name=gsd_file, mode="rb") as f:
                 snap = f[gsd_frame]
         except Exception as e:
             print("Unable to open the gsd_file")
