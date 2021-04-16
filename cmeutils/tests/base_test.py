@@ -8,20 +8,20 @@ import numpy as np
 
 class BaseTest:
     @pytest.fixture
-    def test_gsd(self, tmp_path):
+    def gsdfile(self, tmp_path):
         filename = tmp_path / "test.gsd"
         create_gsd(filename)
         return filename
 
     @pytest.fixture
-    def test_gsd_bonded(self, tmp_path):
-        filename = tmp_path / "test.gsd"
+    def gsdfile_bond(self, tmp_path):
+        filename = tmp_path / "test_bond.gsd"
         create_gsd(filename, add_bonds=True)
         return filename
 
     @pytest.fixture
-    def test_snap(self, test_gsd):
-        with gsd.hoomd.open(name=test_gsd, mode="rb") as f:
+    def snap(self, gsdfile):
+        with gsd.hoomd.open(name=gsdfile, mode="rb") as f:
             snap = f[-1]
         return snap
 
