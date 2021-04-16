@@ -1,4 +1,8 @@
 from cmeutils import gsd_utils
+import freud
+import gsd
+import gsd.hoomd
+import numpy as np
 
 def gsd_rdf(
     gsdfile,
@@ -6,8 +10,8 @@ def gsd_rdf(
     B_name,
     start=0,
     stop=None,
-    rmax=None,
-    rmin=0,
+    r_max=None,
+    r_min=0,
     bins=100,
     exclude_bonded=True,
 ):
@@ -48,7 +52,10 @@ def gsd_rdf(
     -------
     (freud.density.RDF, float)
     """
-    with gsd.hoomd.open(gsdfile) as trajectory:
+    if not stop:
+        stop = -1
+
+    with gsd.hoomd.open(gsdfile, mode='rb') as trajectory:
         snap = trajectory[0]
 
         if r_max is None:
@@ -63,7 +70,7 @@ def gsd_rdf(
         type_B = snap.particles.typeid == snap.particles.types.index(B_name)
 
         if exclude_bonded:
-            molecules = gsd_utils.snap_molecule_cluster(snap)
+            molecules = gsd_utils.snap_molecule_cluster(snap=snap)
             molecules_A = molecules[type_A]
             molecules_B = molecules[type_B]
 
