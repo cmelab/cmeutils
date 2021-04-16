@@ -28,8 +28,8 @@ def get_type_position(typename, gsd_file=None, snap=None, gsd_frame=-1):
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     typepos = snap.particles.position[
-            snap.particles.typeid == snap.particles.types.index(typename)
-            ]
+        snap.particles.typeid == snap.particles.types.index(typename)
+    ]
     return typepos
 
 
@@ -96,7 +96,7 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
     if gsd_file:
         assert isinstance(gsd_frame, int)
         try:
-            with gsd.hoomd.open(name=gsd_file, mode='rb') as f:
+            with gsd.hoomd.open(name=gsd_file, mode="rb") as f:
                 snap = f[gsd_frame]
         except Exception as e:
             print("Unable to open the gsd_file")

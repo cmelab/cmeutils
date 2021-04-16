@@ -6,13 +6,12 @@ from base_test import BaseTest
 
 
 class TestGSD(BaseTest):
-
     def test_get_type_position(self, test_gsd):
         from cmeutils.gsd_utils import get_type_position
 
-        pos_array = get_type_position(gsd_file = test_gsd, typename = 'A')
+        pos_array = get_type_position(gsd_file=test_gsd, typename="A")
         assert type(pos_array) is type(np.array([]))
-        assert pos_array.shape == (2,3)
+        assert pos_array.shape == (2, 3)
 
     def test_validate_inputs(self, test_gsd, test_snap):
         # Catch error with both gsd_file and snap are passed
@@ -27,8 +26,7 @@ class TestGSD(BaseTest):
 
     def test_get_all_types(self, test_gsd):
         types = gsd_utils.get_all_types(test_gsd)
-        assert types == ['A', 'B']
+        assert types == ["A", "B"]
 
     def test_snap_molecule_cluster(self, test_gsd_bonded):
         cluster = gsd_utils.snap_molecule_cluster(gsd_file=test_gsd_bonded)
-

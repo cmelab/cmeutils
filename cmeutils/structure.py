@@ -4,6 +4,7 @@ import gsd
 import gsd.hoomd
 import numpy as np
 
+
 def gsd_rdf(
     gsdfile,
     A_name,
@@ -55,7 +56,7 @@ def gsd_rdf(
     if not stop:
         stop = -1
 
-    with gsd.hoomd.open(gsdfile, mode='rb') as trajectory:
+    with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
         snap = trajectory[0]
 
         if r_max is None:
@@ -102,4 +103,3 @@ def gsd_rdf(
 
         normalization = post_filter / pre_filter if exclude_bonded else 1
         return rdf, normalization
-
