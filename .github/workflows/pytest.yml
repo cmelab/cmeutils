@@ -4,13 +4,11 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'cmeutils/*'
-      - 'cmeutils/tests/*'
+      - 'cmeutils/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'cmeutils/*'
-      - 'cmeutils/tests/*'
+      - 'cmeutils/**'
   # Allows workflow to be manually triggered
   workflow_dispatch:
 
