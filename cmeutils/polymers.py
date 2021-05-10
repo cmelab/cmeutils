@@ -16,7 +16,7 @@ class System:
         self.molecules = [Molecule(self, i) for i in self.molecule_ids]
         assert len(self.molecules) == self.n_compounds
 
-    def generate_monomers(self, atoms_per_monomer):
+    def generate_monomers(self, monomers_per_molecule):
         pass
 
     def generate_segments(self,
@@ -48,8 +48,18 @@ class Molecule:
         self.monomers = None
         self.segments = None
 
-    def monomers(self, atoms_per_monomer):
-        pass
+    def monomers(self, monomers_per_molecule):
+        monomer_indices = np.array_split(self.atom_indices,
+                monomers_per_molecule
+                )
+        self.monomers = [Monomer(self, i) for i in monomer_indices]
+
+    def segments(self, segments_per_molecule):
+        segment_indices = np.array(split(self.atom_indices,
+            segments_per_molecule)
+            )
+        self.segments = [Segment(self, i) for i in segment_indices]
+
 
     def center_of_mass(self):
         pass
@@ -65,20 +75,21 @@ class Molecule:
 
 
 class Monomer:
-    def __init__(self, molecule):
+    def __init__(self, molecule, atom_indices):
         self.molecule = molecule
+        self.atom_indices = atom_indices
+        self.n_atoms = len(self.atom_indices)
         
 
-        
-        pass
-    
     def center_of_mass(self):
         pass
 
 
 class Segment:
-    def __init__(self):
-        pass
+    def __init__(self, molecule, atom_indices):
+        self.molecule = molecule
+        self.atom_indices = atom_indices
+        self.n_atoms = len(self.atom_indices)
 
     def center_of_mass(self):
         pass
