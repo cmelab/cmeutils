@@ -60,6 +60,32 @@ class System:
         pass
 
 class Structure:
+    """Base class for the Molecule(), Segment(), and Monomer() classes.
+
+    Parameters:
+    -----------
+    system : 'cmeutils.polymers.System', required
+        The system object initially created from the input .gsd file.
+    atom_indices : np.ndarray(n, 3), optional, default=None
+        The atom indices in the system that belong to this specific structure.
+    molecule_id : int, optional, default=None
+        The ID number of the specific molecule from system.molecule_ids.
+
+    Attributes:
+    -----------
+    system : 'cmeutils.polymers.System'
+        The system that this structure belong to. Contains needed information
+        about the box, and gsd snapshot which are used elsewhere.
+    atom_indices : np.ndarray(n_atoms, 3)
+        The atom indices in the system that belong to this specific structure
+    n_atoms : int
+        The number of atoms that belong to this specific structure
+    atom_positions : np.narray(n_atoms, 3)
+        The x, y, z coordinates of the atoms belonging to this structure.
+        The positions are wrapped inside the system's box.
+    center_of_mass : np.1darray(1, 3)
+        The x, y, z coordinates of the structure's center of mass.
+    """
     def __init__(self, system, atom_indices=None, molecule_id=None):
         self.system = system
         if molecule_id != None:
@@ -94,15 +120,17 @@ class Molecule(Structure):
     def generate_monomers(self):
         atoms_per_monomer = self.system.atoms_per_monomer
         molecule_length = int(self.n_atoms / atoms_per_monomer)
-        monomer_indices = np.array_split(self.atom_indices,
+        monomer_indices = np.array_split(
+                self.atom_indices,
                 molecule_length
                 )
         assert len(monomer_indices) == molecule_length
         return [Monomer(self, i) for i in monomer_indices]
 
     def generate_segments(self, segments_per_molecule):
-        segment_indices = np.array_split(self.atom_indices,
-            segments_per_molecule)
+        segment_indices = np.array_split(
+                self.atom_indices,
+                segments_per_molecule)
         self.segments = [Segment(self, i) for i in segment_indices]
     
     @property
@@ -121,6 +149,8 @@ class Molecule(Structure):
 
 
 class Monomer(Structure):
+    """
+    """
     def __init__(self, molecule, atom_indices):
         super(Monomer, self).__init__(system=molecule.system,
                 atom_indices=atom_indices
@@ -130,6 +160,8 @@ class Monomer(Structure):
 
 
 class Segment(Structure):
+    """
+    """
     def __init__(self, molecule, atom_indices):
         super(Segment, self).__init__(system=molecule.system,
                 atom_indices=atom_indices
@@ -142,6 +174,4 @@ class Segment(Structure):
      
     def bond_vectors(self):
        pass
-
-
 
