@@ -32,6 +32,15 @@ def get_type_position(typename, gsd_file=None, snap=None, gsd_frame=-1):
     ]
     return typepos
 
+def unwrap_coordinates(gsd_file=None, snap=None, gsd_frame=-1):
+    snap = _validate_inputs(gsd_file, snap, gsd_frame)
+    box = snap.configuration.box
+    if box[3:].any():
+        raise ValueError("The unwrap_coordinates function only works "
+                "with orthogonal boxes."
+                )
+    pos = snap.particles.position + (snap.particles.image * box[:3])
+    return pos
 
 def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
     """
@@ -54,7 +63,7 @@ def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
     return snap.particles.types
 
 def snap_box(gsd_file=None, snap=None, gsd_frame=-1):
-    """Returns the box of the frame"""
+    """Returns the box of the trajectory frame"""
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     return snap.configuration.box
 
