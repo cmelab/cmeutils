@@ -3,7 +3,12 @@ from cmeutils.gsd_utils import snap_molecule_cluster
 class System:
     """
     """
-    def __init__(self, gsd_file=None, snap=None, gsd_frame=-1):
+    def __init__(self,
+            atoms_per_monomer,
+            gsd_file=None,
+            snap=None,
+            gsd_frame=-1):
+        self.atoms_per_monomer = atoms_per_monomer
         self.clusters = snap.molecule_cluster(gsd_file, snap, gsd_frame)
         self.molecule_ids = set(self.clusters)
         self.n_compounds = len(self.molecule_ids)
@@ -14,10 +19,12 @@ class System:
 
     def generate_molecules(self):
         self.molecules = [Molecule(self, i) for i in self.molecule_ids]
-        assert len(self.molecules) == self.n_compounds
 
-    def generate_monomers(self, monomers_per_molecule):
-        pass
+    def generate_monomers(self):
+        # Call the monomers func in Molecule instead?
+        self.monomers = [Monomer(mol, monomers_per_molecule)
+                for mol in self.molecules]
+
 
     def generate_segments(self,
             atoms_per_segment=None,
