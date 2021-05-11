@@ -44,7 +44,7 @@ class System:
     def radius_of_gyration_average(self):
         pass
 
-    def average_persistance_length(self):
+    def persistance_length_average(self):
         pass
 
     def end_to_end_distribution(self):
@@ -93,13 +93,15 @@ class Molecule:
     @property
     def center_of_mass(self):
         return _center_of_mass(self.atom_positions, self.system.box)
-
+    
+    @property
     def end_to_end_distance(self):
         pass
     
+    @property
     def radius_of_gyration(self):
         pass
-
+    
     def bond_vectors(self):
         pass
 
