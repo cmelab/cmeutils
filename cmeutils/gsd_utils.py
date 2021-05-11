@@ -53,6 +53,10 @@ def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     return snap.particles.types
 
+def snap_box(gsd_file=None, snap=None, gsd_frame=-1):
+    """Returns the box of the frame"""
+    snap = _validate_inputs(gsd_file, snap, gsd_frame)
+    return snap.configuration.box
 
 def snap_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
     """Find molecule index for each particle.
