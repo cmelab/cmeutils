@@ -59,15 +59,35 @@ class System:
     def bond_angle_distribution(self):
         pass
 
+class Structure:
+    def __init__(self, system, atom_indices=None, molecule_id=None):
+        self.system = system
+        if molecule_id != None:
+            self.atom_indices = np.where(self.system.clusters == molecule_id)[0]
+            self.molecule_id = molecule_id
+        else:
+            self.atom_indices = atom_indices
+        self.n_atoms = len(self.atom_indices)
 
-class Molecule:
+    @property
+    def atom_positions(self):
+        return self.system.snap.particles.position[self.atom_indices]
+
+    @property
+    def center_of_mass(self):
+        freud_box = freud.Box(
+                Lx = self.system.box[0],
+                Ly = self.system.box[1],
+                Lz = self.system.box[2]
+                )
+        return freud_box.center_of_mass(self.atom_positions)
+
+
+class Molecule(Structure):
     """
     """
     def __init__(self, system, molecule_id):
-        self.system = system
-        self.molecule_id = molecule_id
-        self.atom_indices = np.where(system.clusters == self.molecule_id)[0]
-        self.n_atoms = len(self.atom_indices)
+        super(Molecule, self).__init__(system=system, molecule_id=molecule_id)
         self.monomers = self.generate_monomers() 
         self.segments = None
 
@@ -81,18 +101,9 @@ class Molecule:
         return [Monomer(self, i) for i in monomer_indices]
 
     def generate_segments(self, segments_per_molecule):
-        segment_indices = np.array(split(self.atom_indices,
+        segment_indices = np.array_split(self.atom_indices,
             segments_per_molecule)
-            )
         self.segments = [Segment(self, i) for i in segment_indices]
-
-    @property
-    def atom_positions(self):
-        return _atom_positions(self.atom_indices, self.system.snap)
-
-    @property
-    def center_of_mass(self):
-        return _center_of_mass(self.atom_positions, self.system.box)
     
     @property
     def end_to_end_distance(self):
@@ -109,38 +120,22 @@ class Molecule:
         pass
 
 
-class Monomer:
+class Monomer(Structure):
     def __init__(self, molecule, atom_indices):
+        super(Monomer, self).__init__(system=molecule.system,
+                atom_indices=atom_indices
+                )
         self.molecule = molecule
-        self.system = molecule.system
-        self.atom_indices = atom_indices
-        self.n_atoms = len(self.atom_indices)
         assert self.n_atoms == self.system.atoms_per_monomer 
 
-    @property
-    def atom_positions(self):
-        return _atom_positions(self.atom_indices, self.system.snap)
 
-    @property
-    def center_of_mass(self):
-        return(_center_of_mass(self.atom_positions, self.system.box))
-
-
-class Segment:
+class Segment(Structure):
     def __init__(self, molecule, atom_indices):
+        super(Segment, self).__init__(system=molecule.system,
+                atom_indices=atom_indices
+                )
         self.molecule = molecule
-        self.system = molecule.system
-        self.atom_indices = atom_indices
-        self.n_atoms = len(self.atom_indices)
         self.n_monomers = int(self.n_atoms / self.system.atoms_per_monomer)
-    
-    @property
-    def atom_positions(self):
-        return _atom_positions(self.atom_indices, self.system.snap)
-
-    @property
-    def center_of_mass(self):
-        return _center_of_mass(self.atom_positions, self.system.box)
 
     def end_to_end_distance(self):
         pass
@@ -148,14 +143,5 @@ class Segment:
     def bond_vectors(self):
        pass
 
-def _atom_positions(atom_indices, snap):
-    return snap.particles.position[atom_indices]
 
-def _center_of_mass(atom_positions, box):
-    freud_box = freud.Box(
-            Lx = box[0],
-            Ly = box[1],
-            Lz = box[2]
-            )
-    return freud_box.center_of_mass(atom_positions)
 
