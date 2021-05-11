@@ -99,6 +99,11 @@ class Structure:
     def atom_positions(self):
         return self.system.snap.particles.position[self.atom_indices]
 
+    @property 
+    def unwrapped_atom_positions(self):
+        images = snap.particles.image[self.atom_indices]
+        return snap.atom_positions + (images * self.system.box[:3]) 
+
     @property
     def center_of_mass(self):
         freud_box = freud.Box(
