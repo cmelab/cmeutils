@@ -65,7 +65,7 @@ class Molecule:
     """
     def __init__(self, system, molecule_id):
         self.system = system
-        self.molecule_id = molecule_id # Need this?
+        self.molecule_id = molecule_id
         self.atom_indices = np.where(system.clusters == self.molecule_id)[0]
         self.n_atoms = len(self.atom_indices)
         self.monomers = self.generate_monomers() 
