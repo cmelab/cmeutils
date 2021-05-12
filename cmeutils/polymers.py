@@ -106,10 +106,15 @@ class Structure:
 
     @property
     def atom_positions(self):
+        """The wrapped coordinates of every particle in the structure
+        as they exist in the periodic box."""
         return self.system.snap.particles.position[self.atom_indices]
 
     @property
-    def center_of_mass(self):
+    def center(self):
+        """The (x,y,z) position of the center of the structure accounting
+        for the periodic boundaries in the system.
+        """
         freud_box = freud.Box(
                 Lx = self.system.box[0],
                 Ly = self.system.box[1],
@@ -119,11 +124,17 @@ class Structure:
 
     @property 
     def unwrapped_atom_positions(self):
+        """The unwrapped coordiantes of every particle in the structure.
+        The positions are unwrapped using the images for each particle
+        stored in the hoomd snapshot."""
         images = self.system.snap.particles.image[self.atom_indices]
         return self.atom_positions + (images * self.system.box[:3]) 
 
     @property
-    def unwrapped_center_of_mass(self):
+    def unwrapped_center(self):
+        """The (x,y,z) position of the center using the structure's
+        unwrapped coordiantes.
+        """
         x_mean = np.mean(self.unwrapped_atom_positions[:,0])
         y_mean = np.mean(self.unwrapped_atom_positions[:,1])
         z_mean = np.mean(self.unwrapped_atom_positions[:,2])
@@ -145,14 +156,38 @@ class Molecule(Structure):
     
     @property
     def end_to_end_distance(self):
-        pass
+        """Retruns the magnitude of the vector connecting the first and
+        last monomer in Molecule.monomers. Uses each monomer's center
+        coordinates.
+        """
+        head = self.monomers[0]
+        tail = self.monomers[-1]
+        distance = np.linalg.norm(
+                tail.unwrapped_center - head.unwrapped_center
+                )
+        return distance
     
     @property
     def radius_of_gyration(self):
         pass
     
     def bond_vectors(self):
-        pass
+        """Generates a list of the vectors connecting subsequent monomer units.
+        Uses the monomer's average center coordinates."""
+        b_vectors = []
+        for idx, monomer in enumerate(self.monomers):
+            try:
+                next_monomer = self.monomers[idx+1]
+                vector = (
+                        next_monomer.unwrapped_center -
+                        monomer.unwrapped_center
+                        )
+                b_vectors.append(vector)
+            except:
+                pass
+
+        assert len(b_vectors) == len(self.monomers) - 1
+        return b_vectors
 
     def persistance_length(self):
         pass
@@ -162,7 +197,8 @@ class Monomer(Structure):
     """
     """
     def __init__(self, parent_structure, atom_indices):
-        super(Monomer, self).__init__(system=molecule.system,
+        super(Monomer, self).__init__(
+                system=parent_structure.system,
                 atom_indices=atom_indices
                 )
         self.parent = parent_structure
