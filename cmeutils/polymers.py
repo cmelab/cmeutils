@@ -23,28 +23,53 @@ class System:
         assert len(self.molecules) == self.n_molecules
 
     def monomers(self):
-        """Yields all of the monomers from each molecule
+        """Generate all of the monomers from each molecule
         in System.molecules.
+
+        Yields:
+        -------
+        polymers.Monomer
+     
         """
         for molecule in self.molecules:
             for monomer in molecule.monomers:
                 yield monomer
 
     def segments(self):
-        """Yields all of the segments from each molecule
+        """Generate all of the segments from each molecule
         in System.
+
+        Yields:
+        -------
+        polymers.Segment
         """
         for molecule in self.molecules:
             for segment in molecule.segments:
                 yield segment
     
-    def end_to_end_average(self):
+    def end_to_end_avg(self, squared=False):
+        """Returns the average of each molecule's end-to-end distance.
+
+        Parameters:
+        -----------
+        squared : bool, optional, default=False
+            Set to True if you want the mean squared average
+            end-to-end distance.
+
+        Returns:
+        --------
+        numpy.array
+            The average end-to-end distance averaged over all of the
+            molecules in System.molecules
+
+        """
+        distances = [m.end_to_end_distance(squared) for m in self.molecuels)]
+        return np.mean(distances)
+
+    def radius_of_gyration_avg(self):
         pass
 
-    def radius_of_gyration_average(self):
-        pass
-
-    def persistance_length_average(self):
+    def persistance_length_avg(self):
         pass
 
     def end_to_end_distribution(self):
@@ -86,6 +111,7 @@ class Structure:
         The positions are wrapped inside the system's box.
     center_of_mass : np.1darray(1, 3)
         The x, y, z coordinates of the structure's center of mass.
+
     """
     def __init__(self, system, atom_indices=None, molecule_id=None):
         self.system = system
@@ -107,13 +133,20 @@ class Structure:
     @property
     def atom_positions(self):
         """The wrapped coordinates of every particle in the structure
-        as they exist in the periodic box."""
+        as they exist in the periodic box.
+
+        """
         return self.system.snap.particles.position[self.atom_indices]
 
     @property
     def center(self):
         """The (x,y,z) position of the center of the structure accounting
         for the periodic boundaries in the system.
+        
+        Returns:
+        --------
+        numpy.ndarray, shape=(3,), dtype=float
+
         """
         freud_box = freud.Box(
                 Lx = self.system.box[0],
@@ -126,7 +159,13 @@ class Structure:
     def unwrapped_atom_positions(self):
         """The unwrapped coordiantes of every particle in the structure.
         The positions are unwrapped using the images for each particle
-        stored in the hoomd snapshot."""
+        stored in the hoomd snapshot.
+
+        Returns:
+        --------
+        numpy.ndarray, shape=(n, 3), dtype=float
+
+        """
         images = self.system.snap.particles.image[self.atom_indices]
         return self.atom_positions + (images * self.system.box[:3]) 
 
@@ -134,6 +173,11 @@ class Structure:
     def unwrapped_center(self):
         """The (x,y,z) position of the center using the structure's
         unwrapped coordiantes.
+
+        Returns:
+        --------
+        numpy.ndarray, shape=(3,), dtype=float
+
         """
         x_mean = np.mean(self.unwrapped_atom_positions[:,0])
         y_mean = np.mean(self.unwrapped_atom_positions[:,1])
@@ -154,26 +198,42 @@ class Molecule(Structure):
                 segments_per_molecule)
         self.segments = [Segment(self, i) for i in segment_indices]
     
-    @property
-    def end_to_end_distance(self):
+    def end_to_end_distance(self, squared=False):
         """Retruns the magnitude of the vector connecting the first and
         last monomer in Molecule.monomers. Uses each monomer's center
         coordinates.
+
+        Parameters:
+        -----------
+        squared : bool, optional default=False
+            Set to True if you want the squared end-to-end distance
+
+        Returns:
+        --------
+        numpy.ndarray, shape=(1,), dtype=float
+
         """
         head = self.monomers[0]
         tail = self.monomers[-1]
         distance = np.linalg.norm(
                 tail.unwrapped_center - head.unwrapped_center
                 )
+        if squared:
+            distance = distance**2
         return distance
     
-    @property
     def radius_of_gyration(self):
         pass
     
     def bond_vectors(self):
         """Generates a list of the vectors connecting subsequent monomer units.
-        Uses the monomer's average center coordinates."""
+        Uses the monomer's average center coordinates.
+
+        Returns:
+        --------
+        list of numpy.ndarray, shape=(3,), dtype=float
+
+        """
         b_vectors = []
         for idx, monomer in enumerate(self.monomers):
             try:
