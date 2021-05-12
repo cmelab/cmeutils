@@ -18,25 +18,25 @@ class System:
         self.n_molecules = len(self.molecule_ids)
         self.n_atoms = len(self.clusters)
         self.n_monomers = int(self.n_atoms / self.atoms_per_monomer)
-        self.molecules = self.generate_molecules() 
-        self.monomers = None
-        self.segments = None
+        self.molecules = [Molecule(self, i) for i in self.molecule_ids] 
         self.box = gsd_utils.snap_box(gsd_file, snap, gsd_frame)
         assert len(self.molecules) == self.n_molecules
 
-    def generate_molecules(self):
-        molecules = [Molecule(self, i) for i in self.molecule_ids]
-        return molecules
+    def monomers(self):
+        """Yields all of the monomers from each molecule
+        in System.molecules.
+        """
+        for molecule in self.molecules:
+            for monomer in molecule.monomers:
+                yield monomer
 
-    def generate_monomers(self):
-        # Call the monomers func in Molecule instead?
-        monomers = [Monomer(self, mol)for mol in self.molecules]
-        return monomers
-
-    def generate_segments(self,
-            atoms_per_segment=None,
-            monomers_per_segment=None):
-        pass
+    def segments(self):
+        """Yields all of the segments from each molecule
+        in System.
+        """
+        for molecule in self.molecules:
+            for segment in molecule.segments:
+                yield segment
     
     def end_to_end_average(self):
         pass
@@ -58,6 +58,7 @@ class System:
 
     def bond_angle_distribution(self):
         pass
+
 
 class Structure:
     """Base class for the Molecule(), Segment(), and Monomer() classes.
