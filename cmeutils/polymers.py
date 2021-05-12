@@ -69,7 +69,7 @@ class System:
     def radius_of_gyration_avg(self):
         pass
 
-    def persistance_length_avg(self):
+    def persistence_length_avg(self):
         pass
 
     def end_to_end_distribution(self):
@@ -249,7 +249,7 @@ class Molecule(Structure):
         assert len(b_vectors) == len(self.monomers) - 1
         return b_vectors
 
-    def persistance_length(self):
+    def persistence_length(self):
         pass
 
 
@@ -273,7 +273,11 @@ class Segment(Structure):
                 atom_indices=atom_indices
                 )
         self.molecule = molecule
-        self.n_monomers = int(self.n_atoms / self.system.atoms_per_monomer)
+        self.monomers = self.generate_monomers()
+        assert len(self.monomers) ==  int(
+                self.n_atoms / self.system.atoms_per_monomer
+                )
+
 
     def end_to_end_distance(self):
         pass
