@@ -108,11 +108,6 @@ class Structure:
     def atom_positions(self):
         return self.system.snap.particles.position[self.atom_indices]
 
-    @property 
-    def unwrapped_atom_positions(self):
-        images = snap.particles.image[self.atom_indices]
-        return snap.atom_positions + (images * self.system.box[:3]) 
-
     @property
     def center_of_mass(self):
         freud_box = freud.Box(
@@ -122,6 +117,17 @@ class Structure:
                 )
         return freud_box.center_of_mass(self.atom_positions)
 
+    @property 
+    def unwrapped_atom_positions(self):
+        images = self.system.snap.particles.image[self.atom_indices]
+        return self.atom_positions + (images * self.system.box[:3]) 
+
+    @property
+    def unwrapped_center_of_mass(self):
+        x_mean = np.mean(self.unwrapped_atom_positions[:,0])
+        y_mean = np.mean(self.unwrapped_atom_positions[:,1])
+        z_mean = np.mean(self.unwrapped_atom_positions[:,2])
+        return np.array([x_mean, y_mean, z_mean])
 
 class Molecule(Structure):
     """
