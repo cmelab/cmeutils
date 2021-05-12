@@ -96,6 +96,14 @@ class Structure:
             self.atom_indices = atom_indices
         self.n_atoms = len(self.atom_indices)
 
+    def generate_monomers(self):
+        if isinstance(self, Monomer):
+            return self
+        structure_length = int(self.n_atoms / self.system.atoms_per_monomer)
+        monomer_indices = np.array_split(self.atom_indices, structure_length)
+        assert len(monomer_indices) == structure_length
+        return [Monomer(self, i) for i in monomer_indices]
+
     @property
     def atom_positions(self):
         return self.system.snap.particles.position[self.atom_indices]
@@ -123,16 +131,6 @@ class Molecule(Structure):
         self.monomers = self.generate_monomers() 
         self.segments = None
 
-    def generate_monomers(self):
-        atoms_per_monomer = self.system.atoms_per_monomer
-        molecule_length = int(self.n_atoms / atoms_per_monomer)
-        monomer_indices = np.array_split(
-                self.atom_indices,
-                molecule_length
-                )
-        assert len(monomer_indices) == molecule_length
-        return [Monomer(self, i) for i in monomer_indices]
-
     def generate_segments(self, segments_per_molecule):
         segment_indices = np.array_split(
                 self.atom_indices,
@@ -157,11 +155,11 @@ class Molecule(Structure):
 class Monomer(Structure):
     """
     """
-    def __init__(self, molecule, atom_indices):
+    def __init__(self, parent_structure, atom_indices):
         super(Monomer, self).__init__(system=molecule.system,
                 atom_indices=atom_indices
                 )
-        self.molecule = molecule
+        self.parent = parent_structure
         assert self.n_atoms == self.system.atoms_per_monomer 
 
 
