@@ -48,7 +48,8 @@ class System:
                 yield segment
     
     def end_to_end_avg(self, squared=False):
-        """Returns the average of each molecule's end-to-end distance.
+        """Returns the end-to-end distance averaged over each
+        molecule in the system.
 
         Parameters:
         -----------
@@ -58,7 +59,7 @@ class System:
 
         Returns:
         --------
-        numpy.array
+        numpy.ndarray, shape=(1,), dtype=float
             The average end-to-end distance averaged over all of the
             molecules in System.molecules
 
@@ -135,6 +136,10 @@ class Structure:
         """The wrapped coordinates of every particle in the structure
         as they exist in the periodic box.
 
+        Returns:
+        --------
+        numpy.ndarray, shape=(n, 3), dtype=float
+
         """
         return self.system.snap.particles.position[self.atom_indices]
 
@@ -190,9 +195,11 @@ class Molecule(Structure):
     def __init__(self, system, molecule_id):
         super(Molecule, self).__init__(system=system, molecule_id=molecule_id)
         self.monomers = self.generate_monomers() 
+        self.n_monomers = len(self.monomers)
         self.segments = None
 
-    def generate_segments(self, segments_per_molecule):
+    def generate_segments(self, monomers_per_segment):
+        segments_per_molecule = int(self.n_monomers / monomers_per_segment)
         segment_indices = np.array_split(
                 self.atom_indices,
                 segments_per_molecule)
