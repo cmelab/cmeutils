@@ -63,7 +63,7 @@ class System:
             molecules in System.molecules
 
         """
-        distances = [m.end_to_end_distance(squared) for m in self.molecuels)]
+        distances = [m.end_to_end_distance(squared) for m in self.molecules]
         return np.mean(distances)
 
     def radius_of_gyration_avg(self):
