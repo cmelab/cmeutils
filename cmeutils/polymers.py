@@ -1,6 +1,7 @@
 from cmeutils import gsd_utils
-from cmeutils.gsd_utils import snap_molecule_cluster, _validate_inputs
+from cmeutils.gsd_utils import snap_molecule_cluster
 import freud
+import matplotlib.pyplot as plt
 import numpy as np
 
 class System:
@@ -12,7 +13,7 @@ class System:
             snap=None,
             gsd_frame=-1):
         self.atoms_per_monomer = atoms_per_monomer
-        self.snap = _validate_inputs(gsd_file, snap, gsd_frame)
+        self.snap = gsd_utils._validate_inputs(gsd_file, snap, gsd_frame)
         self.clusters = snap_molecule_cluster(snap=self.snap)
         self.molecule_ids = set(self.clusters)
         self.n_molecules = len(self.molecule_ids)
@@ -42,6 +43,7 @@ class System:
         Yields:
         -------
         polymers.Segment
+
         """
         for molecule in self.molecules:
             for segment in molecule.segments:
@@ -79,12 +81,15 @@ class System:
     def radius_of_gyration_distribution(self):
         pass
 
-    def bond_length_distribution(self, nbins):
+    def bond_length_distribution(self, nbins, plot=False):
         bond_lengths = []
-        for molecule in self.molecules():
+        for molecule in self.molecules:
             bond_lengths.extend(
                     [np.linalg.norm(vec) for vec in molecule.bond_vectors()]
                     )
+        if plot:
+            plt.hist(bond_lengths, nbins)
+        return bond_lengths
 
     def bond_angle_distribution(self, nbins):
         bond_angles = []
@@ -264,26 +269,26 @@ class Molecule(Structure):
         return b_vectors
 
     def bond_angles(self, bond_vector_list=None):
-    """
-    """
-    if bond_vector_list is None:
-        bond_vector_list = self.bond_vectors()
+        """
+        """
+        if bond_vector_list is None:
+            bond_vector_list = self.bond_vectors()
     
-    b_angles = []
-    for idx, vector in enumerate(bond_vector_list):
-        try:
-            next_vector = bond_vector_list[idx+1]
-            cos_angle = (
-                    np.dot(vector, next_vector) /
-                    (np.linalg.norm(vector) * np.lingalg.norm(next_vector))
-                    )
-            angle = np.arccos(cos_angle)
-            b_angles.append(angle)
-        except:
-            pass
+        b_angles = []
+        for idx, vector in enumerate(bond_vector_list):
+            try:
+                next_vector = bond_vector_list[idx+1]
+                cos_angle = (
+                        np.dot(vector, next_vector) /
+                        (np.linalg.norm(vector) * np.lingalg.norm(next_vector))
+                        )
+                angle = np.arccos(cos_angle)
+                b_angles.append(angle)
+            except:
+                pass
 
-    assert len(b_angles) == len(bond_vector_list) - 1
-    return b_angles
+        assert len(b_angles) == len(bond_vector_list) - 1
+        return b_angles
 
     def persistence_length(self):
         pass
