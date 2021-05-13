@@ -82,11 +82,15 @@ class System:
     def bond_length_distribution(self, nbins):
         bond_lengths = []
         for molecule in self.molecules():
-            bond_distances = molecule.bond_vectors()
-        pass
+            bond_lengths.extend(
+                    [np.linalg.norm(vec) for vec in molecule.bond_vectors()]
+                    )
 
     def bond_angle_distribution(self, nbins):
-        pass
+        bond_angles = []
+        for molecule in self.molecules():
+            bond_angles.extend(molecule.bond_angles())
+
 
 
 class Structure:
