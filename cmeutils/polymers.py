@@ -75,8 +75,14 @@ class System:
     def persistence_length_avg(self):
         pass
 
-    def end_to_end_distribution(self):
-        pass
+    def end_to_end_distribution(self, nbins, squared=False, plot=False):
+        lengths = []
+        lengths.extend(
+                [mol.end_to_end_distance(squared) for mol in self.molecules]
+                )
+        if plot:
+            plt.hist(lengths, nbins)
+        return lengths
 
     def radius_of_gyration_distribution(self):
         pass
@@ -91,10 +97,14 @@ class System:
             plt.hist(bond_lengths, nbins)
         return bond_lengths
 
-    def bond_angle_distribution(self, nbins):
+    def bond_angle_distribution(self, nbins, plot=False):
         bond_angles = []
-        for molecule in self.molecules():
+        for molecule in self.molecules:
             bond_angles.extend(molecule.bond_angles())
+
+        if plot:
+            plt.hist(bond_angles, nbins)
+        return bond_angles
 
 
 
@@ -273,14 +283,13 @@ class Molecule(Structure):
         """
         if bond_vector_list is None:
             bond_vector_list = self.bond_vectors()
-    
         b_angles = []
         for idx, vector in enumerate(bond_vector_list):
             try:
                 next_vector = bond_vector_list[idx+1]
                 cos_angle = (
                         np.dot(vector, next_vector) /
-                        (np.linalg.norm(vector) * np.lingalg.norm(next_vector))
+                        (np.linalg.norm(vector) * np.linalg.norm(next_vector))
                         )
                 angle = np.arccos(cos_angle)
                 b_angles.append(angle)
