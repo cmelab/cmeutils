@@ -79,10 +79,13 @@ class System:
     def radius_of_gyration_distribution(self):
         pass
 
-    def bond_length_distribution(self):
+    def bond_length_distribution(self, nbins):
+        bond_lengths = []
+        for molecule in self.molecules():
+            bond_distances = molecule.bond_vectors()
         pass
 
-    def bond_angle_distribution(self):
+    def bond_angle_distribution(self, nbins):
         pass
 
 
@@ -255,6 +258,28 @@ class Molecule(Structure):
 
         assert len(b_vectors) == len(self.monomers) - 1
         return b_vectors
+
+    def bond_angles(self, bond_vector_list=None):
+    """
+    """
+    if bond_vector_list is None:
+        bond_vector_list = self.bond_vectors()
+    
+    b_angles = []
+    for idx, vector in enumerate(bond_vector_list):
+        try:
+            next_vector = bond_vector_list[idx+1]
+            cos_angle = (
+                    np.dot(vector, next_vector) /
+                    (np.linalg.norm(vector) * np.lingalg.norm(next_vector))
+                    )
+            angle = np.arccos(cos_angle)
+            b_angles.append(angle)
+        except:
+            pass
+
+    assert len(b_angles) == len(bond_vector_list) - 1
+    return b_angles
 
     def persistence_length(self):
         pass
