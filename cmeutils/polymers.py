@@ -1,5 +1,6 @@
 from cmeutils import gsd_utils
 from cmeutils.gsd_utils import snap_molecule_cluster
+from cmeutils.plotting import plot_distribution
 import freud
 import matplotlib.pyplot as plt
 import numpy as np
@@ -87,7 +88,7 @@ class System:
                 [mol.end_to_end_distance(squared) for mol in self.molecules]
                 )
         if plot:
-            plt.hist(lengths, nbins)
+            plot_distribution(lengths, label="$R_E$", fit_line=True)
         return lengths
 
     def radius_of_gyration_distribution(self):
@@ -104,7 +105,7 @@ class System:
                     [np.linalg.norm(vec) for vec in molecule.bond_vectors()]
                     )
         if plot:
-            plt.hist(bond_lengths, nbins)
+            plot_distribution(bond_lengths, label="Bond Length $(r)$")
         return bond_lengths
 
     def bond_angle_distribution(self, nbins, plot=False):
@@ -115,7 +116,7 @@ class System:
             bond_angles.extend(molecule.bond_angles())
 
         if plot:
-            plt.hist(bond_angles, nbins)
+            plot_distribution(bond_angles, label="Bond Angle $(\phi)$")
         return bond_angles
 
 
