@@ -70,12 +70,18 @@ class System:
         return np.mean(distances)
 
     def radius_of_gyration_avg(self):
+        """
+        """
         pass
 
     def persistence_length_avg(self):
+        """
+        """
         pass
 
     def end_to_end_distribution(self, nbins, squared=False, plot=False):
+        """
+        """
         lengths = []
         lengths.extend(
                 [mol.end_to_end_distance(squared) for mol in self.molecules]
@@ -85,9 +91,13 @@ class System:
         return lengths
 
     def radius_of_gyration_distribution(self):
+        """
+        """
         pass
 
     def bond_length_distribution(self, nbins, plot=False):
+        """
+        """
         bond_lengths = []
         for molecule in self.molecules:
             bond_lengths.extend(
@@ -98,6 +108,8 @@ class System:
         return bond_lengths
 
     def bond_angle_distribution(self, nbins, plot=False):
+        """
+        """
         bond_angles = []
         for molecule in self.molecules:
             bond_angles.extend(molecule.bond_angles())
@@ -105,7 +117,6 @@ class System:
         if plot:
             plt.hist(bond_angles, nbins)
         return bond_angles
-
 
 
 class Structure:
@@ -221,10 +232,13 @@ class Molecule(Structure):
         self.segments = None
 
     def generate_segments(self, monomers_per_segment):
+        """
+        """
         segments_per_molecule = int(self.n_monomers / monomers_per_segment)
         segment_indices = np.array_split(
                 self.atom_indices,
-                segments_per_molecule)
+                segments_per_molecule
+                )
         self.segments = [Segment(self, i) for i in segment_indices]
     
     def end_to_end_distance(self, squared=False):
@@ -283,6 +297,7 @@ class Molecule(Structure):
         """
         if bond_vector_list is None:
             bond_vector_list = self.bond_vectors()
+
         b_angles = []
         for idx, vector in enumerate(bond_vector_list):
             try:
@@ -327,7 +342,6 @@ class Segment(Structure):
         assert len(self.monomers) ==  int(
                 self.n_atoms / self.system.atoms_per_monomer
                 )
-
 
     def end_to_end_distance(self):
         pass
