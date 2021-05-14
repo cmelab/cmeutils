@@ -269,19 +269,52 @@ class Molecule(Structure):
     def radius_of_gyration(self):
         pass
     
-    def bond_vectors(self):
-        """Generates a list of the vectors connecting subsequent monomer units.
-        Uses the monomer's average center coordinates.
+    def bond_vectors(self, use_monomers=True, use_segments=False):
+        """Generates a list of the vectors connecting subsequent monomer 
+        or segment units.
+        Uses the monomer or segment average center coordinates.
+        In order to return the bond vectors between segments, the 
+        Segment objects need to be created; see the `generate_segments`
+        method in the `Molecule` class.
+
+        Parameters:
+        -----------
+        use_monomers : bool, optional, default=True
+            Set to True to return bond vectors between the Molecule's monomers
+        use_segments : bool, optional, default=False
+            Set to True to return bond vectors between the Molecule's segments
 
         Returns:
         --------
         list of numpy.ndarray, shape=(3,), dtype=float
 
         """
+        if all(use_monomers, use_segments):
+            raise ValueError(
+                    "Only one of `use_monomers` and `use_segments` "
+                    "can be set to `True`"
+                    )
+        if not any(use_monomers, use_segments):
+            raise ValueError(
+                    "Set one of `use_monomers` or `use_segments` to "
+                    "`True` depending on which structure bond vectors "
+                    "you want returned."
+                    )
+        if use_monomers:
+            sub_structures = self.monomers
+        elif use_segments:
+            if self.segments == None:
+                raise ValueError(
+                        "The segments for this molecule have not been "
+                        "created. See the generate_segments() method for "
+                        "the Molecule class."
+                        )
+            sub_structures = self.segments
+
         b_vectors = []
-        for idx, monomer in enumerate(self.monomers):
+        for idx, monomer in enumerate(sub_structures.monomers):
             try:
-                next_monomer = self.monomers[idx+1]
+                next_monomer = sub_structures.monomers[idx+1]
                 vector = (
                         next_monomer.unwrapped_center -
                         monomer.unwrapped_center
@@ -290,7 +323,7 @@ class Molecule(Structure):
             except:
                 pass
 
-        assert len(b_vectors) == len(self.monomers) - 1
+        assert len(b_vectors) == len(sub_structures) - 1
         return b_vectors
 
     def bond_angles(self, bond_vector_list=None):
@@ -335,7 +368,8 @@ class Segment(Structure):
     """
     """
     def __init__(self, molecule, atom_indices):
-        super(Segment, self).__init__(system=molecule.system,
+        super(Segment, self).__init__(
+                system=molecule.system,
                 atom_indices=atom_indices
                 )
         self.molecule = molecule
@@ -348,5 +382,26 @@ class Segment(Structure):
         pass
      
     def bond_vectors(self):
-       pass
+        """Generates a list of the vectors connecting subsequent monomer units.
+        Uses the monomer's average center coordinates.
+
+        Returns:
+        --------
+        list of numpy.ndarray, shape=(3,), dtype=float
+
+        """
+        b_vectors = []
+        for idx, monomer in enumerate(self.monomers):
+            try:
+                next_monomer = self.monomers[idx+1]
+                vector = (
+                        next_monomer.unwrapped_center -
+                        monomer.unwrapped_center
+                        )
+                b_vectors.append(vector)
+            except:
+                pass
+
+        assert len(b_vectors) == len(self.monomers) - 1
+        return b_vectors
 
