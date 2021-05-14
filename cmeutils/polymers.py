@@ -231,6 +231,7 @@ class Molecule(Structure):
         self.monomers = self.generate_monomers() 
         self.n_monomers = len(self.monomers)
         self.segments = None
+        self.n_segments = None
 
     def generate_segments(self, monomers_per_segment):
         """
@@ -241,6 +242,7 @@ class Molecule(Structure):
                 segments_per_molecule
                 )
         self.segments = [Segment(self, i) for i in segment_indices]
+        self.n_segments = len(self.segments)
     
     def end_to_end_distance(self, squared=False):
         """Retruns the magnitude of the vector connecting the first and
@@ -272,6 +274,7 @@ class Molecule(Structure):
     def bond_vectors(self, use_monomers=True, use_segments=False):
         """Generates a list of the vectors connecting subsequent monomer 
         or segment units.
+
         Uses the monomer or segment average center coordinates.
         In order to return the bond vectors between segments, the 
         Segment objects need to be created; see the `generate_segments`
@@ -306,18 +309,18 @@ class Molecule(Structure):
             if self.segments == None:
                 raise ValueError(
                         "The segments for this molecule have not been "
-                        "created. See the generate_segments() method for "
-                        "the Molecule class."
+                        "created. See the `generate_segments()` method for "
+                        "the `Molecule` class."
                         )
             sub_structures = self.segments
 
         b_vectors = []
-        for idx, monomer in enumerate(sub_structures.monomers):
+        for idx, structure in enumerate(sub_structures):
             try:
-                next_monomer = sub_structures.monomers[idx+1]
+                next_structure = sub_structures[idx+1]
                 vector = (
-                        next_monomer.unwrapped_center -
-                        monomer.unwrapped_center
+                        next_structure.unwrapped_center -
+                        structure.unwrapped_center
                         )
                 b_vectors.append(vector)
             except:
