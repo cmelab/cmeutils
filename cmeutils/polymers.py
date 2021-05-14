@@ -323,7 +323,7 @@ class Molecule(Structure):
                         structure.unwrapped_center
                         )
                 b_vectors.append(vector)
-            except:
+            except IndexError:
                 pass
 
         assert len(b_vectors) == len(sub_structures) - 1
@@ -345,7 +345,7 @@ class Molecule(Structure):
                         )
                 angle = np.arccos(cos_angle)
                 b_angles.append(angle)
-            except:
+            except IndexError:
                 pass
 
         assert len(b_angles) == len(bond_vector_list) - 1
@@ -402,7 +402,7 @@ class Segment(Structure):
                         monomer.unwrapped_center
                         )
                 b_vectors.append(vector)
-            except:
+            except IndexError:
                 pass
 
         assert len(b_vectors) == len(self.monomers) - 1
