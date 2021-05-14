@@ -474,7 +474,3 @@ class Segment(Structure):
         assert len(b_vectors) == len(self.monomers) - 1
         return b_vectors
 
-def auto_correlation_1d(data):
-    ft = np.fft.rfft(data-np.average(data))
-    acorr = np.fft.irfft(ft*np.conjugate(ft))/(len(data)*np.var(data))
-    return acorr[0:int(len(acorr)/2)]
