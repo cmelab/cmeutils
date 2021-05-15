@@ -430,7 +430,17 @@ class Monomer(Structure):
                 atom_indices=atom_indices
                 )
         self.parent = parent_structure
+        self.components = {}
         assert self.n_atoms == self.system.atoms_per_monomer 
+        
+    def generate_components(self, index_mapping):
+        for name, indices in index_mapping.items():
+            component = Component(
+                    monomer=self,
+                    name=name,
+                    atom_indices = self.atom_indices[indices]
+                    )
+            self.components[name] = component
 
 
 class Segment(Structure):
@@ -474,3 +484,13 @@ class Segment(Structure):
         assert len(b_vectors) == len(self.monomers) - 1
         return b_vectors
 
+
+class Component(Structure):
+    def __init__(self, monomer, atom_indices, name):
+        super(Component, self).__init__(
+                system=monomer.system,
+                atom_indices=atom_indices
+                )
+        self.name = name
+        self.monomer = monomer
+        
