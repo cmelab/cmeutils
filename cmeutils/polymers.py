@@ -257,6 +257,17 @@ class Molecule(Structure):
 
     def generate_segments(self, monomers_per_segment):
         """
+        Creates a `Segment` that contains a subset of it's `Molecule` atoms.
+
+        Segments are defined as containing a certain amount of monomers.
+        For example, if you want 3 subsequent monomers contained in a single
+        Segment instance, use `monomers_per_segment = 3`
+
+        Parameters:
+        -----------
+        monomers_per_segment : int, required
+            Define the number of consecutive monomers that belong to
+            each segment.
         """
         segments_per_molecule = int(self.n_monomers / monomers_per_segment)
         segment_indices = np.array_split(
