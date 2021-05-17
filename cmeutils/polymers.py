@@ -454,17 +454,28 @@ class Monomer(Structure):
                 atom_indices=atom_indices
                 )
         self.parent = parent_structure
-        self.components = {}
+        self.components = None
         assert self.n_atoms == self.system.atoms_per_monomer 
         
     def generate_components(self, index_mapping):
+        components = []
         for name, indices in index_mapping.items():
-            component = Component(
-                    monomer=self,
-                    name=name,
-                    atom_indices = self.atom_indices[indices]
-                    )
-            self.components[name] = component
+            if all([isinstance(i, list) for i in indices]):
+                for i in indices:
+                    component = Component(
+                            monomer=self,
+                            name=name,
+                            atom_indices = self.atom_indices[i]
+                            )
+                    components.append(component)
+            else:
+                component = Component(
+                        monomer=self,
+                        name=name,
+                        atom_indices = self.atom_indices[indices]
+                        )
+                components.append(component)
+        self.components = components
 
 
 class Segment(Structure):
