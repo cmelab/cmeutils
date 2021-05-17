@@ -455,6 +455,7 @@ class Monomer(Structure):
                 )
         self.parent = parent_structure
         self.components = None
+        self.name = None
         assert self.n_atoms == self.system.atoms_per_monomer 
         
     def generate_components(self, index_mapping):
