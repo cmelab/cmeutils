@@ -259,9 +259,10 @@ class Molecule(Structure):
         """
         Creates a `Segment` that contains a subset of it's `Molecule` atoms.
 
-        Segments are defined as containing a certain amount of monomers.
+        Segments are defined as containing a certain number of monomers.
         For example, if you want 3 subsequent monomers contained in a single
-        Segment instance, use `monomers_per_segment = 3`
+        Segment instance, use `monomers_per_segment = 3`.
+        The segments are accessible in the `Molecule.segments` attribute.
 
         Parameters:
         -----------
