@@ -49,6 +49,18 @@ class System:
         for molecule in self.molecules:
             for segment in molecule.segments:
                 yield segment
+
+    def components(self):
+        """Generate all of the components from each molecule in System.
+
+        Yields:
+        -------
+        polymers.Component
+
+        """
+        for monomer in self.monomers():
+            for component in monomer.components:
+                yield component
     
     def end_to_end_avg(self, squared=False):
         """Returns the end-to-end distance averaged over each
