@@ -286,7 +286,6 @@ class Molecule(Structure):
         for i, name in enumerate(list(monomer_sequence)):
             self.monomers[i].name = name
 
-
     def generate_segments(self, monomers_per_segment):
         """
         Creates a `Segment` that contains a subset of it's `Molecule` atoms.
