@@ -14,8 +14,11 @@ def write_snapshot(beads):
     pair_groups = []
     all_angles = []
     all_pos = []
+    box = None
 
     for idx, bead in enumerate(beads):
+        if box is None:
+            box = bead.system.box
         all_types.append(bead.name)
         all_pos.append(bead.center)
         try:
