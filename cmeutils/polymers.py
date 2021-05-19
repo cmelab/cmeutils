@@ -544,6 +544,7 @@ class Component(Structure):
     def __init__(self, monomer, atom_indices, name):
         super(Component, self).__init__(
                 system=monomer.system,
+                parent=monomer.parent,
                 atom_indices=atom_indices,
                 name=name
                 )
