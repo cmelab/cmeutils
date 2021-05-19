@@ -471,7 +471,7 @@ class Monomer(Structure):
     """
     def __init__(self, parent, atom_indices):
         super(Monomer, self).__init__(
-                system=molecule.system,
+                system=parent.system,
                 parent=parent,
                 atom_indices=atom_indices
                 )
