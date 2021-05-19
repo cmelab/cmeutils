@@ -182,8 +182,16 @@ class Structure:
         The x, y, z coordinates of the structure's center of mass.
 
     """
-    def __init__(self, system, atom_indices=None, molecule_id=None):
+    def __init__(self,
+            system,
+            atom_indices=None,
+            name=None,
+            parent=None,
+            molecule_id=None
+            ):
         self.system = system
+        self.name = name
+        self.parent = parent
         if molecule_id != None:
             self.atom_indices = np.where(self.system.clusters == molecule_id)[0]
             self.molecule_id = molecule_id
@@ -261,11 +269,23 @@ class Molecule(Structure):
     """
     """
     def __init__(self, system, molecule_id):
-        super(Molecule, self).__init__(system=system, molecule_id=molecule_id)
+        super(Molecule, self).__init__(
+                system=system,
+                molecule_id=molecule_id
+                )
         self.monomers = self.generate_monomers() 
         self.n_monomers = len(self.monomers)
         self.segments = None
         self.n_segments = None
+        self.sequence = None
+
+    def assign_types(self, sequence):
+        n = self.n_monomers // len(sequence)
+        monomer_sequence = sequence * n
+        monomer_sequence += sequence[:(self.n_monomers - len(monomer_sequence))]
+        for i, name in enumerate(list(monomer_sequence)):
+            self.monomers[i].name = name
+
 
     def generate_segments(self, monomers_per_segment):
         """
@@ -281,6 +301,7 @@ class Molecule(Structure):
         monomers_per_segment : int, required
             Define the number of consecutive monomers that belong to
             each segment.
+
         """
         segments_per_molecule = int(self.n_monomers / monomers_per_segment)
         segment_indices = np.array_split(
@@ -448,14 +469,13 @@ class Molecule(Structure):
 class Monomer(Structure):
     """
     """
-    def __init__(self, parent_structure, atom_indices):
+    def __init__(self, parent, atom_indices):
         super(Monomer, self).__init__(
-                system=parent_structure.system,
+                system=molecule.system,
+                parent=parent,
                 atom_indices=atom_indices
                 )
-        self.parent = parent_structure
         self.components = None
-        self.name = None
         assert self.n_atoms == self.system.atoms_per_monomer 
         
     def generate_components(self, index_mapping):
@@ -485,9 +505,9 @@ class Segment(Structure):
     def __init__(self, molecule, atom_indices):
         super(Segment, self).__init__(
                 system=molecule.system,
-                atom_indices=atom_indices
+                atom_indices=atom_indices,
+                parent = molecule
                 )
-        self.molecule = molecule
         self.monomers = self.generate_monomers()
         assert len(self.monomers) ==  int(
                 self.n_atoms / self.system.atoms_per_monomer
@@ -525,8 +545,8 @@ class Component(Structure):
     def __init__(self, monomer, atom_indices, name):
         super(Component, self).__init__(
                 system=monomer.system,
-                atom_indices=atom_indices
+                atom_indices=atom_indices,
+                name=name
                 )
-        self.name = name
         self.monomer = monomer
         
