@@ -1,6 +1,7 @@
 import gsd
 import gsd.hoomd
 import numpy as np
+import re
 
 def write_snapshot(beads):
     """
@@ -25,14 +26,15 @@ def write_snapshot(beads):
         try:
             if bead.parent == beads[idx+1].parent:
                 pair = sorted([bead.name, beads[idx+1].name])
-                all_pairs.append(f"{pair[0]}-{pair[1]}")
+                pair_type = "-".join((bead.name, beads[idx+1].name))
+                all_pairs.append(pair_type)
                 pair_groups.append([idx, idx+1])
 
                 if bead.parent == beads[idx+2].parent:
-                    angle = [bead.name, beads[idx+1].name, beads[idx+2].name]
-                    all_angles.append(
-                            f"{angle[0]}-{angle[1]}-{angle[2]}"
-                            )
+                    b1, b2, b3 = bead.name, beads[idx+1].name, beads[idx+2].name
+                    b1, b3 = sorted([b1, b3], key=_natural_sort)
+                    angle_type = "-".join((b1, b2, b3))
+                    all_angles.append(angle_type)
                     angle_groups.append([idx, idx+1, idx+2])
         except IndexError:
             pass
@@ -64,4 +66,11 @@ def write_snapshot(beads):
     s.angles.group = np.vstack(angle_groups)
     s.configuration.box = box 
     return s
+
+def _atoi(text):
+    return int(text) if text.isdigit() else text
+
+def _natural_sort(text):
+    """Break apart a string containing letters and digits."""
+    return [_atoi(a) for a in re.split(r"(\d+)", text)]
 
