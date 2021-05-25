@@ -79,7 +79,7 @@ class System:
             molecules in System.molecules
 
         """
-        distances = [m.end_to_end_distance(squared) for m in self.molecules]
+        distances = [mol.end_to_end_distance(squared) for mol in self.molecules]
         return np.mean(distances)
 
     def radius_of_gyration_avg(self):
@@ -92,13 +92,11 @@ class System:
         """
         pass
 
-    def end_to_end_distribution(self, nbins, squared=False, plot=False):
+    def end_to_end_distribution(self, squared=False, plot=False):
         """
         """
-        lengths = []
-        lengths.extend(
-                [mol.end_to_end_distance(squared) for mol in self.molecules]
-                )
+        distances = [mol.end_to_end_distance(squared) for mol in self.molecules]
+        
         if plot:
             plot_distribution(lengths, label="$R_E$", fit_line=True)
         return lengths
@@ -111,25 +109,24 @@ class System:
     def bond_length_distribution(
             self,
             normalize=False,
-            use_monomers=True,
+            use_monomers=False,
             use_segments=False,
             use_components=False,
-            nbins='auto',
             plot=False
             ):
         """
         """
         bond_lengths = []
-        for molecule in self.molecules:
+        for mol in self.molecules:
             bond_lengths.extend(
-                    [np.linalg.norm(vec) for vec in molecule.bond_vectors(
+                    [np.linalg.norm(vec) for vec in mol.bond_vectors(
                         use_monomers=use_monomers,
                         use_segments=use_segments,
                         use_components=use_components,
                         normalize=normalize,
                         )
-                        ]
-                    )
+                    ]
+                )
         if plot:
             plot_distribution(bond_lengths, label="Bond Length $(r)$")
         return bond_lengths
@@ -139,14 +136,13 @@ class System:
             use_monomers=True,
             use_segments=False,
             use_components=False,
-            nbins='auto',
             plot=False
             ):
         """
         """
         bond_angles = []
-        for molecule in self.molecules:
-            bond_angles.extend(molecule.bond_angles(
+        for mol in self.molecules:
+            bond_angles.extend(mol.bond_angles(
                 use_monomers=use_monomers,
                 use_segments=use_segments,
                 use_components=use_components
@@ -346,7 +342,8 @@ class Molecule(Structure):
             use_monomers=True,
             use_segments=False,
             use_components=False,
-            normalize=False
+            normalize=False,
+            pair=None
             ):
         """Generates a list of the vectors connecting subsequent monomer 
         or segment units.
@@ -380,6 +377,11 @@ class Molecule(Structure):
         for idx, structure in enumerate(sub_structures):
             try:
                 next_structure = sub_structures[idx+1]
+                if pair:
+                    if set(pair) == set(structure.name, next_structure.name):
+                        pass
+                    else:
+                        continue
                 vector = (
                         next_structure.unwrapped_center -
                         structure.unwrapped_center
@@ -398,7 +400,9 @@ class Molecule(Structure):
             bond_vector_list=None,
             use_monomers=True,
             use_segments=False,
-            use_components=False):
+            use_components=False,
+            group=None
+            ):
         """Generates a list of the angles between subsequent monomer 
         or segment bond vectors.
 
