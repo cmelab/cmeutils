@@ -26,7 +26,7 @@ def write_snapshot(beads):
         try:
             if bead.parent == beads[idx+1].parent:
                 pair = sorted([bead.name, beads[idx+1].name])
-                pair_type = "-".join((bead.name, beads[idx+1].name))
+                pair_type = "-".join((pair[0], pair[1]))
                 all_pairs.append(pair_type)
                 pair_groups.append([idx, idx+1])
 
