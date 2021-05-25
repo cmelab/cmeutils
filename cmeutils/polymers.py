@@ -112,6 +112,7 @@ class System:
             use_monomers=False,
             use_segments=False,
             use_components=False,
+            pair=None,
             plot=False
             ):
         """
@@ -124,6 +125,7 @@ class System:
                         use_segments=use_segments,
                         use_components=use_components,
                         normalize=normalize,
+                        pair=pair,
                         )
                     ]
                 )
@@ -133,9 +135,10 @@ class System:
 
     def bond_angle_distribution(
             self,
-            use_monomers=True,
+            use_monomers=False,
             use_segments=False,
             use_components=False,
+            group=None,
             plot=False
             ):
         """
@@ -145,10 +148,10 @@ class System:
             bond_angles.extend(mol.bond_angles(
                 use_monomers=use_monomers,
                 use_segments=use_segments,
-                use_components=use_components
-                    )
-                )
-
+                use_components=use_components,
+                group=group
+            )
+        )
         if plot:
             plot_distribution(bond_angles, label="Bond Angle $(\phi)$")
         return bond_angles
@@ -339,7 +342,7 @@ class Molecule(Structure):
     
     def bond_vectors(
             self,
-            use_monomers=True,
+            use_monomers=False,
             use_segments=False,
             use_components=False,
             normalize=False,
@@ -378,7 +381,12 @@ class Molecule(Structure):
             try:
                 next_structure = sub_structures[idx+1]
                 if pair:
-                    if set(pair) == set(structure.name, next_structure.name):
+                    if sorted(pair) == sorted(
+                            [
+                                structure.name,
+                                next_structure.name
+                            ]
+                            ):
                         pass
                     else:
                         continue
@@ -391,14 +399,12 @@ class Molecule(Structure):
                 vectors.append(vector)
             except IndexError:
                 pass
-
-        assert len(vectors) == len(sub_structures) - 1
         return vectors
 
     def bond_angles(
             self,
             bond_vector_list=None,
-            use_monomers=True,
+            use_monomers=False,
             use_segments=False,
             use_components=False,
             group=None
@@ -428,16 +434,32 @@ class Molecule(Structure):
         list of numpy.ndarray, shape=(3,), dtype=float
 
         """
-        if bond_vector_list is None:
-            bond_vector_list = self.bond_vectors(
-                    use_monomers,
-                    use_segments,
-                    use_components)
+        sub_structures = self._sub_structures(
+                use_monomers,
+                use_segments,
+                use_components
+                )
 
         angles = []
-        for idx, vector in enumerate(bond_vector_list):
+        for idx, structure in enumerate(sub_structures):
             try:
-                next_vector = bond_vector_list[idx+1]
+                if group is not None:
+                    if group == [
+                            structure.name,
+                            sub_structures[idx+1].name,
+                            sub_structures[idx+2].name
+                        ]:
+                        pass
+                    else:
+                        continue
+                vector = (
+                        structure.unwrapped_center - 
+                        sub_structures[idx+1].unwrapped_center
+                        )
+                next_vector = (
+                        sub_structures[idx+1].unwrapped_center - 
+                        sub_structures[idx+2].unwrapped_center
+                        )
                 cos_angle = (
                         np.dot(vector, next_vector) /
                         (np.linalg.norm(vector) * np.linalg.norm(next_vector))
@@ -445,8 +467,6 @@ class Molecule(Structure):
                 angles.append(np.arccos(cos_angle))
             except IndexError:
                 pass
-
-        assert len(angles) == len(bond_vector_list) - 1
         return angles
 
     def persistence_length(self):
