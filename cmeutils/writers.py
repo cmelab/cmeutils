@@ -1,5 +1,6 @@
 import gsd
 import gsd.hoomd
+import hoomd
 import numpy as np
 import re
 
@@ -22,7 +23,7 @@ def write_snapshot(beads):
         if box is None:
             box = bead.system.box
         all_types.append(bead.name)
-        all_pos.append(bead.center)
+        all_pos.append(bead.unwrapped_center)
         try:
             if bead.parent == beads[idx+1].parent:
                 pair = sorted([bead.name, beads[idx+1].name])
@@ -46,12 +47,22 @@ def write_snapshot(beads):
     pair_ids = [np.where(np.array(pairs)==i)[0][0] for i in all_pairs]
     angle_ids = [np.where(np.array(angles)==i)[0][0] for i in all_angles]
 
+    #Wrap the particle positions
+    box = hoomd.data.boxdim(
+            Lx=box.Lx,
+            Ly=box.Ly,
+            Lz=box,Lz
+            )
+    w_positions = np.stack([box.wrap(xyz)[0] for xyz in positions])
+    w_images = np.stack([box.wrap(xyz)[1] for xyz in positions])
+
     s = gsd.hoomd.Snapshot()
     #Particles
     s.particles.N = len(all_types)
     s.particles.types = types 
     s.particles.typeid = np.array(type_ids) 
-    s.particles.position = np.array(all_pos)
+    s.particles.position = w_positions
+    s.particles.image = w_images
     #Bonds
     s.bonds.N = len(all_pairs)
     s.bonds.M = 2
