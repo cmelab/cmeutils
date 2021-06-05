@@ -48,13 +48,13 @@ def write_snapshot(beads):
     angle_ids = [np.where(np.array(angles)==i)[0][0] for i in all_angles]
 
     #Wrap the particle positions
-    box = hoomd.data.boxdim(
-            Lx=box.Lx,
-            Ly=box.Ly,
-            Lz=box.Lz
+    _box = hoomd.data.boxdim(
+            Lx=box[0],
+            Ly=box[1],
+            Lz=box[2]
             )
-    w_positions = np.stack([box.wrap(xyz)[0] for xyz in positions])
-    w_images = np.stack([box.wrap(xyz)[1] for xyz in positions])
+    w_positions = np.stack([_box.wrap(xyz)[0] for xyz in all_pos])
+    w_images = np.stack([_box.wrap(xyz)[1] for xyz in all_pos])
 
     s = gsd.hoomd.Snapshot()
     #Particles
