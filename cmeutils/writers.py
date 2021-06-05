@@ -51,7 +51,7 @@ def write_snapshot(beads):
     box = hoomd.data.boxdim(
             Lx=box.Lx,
             Ly=box.Ly,
-            Lz=box,Lz
+            Lz=box.Lz
             )
     w_positions = np.stack([box.wrap(xyz)[0] for xyz in positions])
     w_images = np.stack([box.wrap(xyz)[1] for xyz in positions])
