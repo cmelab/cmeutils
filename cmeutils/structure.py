@@ -14,7 +14,7 @@ def rotmat_to_q(m):
     return np.array([qx, qy, qz, qw])
 
 def rotation_matrix_from_to(a, b):
-    """Compute a rotation matrix R such that norm(b)*dot(R,a)/norm(a) = b.
+    """Compute a rotation matrix, R, such that norm(b) * dot(R,a) / norm(a) = b.
 
     Parameters
     ----------
