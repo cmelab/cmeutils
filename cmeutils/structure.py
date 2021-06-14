@@ -5,45 +5,17 @@ import gsd.hoomd
 import numpy as np
 
 
-def rotmat_to_q(m):
-    """Convert a 3x3 rotation matrix to a quaternion."""
-    qw = np.sqrt(1 + m[0,0] + m[1,1] + m[2,2]) / 2
-    qx = (m[2,1] - m[1,2])/(4 * qw)
-    qy = (m[0,2] - m[2,0])/(4 * qw)
-    qz = (m[1,0] - m[0,1])/(4 * qw)
-    return np.array([qx, qy, qz, qw])
+def q_from_vectors(b, a=np.array([0,0,1])):
+    """Calculate the quaternion representing the rotation from a to b."""
+    q = np.empty(4)
+    q[:3] = np.cross(a,b)
+    q[3] = np.dot(a,b)
+    q /= np.linalg.norm(q)
+    return q
 
-def rotation_matrix_from_to(a, b):
-    """Compute a rotation matrix, R, such that norm(b) * dot(R,a) / norm(a) = b.
 
-    Parameters
-    ----------
-    a : numpy.ndarray
-        A 3-vector
-    b : numpy.ndarray
-        Another 3-vector
-
-    Returns:
-    R numpy.ndarray:
-        The 3x3 rotation matrix that will would rotate a parallel to b.
-    """
-    a1 = a/np.linalg.norm(a)
-    b1 = b/np.linalg.norm(b)
-    theta = np.arccos(np.dot(a1,b1))
-    if theta<1e-6 or np.isnan(theta):
-        return np.identity(3)
-    if np.pi-theta<1e-6: #TODO(Eric): verify correct
-        d = np.array([1.,0,0])
-        x = np.cross(a1,d)
-    else:
-        x = np.cross(a1,b1)
-        x /= np.linalg.norm(x)
-    A = np.array([ [0,-x[2],x[1]], [x[2],0,-x[0]], [-x[1],x[0],0] ])
-    R = np.identity(3) + np.sin(theta)*A + (1.-np.cos(theta))*np.dot(A,A)
-    return R
-
-def get_rotmats(n_views = 20):
-    """Get the rotation matrices for the specified number of views."""
+def get_quaternions(n_views = 20):
+    """Get the quaternions for the specified number of views."""
     ga = np.pi * (3 - 5**0.5)
     theta = ga * np.arange(n_views-3)
     z = np.linspace(1 - 1/(n_views-3), 1/(n_views-3), n_views-3)
@@ -58,12 +30,7 @@ def get_rotmats(n_views = 20):
     points[-2] = np.array([0,1,1])
     # corner on
     points[-1] = np.array([1,1,1])
-    return [rotation_matrix_from_to(i,np.array([0,0,1])) for i in points]
-
-def get_quaternions(n_views = 20):
-    """Get the quaternions for the specified number of views."""
-    rotmats = get_rotmats(n_views = n_views)
-    return [rotmat_to_q(i) for i in rotmats]
+    return [q_from_vectors(i) for i in points]
 
 
 def gsd_rdf(
