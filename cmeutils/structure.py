@@ -1,21 +1,15 @@
-from cmeutils import gsd_utils
 import freud
 import gsd
 import gsd.hoomd
 import numpy as np
+from rowan import vector_vector_rotation
 
-
-def q_from_vectors(b, a=np.array([0,0,1])):
-    """Calculate the quaternion representing the rotation from a to b."""
-    q = np.empty(4)
-    q[:3] = np.cross(a,b)
-    q[3] = np.dot(a,b)
-    q /= np.linalg.norm(q)
-    return q
+from cmeutils import gsd_utils
 
 
 def get_quaternions(n_views = 20):
     """Get the quaternions for the specified number of views."""
+    # Calculate points for even distribution on a sphere
     ga = np.pi * (3 - 5**0.5)
     theta = ga * np.arange(n_views-3)
     z = np.linspace(1 - 1/(n_views-3), 1/(n_views-3), n_views-3)
@@ -24,13 +18,16 @@ def get_quaternions(n_views = 20):
     points[:-3,0] = radius * np.cos(theta)
     points[:-3,1] = radius * np.sin(theta)
     points[:-3,2] = z
+
     # face on
-    points[-3] = np.array([0,0,1])
+    points[-3] = np.array([0, 0, 1])
     # edge on
-    points[-2] = np.array([0,1,1])
+    points[-2] = np.array([0, 1, 1])
     # corner on
-    points[-1] = np.array([1,1,1])
-    return [q_from_vectors(i) for i in points]
+    points[-1] = np.array([1, 1, 1])
+
+    unit_z = np.array([0, 0, 1])
+    return [vector_vector_rotation(i, unit_z) for i in points]
 
 
 def gsd_rdf(
