@@ -1,6 +1,6 @@
 import gsd
 import gsd.hoomd
-import hoomd
+import freud
 import numpy as np
 import re
 
@@ -17,11 +17,9 @@ def write_snapshot(beads):
     all_angles = []
     angle_groups = []
     all_pos = []
-    box = None
+    box = beads[0].system.box 
 
     for idx, bead in enumerate(beads):
-        if box is None:
-            box = bead.system.box
         all_types.append(bead.name)
         all_pos.append(bead.unwrapped_center)
         try:
@@ -48,20 +46,16 @@ def write_snapshot(beads):
     angle_ids = [np.where(np.array(angles)==i)[0][0] for i in all_angles]
 
     #Wrap the particle positions
-    _box = hoomd.data.boxdim(
-            Lx=box[0],
-            Ly=box[1],
-            Lz=box[2]
-            )
-    w_positions = np.stack([_box.wrap(xyz)[0] for xyz in all_pos])
-    w_images = np.stack([_box.wrap(xyz)[1] for xyz in all_pos])
+    fbox = freud.box.Box(*box)
+    w_positions = fbox.wrap(all_pos)
+    w_images = fbox.get_images(all_pos)
 
     s = gsd.hoomd.Snapshot()
     #Particles
     s.particles.N = len(all_types)
     s.particles.types = types 
     s.particles.typeid = np.array(type_ids) 
-    s.particles.position = w_positions
+    s.particles.position = w_positions 
     s.particles.image = w_images
     #Bonds
     s.bonds.N = len(all_pairs)
