@@ -21,7 +21,7 @@ class System:
         self.n_atoms = len(self.clusters)
         self.n_monomers = int(self.n_atoms / self.atoms_per_monomer)
         self.molecules = [Molecule(self, i) for i in self.molecule_ids] 
-        self.box = gsd_utils.snap_box(gsd_file, snap, gsd_frame)
+        self.box = self.snap.configuration.box 
         assert len(self.molecules) == self.n_molecules
 
     def monomers(self):
