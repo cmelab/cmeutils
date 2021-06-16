@@ -2,11 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 
-def plot_distribution(data, label, fit_line=True):
+def plot_distribution(data, label, xlim=(None, None), fit_line=True):
     bin_heights, bin_borders = np.histogram(data, bins='auto')
     bin_widths = np.diff(bin_borders)
     bin_centers = bin_borders[:-1] + bin_widths / 2
     plt.bar(bin_centers, bin_heights, width=bin_widths, label=label)
+    plt.xlim(xlim)
     plt.legend()
 
     if fit_line:
