@@ -1,8 +1,53 @@
-from cmeutils import gsd_utils
 import freud
 import gsd
 import gsd.hoomd
 import numpy as np
+from rowan import vector_vector_rotation
+
+from cmeutils import gsd_utils
+
+
+def get_quaternions(n_views = 20):
+    """Get the quaternions for the specified number of views.
+
+    The first (n_view - 3) views will be the views even distributed on a sphere,
+    while the last three views will be the face-on, edge-on, and corner-on
+    views, respectively.
+
+    These quaternions are useful as input to `view_orientation` kwarg in
+    `freud.diffraction.Diffractometer.compute`.
+
+    Parameters
+    ----------
+    n_views : int, default 20
+        The number of views to compute.
+
+    Returns
+    -------
+    list of numpy.ndarray
+        Quaternions as (4,) arrays.
+    """
+    if n_views <=3 or not isinstance(n_views, int):
+        raise ValueError("Please set n_views to an integer greater than 3.")
+    # Calculate points for even distribution on a sphere
+    ga = np.pi * (3 - 5**0.5)
+    theta = ga * np.arange(n_views-3)
+    z = np.linspace(1 - 1/(n_views-3), 1/(n_views-3), n_views-3)
+    radius = np.sqrt(1 - z * z)
+    points = np.zeros((n_views, 3))
+    points[:-3,0] = radius * np.cos(theta)
+    points[:-3,1] = radius * np.sin(theta)
+    points[:-3,2] = z
+
+    # face on
+    points[-3] = np.array([0, 0, 1])
+    # edge on
+    points[-2] = np.array([0, 1, 1])
+    # corner on
+    points[-1] = np.array([1, 1, 1])
+
+    unit_z = np.array([0, 0, 1])
+    return [vector_vector_rotation(i, unit_z) for i in points]
 
 
 def gsd_rdf(
