@@ -12,9 +12,11 @@ def get_type_position(typename, gsd_file=None, snap=None, gsd_frame=-1):
 
     Parameters
     ----------
-    typename : str,
+    typename : str or list of str
         Name of particles of which to get the positions
         (found in gsd.hoomd.Snapshot.particles.types)
+        If you want the positions of multiple types, pass
+        in a list. Ex.) ['ca', 'c3']
     gsd_file : str, default None
         Filename of the gsd trajectory
     snap : gsd.hoomd.Snapshot, default None
@@ -27,10 +29,16 @@ def get_type_position(typename, gsd_file=None, snap=None, gsd_frame=-1):
     numpy.ndarray
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
-    typepos = snap.particles.position[
-        snap.particles.typeid == snap.particles.types.index(typename)
-    ]
-    return typepos
+    if isinstance(typename, str):
+        typename = [typename]
+    typepos = []
+    for _type in typename:
+        typepos.extend(
+                snap.particles.position[
+                snap.particles.typeid == snap.particles.types.index(_type)
+            ]
+        )
+    return np.array(typepos)
 
 
 def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
