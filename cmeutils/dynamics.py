@@ -16,21 +16,22 @@ def msd_from_gsd(
     """
     if stop is None:
         stop = -1
-    with gsd.hoomd.open(gsdfile, "rb") as trajectory:
-        assert(
-                trajectory[start].configuration.box == 
-                trajectory[stop].configuration.box
-                ), f"The box is not consistent over the range{start}:{stop}"
 
-        frame_positions = []
+    with gsd.hoomd.open(gsdfile, "rb") as trajectory:
+        init_box = trajectory[start].configuration.box
+        final_box = trajectory[stop].configuration.box
+        assert all(
+                [i == j for i,j in zip(init_box, final_box)]
+                ), f"The box is not consistent over the range {start}:{stop}"
+        positions = []
         for frame in trajectory[start:stop]:
-            if atom_type == "all":
+            if atom_types == "all":
                 atom_pos = frame.particles.position[:]
             else:
                 atom_pos = gsd_utils.get_type_position(atom_types, snap=frame)
-            frame_positions.append(atom_pos)
+            positions.append(atom_pos)
 
-        msd = freud.msd.MSD(box=trajectory.configuration.box, mode=msd_mode)
+        msd = freud.msd.MSD(box=init_box, mode=msd_mode)
         msd.compute(positions)
     return msd.msd
  
