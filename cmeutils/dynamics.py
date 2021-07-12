@@ -23,6 +23,7 @@ def msd_from_gsd(
         assert all(
                 [i == j for i,j in zip(init_box, final_box)]
                 ), f"The box is not consistent over the range {start}:{stop}"
+
         positions = []
         for frame in trajectory[start:stop]:
             if atom_types == "all":
@@ -30,8 +31,7 @@ def msd_from_gsd(
             else:
                 atom_pos = gsd_utils.get_type_position(atom_types, snap=frame)
             positions.append(atom_pos)
-
         msd = freud.msd.MSD(box=init_box, mode=msd_mode)
-        msd.compute(positions)
-    return msd.msd
+        msd.compute(np.array(positions), reset=False)
+    return msd
  
