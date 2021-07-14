@@ -4,7 +4,12 @@ import gsd.hoomd
 import numpy as np
 
 
-def get_type_position(typename, gsd_file=None, snap=None, gsd_frame=-1):
+def get_type_position(
+        typename,
+        gsd_file=None,
+        snap=None,
+        gsd_frame=-1
+        images=False):
     """
     This function returns the  positions of a particular particle
     type from a frame of a gsd trajectory file or from a snapshot.
@@ -23,22 +28,36 @@ def get_type_position(typename, gsd_file=None, snap=None, gsd_frame=-1):
         Trajectory snapshot
     gsd_frame : int, default -1
         Frame number to get positions from. Supports negative indexing.
+    images : bool, default False
+        If True; an array of the particle images is returned in addition
+        to the particle positions.
 
     Returns
     -------
-    numpy.ndarray
+    numpy.ndarray(s)
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     if isinstance(typename, str):
         typename = [typename]
-    typepos = []
+
+    type_pos = []
+    type_images = []
     for _type in typename:
-        typepos.extend(
+        type_pos.extend(
                 snap.particles.position[
                 snap.particles.typeid == snap.particles.types.index(_type)
             ]
         )
-    return np.array(typepos)
+        if images:
+            type_images.extend(
+                snap.particles.image[
+                    snap.particles.typeid == snap.particles.types.index(_type)
+                ]
+            )
+    if images:
+        return np.array(typepos), np.array(images)
+    else:
+        return np.array(typepos)
 
 
 def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
