@@ -40,6 +40,6 @@ def msd_from_gsd(
             images.append(atom_img)
 
         msd = freud.msd.MSD(box=init_box, mode=msd_mode)
-        msd.compute(np.array(positions), reset=False)
+        msd.compute(np.array(positions), np.array(images), reset=False)
     return msd
  
