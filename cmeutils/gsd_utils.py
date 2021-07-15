@@ -8,7 +8,7 @@ def get_type_position(
         typename,
         gsd_file=None,
         snap=None,
-        gsd_frame=-1
+        gsd_frame=-1,
         images=False):
     """
     This function returns the  positions of a particular particle
