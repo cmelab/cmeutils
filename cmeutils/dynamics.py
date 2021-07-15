@@ -25,18 +25,21 @@ def msd_from_gsd(
                 ), f"The box is not consistent over the range {start}:{stop}"
 
         positions = []
+        images = []
         for frame in trajectory[start:stop]:
             if atom_types == "all":
                 atom_pos = frame.particles.position[:]
+                atom_img = frame.particles.image[:]
             else:
-                atom_pos = gsd_utils.get_type_position(atom_types, snap=frame)
-            positions.append(atom_pos)
-        freud_box = freud.Box(
-                Lx=init_box[0],
-                Ly=init_box[1],
-                Lz=init_box[2]
+                atom_pos, atom_img  = gsd_utils.get_type_position(
+                            atom_types,
+                            snap=frame,
+                            images=True
                 )
-        msd = freud.msd.MSD(box=freud_box, mode=msd_mode)
+            positions.append(atom_pos)
+            images.append(atom_img)
+
+        msd = freud.msd.MSD(box=init_box, mode=msd_mode)
         msd.compute(np.array(positions), reset=False)
     return msd
  
