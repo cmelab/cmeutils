@@ -55,9 +55,9 @@ def get_type_position(
                 ]
             )
     if images:
-        return np.array(typepos), np.array(images)
+        return np.array(type_pos), np.array(images)
     else:
-        return np.array(typepos)
+        return np.array(type_pos)
 
 
 def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
