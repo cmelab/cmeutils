@@ -17,6 +17,12 @@ class TestGSD(BaseTest):
         assert type(pos_array) is type(np.array([]))
         assert pos_array.shape == (5,3)
 
+    def test_get_position_and_images(self, gsdfile_images):
+        from cmeutils.gsd_utils import get_type_position
+        pos, imgs = get_type_position(gsd_file=gsdfile_images, typename="A")
+        assert type(pos) is type(imgs) is type(np.array([]))
+        assert pos.shape == imgs.shape
+
     def test_validate_inputs(self, gsdfile, snap):
         from cmeutils.gsd_utils import _validate_inputs
 
