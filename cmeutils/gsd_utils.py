@@ -35,6 +35,8 @@ def get_type_position(
     Returns
     -------
     numpy.ndarray(s)
+        Retruns a single array of positions or
+        arrays of positions and images
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     if isinstance(typename, str):
