@@ -2,6 +2,7 @@ import freud
 import gsd
 import gsd.hoomd
 import numpy as np
+from warnings import warn
 
 from cmeutils import gsd_utils
 
@@ -38,7 +39,12 @@ def msd_from_gsd(
                 )
             positions.append(atom_pos)
             images.append(atom_img)
-
+        if np.count_nonzero(np.array(images)) == 0:
+            warn(
+                f"All of the images over the range {start}-{stop} "
+                "are [0,0,0]. You may want to ensure this gsd file "
+                "had the particle images written to it."
+                )
         msd = freud.msd.MSD(box=init_box, mode=msd_mode)
         msd.compute(np.array(positions), np.array(images), reset=False)
     return msd
