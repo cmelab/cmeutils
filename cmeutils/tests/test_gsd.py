@@ -7,10 +7,15 @@ from base_test import BaseTest
 class TestGSD(BaseTest):
     def test_get_type_position(self, gsdfile):
         from cmeutils.gsd_utils import get_type_position
-
         pos_array = get_type_position(gsd_file=gsdfile, typename="A")
         assert type(pos_array) is type(np.array([]))
         assert pos_array.shape == (2, 3)
+
+    def test_get_multiple_types(self, gsdfile):
+        from cmeutils.gsd_utils import get_type_position
+        pos_array = get_type_position(gsd_file=gsdfile, typename=["A", "B"])
+        assert type(pos_array) is type(np.array([]))
+        assert pos_array.shape == (5,3)
 
     def test_validate_inputs(self, gsdfile, snap):
         from cmeutils.gsd_utils import _validate_inputs
