@@ -13,7 +13,24 @@ def msd_from_gsd(
         stop=None,
         msd_mode="window"
         ):
-    """
+    """Calculate the mean-square displacement (MSD) of the particles in a
+    trajectory using Freud.
+
+    Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory
+    atom_types : str, or list of str
+        Name(s) of particles to use in calcualtion of the MSD
+    start : int
+        The first frame from the gsd file to use
+        (default 0)
+    stop : int
+        The last frame from the gsd file to use
+        (default -1)
+    msd_mode : str
+        Choose from "window" or "direct". See Freud for the differences
+        https://freud.readthedocs.io/en/latest/modules/msd.html#freud.msd.MSD
     """
     if stop is None:
         stop = -1
