@@ -7,7 +7,7 @@ from cmeutils import gsd_utils
 
 def msd_from_gsd(
         gsdfile,
-        atom_types,
+        atom_types="all",
         start=0,
         stop=None,
         msd_mode="window"
