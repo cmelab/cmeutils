@@ -55,7 +55,7 @@ def gsd_rdf(
     A_name,
     B_name,
     start=0,
-    stop=None,
+    stop=-1,
     r_max=None,
     r_min=0,
     bins=100,
@@ -82,10 +82,10 @@ def gsd_rdf(
         from the end. (default 0)
     stop : int
         Final frame index for accumulating the RDF. If None, the last frame
-        will be used. (default None)
+        will be used. (default -1)
     r_max : float
         Maximum radius of RDF. If None, half of the maximum box size is used.
-        (default None)
+        (default -1)
     r_min : float
         Minimum radius of RDF. (default 0)
     bins : int
