@@ -10,7 +10,7 @@ def msd_from_gsd(
         gsdfile,
         atom_types="all",
         start=0,
-        stop=None,
+        stop=-1,
         msd_mode="window"
         ):
     """Calculate the mean-square displacement (MSD) of the particles in a
@@ -32,9 +32,6 @@ def msd_from_gsd(
         Choose from "window" or "direct". See Freud for the differences
         https://freud.readthedocs.io/en/latest/modules/msd.html#freud.msd.MSD
     """
-    if stop is None:
-        stop = -1
-
     with gsd.hoomd.open(gsdfile, "rb") as trajectory:
         init_box = trajectory[start].configuration.box
         final_box = trajectory[stop].configuration.box
