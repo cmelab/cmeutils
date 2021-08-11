@@ -57,7 +57,7 @@ def get_type_position(
                 ]
             )
     if images:
-        return np.array(type_pos), np.array(images)
+        return np.array(type_pos), np.array(type_images)
     else:
         return np.array(type_pos)
 
