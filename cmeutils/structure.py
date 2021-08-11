@@ -98,9 +98,6 @@ def gsd_rdf(
     -------
     (freud.density.RDF, float)
     """
-    if not stop:
-        stop = -1
-
     with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
         snap = trajectory[0]
 
