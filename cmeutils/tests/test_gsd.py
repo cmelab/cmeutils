@@ -18,7 +18,11 @@ class TestGSD(BaseTest):
         assert pos_array.shape == (5,3)
 
     def test_get_position_and_images(self, gsdfile_images):
-        pos, imgs = get_type_position(gsd_file=gsdfile_images, typename="A")
+        pos, imgs = get_type_position(
+                gsd_file=gsdfile_images,
+                typename="A",
+                images=True
+                )
         assert type(pos) is type(imgs) is type(np.array([]))
         assert pos.shape == imgs.shape
 
