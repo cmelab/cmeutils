@@ -99,7 +99,6 @@ def all_atom_rdf(gsdfile,
 
         rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
         if exclude_bonded:
-            exclude_ii = True
             molecules = gsd_utils.snap_molecule_cluster(snap=snap)
             
         for snap in trajectory[start:stop]:
@@ -108,7 +107,7 @@ def all_atom_rdf(gsdfile,
             system = (box, points)
             aq = freud.locality.AABBQuery.from_system(system)
             nlist = aq.query(
-                points, {"r_max": r_max, "exclude_ii": exclude_ii}
+                points, {"r_max": r_max}
             ).toNeighborList()
 
             if exclude_bonded:
