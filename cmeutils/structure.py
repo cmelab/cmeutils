@@ -10,7 +10,7 @@ def all_atom_rdf(gsdfile,
                  r_max=None,
                  r_min=0,
                  bins=100,
-                 exclude_bonded=True):
+                 ):
     """ Parameters
     ----------
     gsdfile : str
@@ -31,9 +31,6 @@ def all_atom_rdf(gsdfile,
         Minimum radius of RDF. (default 0)
     bins : int
         Number of bins to use when calculating the RDF. (default 100)
-    exclude_bonded : bool
-        Whether to remove particles in same molecule from the neighbor list.
-        (default True)
 
     Returns
     -------
@@ -54,29 +51,9 @@ def all_atom_rdf(gsdfile,
             )
 
         rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
-        if exclude_bonded:
-            molecules = gsd_utils.snap_molecule_cluster(snap=snap)
-            
         for snap in trajectory[start:stop]:
-            box = snap.configuration.box
-            points = snap.particles.position[:]
-            system = (box, points)
-            aq = freud.locality.AABBQuery.from_system(system)
-            nlist = aq.query(
-                points, {"r_max": r_max}
-            ).toNeighborList()
-
-            if exclude_bonded:
-                pre_filter = len(nlist)
-                nlist.filter(
-                    molecules[nlist.point_indices]
-                    != molecules[nlist.query_point_indices]
-                )
-                post_filter = len(nlist)
-
             rdf.compute(aq, neighbors=nlist, reset=False)
             
-        normalization = post_filter / pre_filter if exclude_bonded else 1
         return rdf, normalization
 
 
