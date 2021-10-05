@@ -142,4 +142,34 @@ def gsd_rdf(
 
             rdf.compute(aq, neighbors=nlist, reset=False)
     normalization = post_filter / pre_filter if exclude_bonded else 1
-    return rdf, normalization    
+    return rdf, normalization
+
+def get_centers(gsdfile, new_gsdfile):
+    """Calculates the centers of a trajectory.
+
+    This function calculates the centers of a trajetory given a GSD file
+    and stores them into a new GSD file just for centers. The new GSD file will be created in the same directory where the GSD file of trajectory is located. By default it will calculate the centers of an entire trajectory.
+
+
+    Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory.
+    new_gsdfile : str
+        Filename of new GSD for centers.
+
+    """
+    with gsd.hoomd.open(new_gsdfile, 'wb') as new_traj, gsd.hoomd.open(gsdfile, 'rb') as traj:
+        snap = traj[0]
+        cluster_idx = gsd_utils.snap_molecule_cluster(snap=snap)
+        for snap in traj:
+            new_snap = gsd.hoomd.Snapshot()
+            new_snap.configuration.box = snap.configuration.box
+            clp = freud.cluster.ClusterProperties()
+            clp.compute(snap, cluster_idx);
+            new_snap.particles.position = clp.centers 
+            new_snap.particles.N = len(clp.centers)
+            new_snap.particles.types = ["A"]
+            new_snap.particles.typeid = np.zeros(len(clp.centers)) 
+            new_snap.validate()
+            new_traj.append(new_snap)    
