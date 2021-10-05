@@ -7,5 +7,7 @@ dependencies:
   - numpy
   - pip
   - python=3.7
+  - matplotlib
   - pytest
   - pytest-cov
+  - rowan
