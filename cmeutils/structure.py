@@ -157,7 +157,6 @@ def get_centers(gsdfile, new_gsdfile):
         Filename of the GSD trajectory.
     new_gsdfile : str
         Filename of new GSD for centers.
-
     """
     with gsd.hoomd.open(new_gsdfile, 'wb') as new_traj, gsd.hoomd.open(gsdfile, 'rb') as traj:
         snap = traj[0]
