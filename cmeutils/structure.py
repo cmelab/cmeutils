@@ -111,7 +111,6 @@ def gsd_rdf(
 
         type_A = snap.particles.typeid == snap.particles.types.index(A_name)
         type_B = snap.particles.typeid == snap.particles.types.index(B_name)
-    
         if exclude_bonded:
             molecules = gsd_utils.snap_molecule_cluster(snap=snap)
             molecules_A = molecules[type_A]
