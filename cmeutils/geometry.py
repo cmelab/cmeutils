@@ -6,6 +6,38 @@ def get_plane_normal(points):
 
     Best fit is calculated using numpy's Singular Value Decomposition.
 
+    Example
+    -------
+    To visualize the plane fit in a Jupyter notebook::
+
+        %matplotlib notebook
+        import matplotlib.pyplot as plt
+        import numpy as np
+
+        normal, ctr = get_plane_normal(points)
+        plt.figure()
+        ax = plt.subplot(111, projection='3d')
+        ax.scatter(points[:,0], points[:,1], points[:,2], color='b')
+
+        # plot plane
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+        xx, yy = np.meshgrid(
+            np.linspace(xlim[0], xlim[1], 3), np.linspace(ylim[0], ylim[1], 3)
+        )
+
+        d = -ctr.dot(normal)
+        ax.scatter(ctr[0], ctr[1], ctr[2], color='r')
+        z = (-normal[0] * xx - normal[1] * yy - d) * 1 / normal[2]
+        ax.plot_surface(xx, yy, z, alpha=0.5)
+
+        ax.set_box_aspect(aspect = (1,1,1))
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+        plt.show()
+
+
     Parameters
     ----------
     points : numpy.ndarray, shape (N,3)
