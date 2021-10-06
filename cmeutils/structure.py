@@ -142,8 +142,8 @@ def gsd_rdf(
                 post_filter = len(nlist)
 
             rdf.compute(aq, neighbors=nlist, reset=False)
-    normalization = post_filter / pre_filter if exclude_bonded else 1
-    return rdf, normalization
+        normalization = post_filter / pre_filter if exclude_bonded else 1
+        return rdf, normalization
 
 def get_centers(gsdfile, new_gsdfile):
     """Create a gsd file containing the molecule centers from an existing gsd file.
