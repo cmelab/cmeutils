@@ -27,3 +27,26 @@ def get_plane_normal(points):
     return ctr, normal
 
 
+def angle_between_vectors(u, v):
+    """Calculate the angle between two vectors in degrees.
+
+    If the angle is greater than 90 degrees, return the angle's supplement.
+
+    Parameters
+    ----------
+    u : np.ndarray, shape (3,)
+        Vector
+    v : np.ndarray, shape (3,)
+        Vector
+
+    Returns
+    -------
+    angle: float
+        Angle between u and v in degrees
+    """
+    angle = np.rad2deg(
+        np.arccos(u.dot(v) / (np.linalg.norm(u) * np.linalg.norm(v)))
+    )
+    if angle > 90:
+        return 180 - angle
+    return angle
