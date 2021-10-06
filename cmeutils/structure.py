@@ -145,7 +145,8 @@ def gsd_rdf(
     return rdf, normalization
 
 def get_centers(gsdfile, new_gsdfile):
-    """Calculates the centers of a trajectory.
+    """Create a gsd file containing the molecule centers from an existing gsd file.
+    
 
     This function calculates the centers of a trajectory given a GSD file
     and stores them into a new GSD file just for centers. The new GSD file will be created in the same directory where the GSD file of trajectory is located. By default it will calculate the centers of an entire trajectory.
