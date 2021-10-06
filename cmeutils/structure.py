@@ -116,6 +116,7 @@ def gsd_rdf(
             molecules = gsd_utils.snap_molecule_cluster(snap=snap)
             molecules_A = molecules[type_A]
             molecules_B = molecules[type_B]
+
         for snap in trajectory[start:stop]:
             A_pos = snap.particles.position[type_A]
             if A_name == B_name:
