@@ -113,7 +113,7 @@ def gsd_rdf(
         type_B = snap.particles.typeid == snap.particles.types.index(B_name)
     
         if exclude_bonded:
-            molecules = gsd_utils.snap_molecules_cluster(snap=snap)
+            molecules = gsd_utils.snap_molecule_cluster(snap=snap)
             molecules_A = molecules[type_A]
             molecules_B = molecules[type_B]
         for snap in trajectory[start:stop]:
