@@ -136,7 +136,7 @@ def gsd_rdf(
             if exclude_bonded:
                 pre_filter = len(nlist)
                 nlist.filter(
-                    molecules_A[nlist.point.indices]
+                    molecules_A[nlist.point_indices]
                     != molecules_B[nlist.query_point_indices]
                 )
                 post_filter = len(nlist)
