@@ -149,7 +149,7 @@ def get_centers(gsdfile, new_gsdfile):
     
 
     This function calculates the centers of a trajectory given a GSD file
-    and stores them into a new GSD file just for centers. The new GSD file will be created in the same directory where the GSD file of trajectory is located. By default it will calculate the centers of an entire trajectory.
+    and stores them into a new GSD file just for centers. By default it will calculate the centers of an entire trajectory.
 
     Parameters
     ----------
