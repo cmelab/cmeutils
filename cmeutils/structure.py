@@ -102,7 +102,7 @@ def gsd_rdf(
         snap = trajectory[0]
 
         if r_max is None:
-           #Use a value just less than half the maximum box length.
+            # Use a value just less than half the maximum box length.
             r_max = np.nextafter(
             np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
             )
