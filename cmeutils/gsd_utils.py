@@ -133,3 +133,73 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
     elif snap:
         assert isinstance(snap, gsd.hoomd.Snapshot)
     return snap
+
+
+def snap_delete_types(snap, delete_types):
+    """Create a new snapshot with certain particle types deleted.
+
+    Reads in a snapshot and writes the information (excluding delete_types) to
+    a new snapshot. Does not change the original snapshot.
+
+    Information written:
+        - particles (N, types, position, typeid, image)
+        - configuration (box)
+        - bonds (N, group)
+
+    Parameters
+    ----------
+    snap : gsd.hoomd.Snapshot
+        The snapshot to read in
+
+    Returns
+    -------
+    gsd.hoomd.Snapshot
+        The new snapshot with particles deleted.
+    """
+    new_snap = gsd.hoomd.Snapshot()
+    delete_ids = [snap.particles.types.index(i) for i in delete_types]
+    selection = np.where(~np.isin(snap.particles.typeid, delete_ids))[0]
+    new_snap.particles.N = len(selection)
+    new_snap.particles.types = [
+        i for i in snap.particles.types if i not in delete_types
+    ]
+    typeid_map = {
+        i:new_snap.particles.types.index(e)
+        for i, e in enumerate(snap.particles.types)
+        if e in new_snap.particles.types
+    }
+    new_snap.particles.position = snap.particles.position[selection]
+    new_snap.particles.image = snap.particles.image[selection]
+    new_snap.particles.typeid = np.vectorize(typeid_map.get)(
+        snap.particles.typeid[selection]
+    )
+    new_snap.configuration.box = snap.configuration.box
+    inds = {e:i for i, e in enumerate(selection)}
+    new_snap.bonds.group = np.vectorize(inds.get)(
+        snap.bonds.group[np.isin(snap.bonds.group,selection).all(axis=1)]
+    )
+    new_snap.bonds.N = len(new_snap.bonds.group)
+    new_snap.validate()
+    return new_snap
+
+
+def get_pattern(N, pattern):
+    """Scale a pattern out to length N.
+
+    N must be evenly divisible by len(pattern).
+
+    Parameters
+    ----------
+    N : int
+        Length to which to scale out the pattern.
+    pattern : np.ndarray, (n,)
+        Array of ones and zeros, e.g. [1,0,1,1], where the ones are indices to
+        include in the pattern and zeroes are indices to exclude.
+
+    Returns
+    -------
+    list of np.ndarray
+        list of arrays of indices to be included if pattern is scaled out
+    """
+    chunks = np.split(np.arange(N), N//len(pattern))
+    return [chunk[np.where(pattern==1)] for chunk in chunks]
