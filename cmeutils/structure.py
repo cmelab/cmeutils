@@ -104,7 +104,7 @@ def gsd_rdf(
         if r_max is None:
             # Use a value just less than half the maximum box length.
             r_max = np.nextafter(
-            np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
+                np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
             )
 
         rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
