@@ -130,7 +130,7 @@ def gsd_rdf(
             system = (box, A_pos)
             aq = freud.locality.AABBQuery.from_system(system)
             nlist = aq.query(
-                B_pos, {"r_max":r_max, "exclude_ii":exclude_ii}
+                B_pos, {"r_max": r_max, "exclude_ii": exclude_ii}
             ).toNeighborList()
 
             if exclude_bonded:
