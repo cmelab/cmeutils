@@ -164,6 +164,14 @@ def get_centers(gsdfile, new_gsdfile):
         for snap in traj:
             new_snap = gsd.hoomd.Snapshot()
             new_snap.configuration.box = snap.configuration.box
+            f_box = freud.box.Box.from_box(snap.configuration.box)
+            # Use the freud box to unwrap the particle positions 
+            unwrapped_positions = f_box.unwrap(snap.particle.positions, snap.particle.images)
+            # Use the unwrapped positions to calculate unwrapped center positions
+            # You can use the clp.compute method below with a different system
+            
+            # use f_box.get_images to get the center images from the unwrapped centers
+            
             clp = freud.cluster.ClusterProperties()
             clp.compute(snap, cluster_idx);
             new_snap.particles.position = clp.centers 
