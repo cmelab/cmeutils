@@ -174,10 +174,13 @@ def snap_delete_types(snap, delete_types):
         snap.particles.typeid[selection]
     )
     new_snap.configuration.box = snap.configuration.box
-    inds = {e:i for i, e in enumerate(selection)}
-    new_snap.bonds.group = np.vectorize(inds.get)(
-        snap.bonds.group[np.isin(snap.bonds.group,selection).all(axis=1)]
-    )
-    new_snap.bonds.N = len(new_snap.bonds.group)
+    if snap.bonds.N > 0:
+        bonds = np.isin(snap.bonds.group, selection).all(axis=1)
+        if bonds.any():
+            inds = {e:i for i, e in enumerate(selection)}
+            new_snap.bonds.group = np.vectorize(inds.get)(
+                snap.bonds.group[bonds]
+            )
+            new_snap.bonds.N = len(new_snap.bonds.group)
     new_snap.validate()
     return new_snap

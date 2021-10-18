@@ -31,6 +31,12 @@ class BaseTest:
             snap = f[-1]
         return snap
 
+    @pytest.fixture
+    def snap_bond(self, gsdfile_bond):
+        with gsd.hoomd.open(name=gsdfile_bond, mode="rb") as f:
+            snap = f[-1]
+        return snap
+
 
 def create_frame(i, add_bonds, images, seed=42):
     np.random.seed(seed)
