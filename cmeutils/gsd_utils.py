@@ -181,25 +181,3 @@ def snap_delete_types(snap, delete_types):
     new_snap.bonds.N = len(new_snap.bonds.group)
     new_snap.validate()
     return new_snap
-
-
-def get_pattern(N, pattern):
-    """Scale a pattern out to length N.
-
-    N must be evenly divisible by len(pattern).
-
-    Parameters
-    ----------
-    N : int
-        Length to which to scale out the pattern.
-    pattern : np.ndarray, (n,)
-        Array of ones and zeros, e.g. [1,0,1,1], where the ones are indices to
-        include in the pattern and zeroes are indices to exclude.
-
-    Returns
-    -------
-    list of np.ndarray
-        list of arrays of indices to be included if pattern is scaled out
-    """
-    chunks = np.split(np.arange(N), N//len(pattern))
-    return [chunk[np.where(pattern==1)] for chunk in chunks]
