@@ -45,7 +45,7 @@ class TestGSD(BaseTest):
 
     def test_snap_molecule_cluster(self, gsdfile_bond):
         cluster = snap_molecule_cluster(gsd_file=gsdfile_bond)
-        assert np.array_equal(cluster, [0, 1, 0, 1, 2])
+        assert np.array_equal(cluster, [1, 0, 1, 0, 0])
 
     def test_snap_delete_types(self, snap):
         new_snap = snap_delete_types(snap, "A")
