@@ -2,8 +2,10 @@ import numpy as np
 import pytest
 
 from base_test import BaseTest
-from cmeutils.gsd_utils import get_type_position, snap_molecule_cluster
-from cmeutils.gsd_utils import get_all_types, _validate_inputs
+from cmeutils.gsd_utils import (
+    get_type_position, snap_molecule_cluster, get_all_types, _validate_inputs,
+    snap_delete_types
+)
 
 
 class TestGSD(BaseTest):
@@ -43,4 +45,12 @@ class TestGSD(BaseTest):
 
     def test_snap_molecule_cluster(self, gsdfile_bond):
         cluster = snap_molecule_cluster(gsd_file=gsdfile_bond)
-        assert np.array_equal(cluster, [0, 1, 0, 1, 2])
+        assert np.array_equal(cluster, [1, 0, 1, 0, 0])
+
+    def test_snap_delete_types(self, snap):
+        new_snap = snap_delete_types(snap, "A")
+        assert "A" not in new_snap.particles.types
+
+    def test_snap_delete_types_bonded(self, snap_bond):
+        new_snap = snap_delete_types(snap_bond, "A")
+        assert "A" not in new_snap.particles.types
