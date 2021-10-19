@@ -1,9 +1,12 @@
+from os import path
 import pytest
 import tempfile
 
-import gsd
 import gsd.hoomd
 import numpy as np
+
+
+asset_dir = path.join(path.dirname(__file__), "assets")
 
 
 class BaseTest:
@@ -36,6 +39,18 @@ class BaseTest:
         with gsd.hoomd.open(name=gsdfile_bond, mode="rb") as f:
             snap = f[-1]
         return snap
+
+    @pytest.fixture
+    def p3ht_gsd(self):
+        return path.join(asset_dir, "p3ht.gsd")
+
+    @pytest.fixture
+    def p3ht_cg_gsd(self):
+        return path.join(asset_dir, "p3ht-cg.gsd")
+
+    @pytest.fixture
+    def mapping(self):
+        return np.loadtxt(path.join(asset_dir, "mapping.txt"), dtype=int)
 
 
 def create_frame(i, add_bonds, images, seed=42):
