@@ -48,10 +48,10 @@ def create_frame(i, add_bonds, images, seed=42):
     s.particles.position = np.random.random(size=(5, 3))
     s.configuration.box = [3, 3, 3, 0, 0, 0]
     if add_bonds:
-        s.bonds.N = 2
-        s.bonds.types = ["AB"]
-        s.bonds.typeid = [0, 0]
-        s.bonds.group = [[0, 2], [1, 3]]
+        s.bonds.N = 3
+        s.bonds.types = ["AB", "BB"]
+        s.bonds.typeid = [0, 0, 1]
+        s.bonds.group = [[0, 2], [1, 3], [3, 4]]
     if images:
         s.particles.image = np.full(shape=(5,3), fill_value=i)
     else:
@@ -62,4 +62,9 @@ def create_frame(i, add_bonds, images, seed=42):
 
 def create_gsd(filename, add_bonds=False, images=False):
     with gsd.hoomd.open(name=filename, mode="wb") as f:
-        f.extend((create_frame(i, add_bonds=add_bonds, images=images) for i in range(10)))
+        f.extend(
+            [
+                create_frame(i, add_bonds=add_bonds, images=images)
+                for i in range(10)
+            ]
+        )
