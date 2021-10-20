@@ -319,4 +319,3 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
             order.append(n_large / n_total)
             cl_idx.append(cl.cluster_idx)
     return order, cl_idx
->>>>>>> 1e3e7d8220ea1ff91649547e286028a649253326
