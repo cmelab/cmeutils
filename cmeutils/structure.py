@@ -3,6 +3,7 @@ import gsd
 import gsd.hoomd
 import numpy as np
 from rowan import vector_vector_rotation
+<<<<<<< HEAD
 
 from cmeutils import gsd_utils
 
@@ -99,6 +100,118 @@ def all_atom_rdf(gsdfile,
             rdf.compute(aq, neighbors=nlist, reset=False)
             
         return rdf, normalization
+=======
+>>>>>>> 887e25e8fd9540d132b2a6cf6d40cd9c237f2bbc
+
+from cmeutils import gsd_utils
+
+<<<<<<< HEAD
+def gsd_rdf(
+    gsdfile,
+    A_name,
+    B_name,
+    start=0,
+    stop=None,
+    r_max=None,
+    r_min=0,
+    bins=100,
+    exclude_bonded=True,
+    ):
+    """Compute intermolecular RDF from a GSD file.
+=======
+>>>>>>> 887e25e8fd9540d132b2a6cf6d40cd9c237f2bbc
+
+def get_quaternions(n_views = 20):
+    """Get the quaternions for the specified number of views.
+
+    The first (n_view - 3) views will be the views even distributed on a sphere,
+    while the last three views will be the face-on, edge-on, and corner-on
+    views, respectively.
+
+    These quaternions are useful as input to `view_orientation` kwarg in
+    `freud.diffraction.Diffractometer.compute`.
+
+    Parameters
+    ----------
+    n_views : int, default 20
+        The number of views to compute.
+
+    Returns
+    -------
+    list of numpy.ndarray
+        Quaternions as (4,) arrays.
+    """
+    if n_views <=3 or not isinstance(n_views, int):
+        raise ValueError("Please set n_views to an integer greater than 3.")
+    # Calculate points for even distribution on a sphere
+    ga = np.pi * (3 - 5**0.5)
+    theta = ga * np.arange(n_views-3)
+    z = np.linspace(1 - 1/(n_views-3), 1/(n_views-3), n_views-3)
+    radius = np.sqrt(1 - z * z)
+    points = np.zeros((n_views, 3))
+    points[:-3,0] = radius * np.cos(theta)
+    points[:-3,1] = radius * np.sin(theta)
+    points[:-3,2] = z
+
+    # face on
+    points[-3] = np.array([0, 0, 1])
+    # edge on
+    points[-2] = np.array([0, 1, 1])
+    # corner on
+    points[-1] = np.array([1, 1, 1])
+
+    unit_z = np.array([0, 0, 1])
+    return [vector_vector_rotation(i, unit_z) for i in points]
+
+def all_atom_rdf(gsdfile,
+                 start=0,
+                 stop=None,
+                 r_max=None,
+                 r_min=0,
+                 bins=100,
+                 ):
+    """ Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory.
+    A_name, B_name : str
+        Name(s) of particles between which to calculate the RDF (found in
+        gsd.hoomd.Snapshot.particles.types)
+    start : int
+        Starting frame index for accumulating the RDF. Negative numbers index
+        from the end. (default 0)
+    stop : int
+        Final frame index for accumulating the RDF. If None, the last frame
+        will be used. (default None)
+    r_max : float
+        Maximum radius of RDF. If None, half of the maximum box size is used.
+        (default None)
+    r_min : float
+        Minimum radius of RDF. (default 0)
+    bins : int
+        Number of bins to use when calculating the RDF. (default 100)
+
+    Returns
+    -------
+    (freud.density.RDF, float)
+    """
+    if not stop:
+        stop = -1
+
+    with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
+        snap = trajectory[0]
+
+        if r_max is None:
+           #Use a value just less than half the maximum box length.
+            r_max = np.nextafter(
+            np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
+            )
+
+        rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
+        for snap in trajectory[start:stop]:
+            rdf.compute(aq, neighbors=nlist, reset=False)
+            
+        return rdf, normalization
 
 
 def gsd_rdf(
@@ -106,7 +219,7 @@ def gsd_rdf(
     A_name,
     B_name,
     start=0,
-    stop=None,
+    stop=-1,
     r_max=None,
     r_min=0,
     bins=100,
@@ -133,10 +246,10 @@ def gsd_rdf(
         from the end. (default 0)
     stop : int
         Final frame index for accumulating the RDF. If None, the last frame
-        will be used. (default None)
+        will be used. (default -1)
     r_max : float
         Maximum radius of RDF. If None, half of the maximum box size is used.
-        (default None)
+        (default -1)
     r_min : float
         Minimum radius of RDF. (default 0)
     bins : int
@@ -149,6 +262,7 @@ def gsd_rdf(
     -------
     (freud.density.RDF, float)
     """
+>>>>>>> 887e25e8fd9540d132b2a6cf6d40cd9c237f2bbc
     if A_name == None or B_name == None:
         return all_atom_rdf(gsdfile, start, stop, r_max, r_min,bins, exclude_bonded) 
     else:
@@ -189,7 +303,7 @@ def gsd_rdf(
                     pre_filter = len(nlist)
                     nlist.filter(
                         molecules_A[nlist.point_indices]
-                        != molecules_B[nlist.query_point_indices]
+                       != molecules_B[nlist.query_point_indices]
                     )
                     post_filter = len(nlist)
 
