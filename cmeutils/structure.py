@@ -60,9 +60,6 @@ def all_atom_rdf(gsdfile,
     ----------
     gsdfile : str
         Filename of the GSD trajectory.
-    A_name, B_name : str
-        Name(s) of particles between which to calculate the RDF (found in
-        gsd.hoomd.Snapshot.particles.types)
     start : int
         Starting frame index for accumulating the RDF. Negative numbers index
         from the end. (default 0)
