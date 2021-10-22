@@ -82,7 +82,7 @@ def all_atom_rdf(gsdfile,
     (freud.density.RDF, float)
     """
 
-    if not stop:
+    if stop is None:
         stop = -1
 
     with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
