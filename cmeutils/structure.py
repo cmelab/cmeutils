@@ -97,37 +97,6 @@ def all_atom_rdf(gsdfile,
             
         return rdf, normalization
 
-def gsd_rdf(
-    gsdfile,
-    A_name,
-    B_name,
-    start=0,
-    stop=None,
-    r_max=None,
-    r_min=0,
-    bins=100,
-    exclude_bonded=True,
-    ):
-    """Compute intermolecular RDF from a GSD file.
-   """
-    if not stop:
-        stop = -1
-
-    with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
-        snap = trajectory[0]
-
-        if r_max is None:
-           #Use a value just less than half the maximum box length.
-            r_max = np.nextafter(
-            np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
-            )
-
-        rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
-        for snap in trajectory[start:stop]:
-            rdf.compute(aq, neighbors=nlist, reset=False)
-            
-        return rdf, normalization
-
 
 def gsd_rdf(
     gsdfile,
