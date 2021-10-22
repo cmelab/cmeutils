@@ -68,7 +68,7 @@ def all_atom_rdf(gsdfile,
         will be used. (default -1)
     r_max : float
         Maximum radius of RDF. If None, half of the maximum box size is used.
-        (default -1)
+        (default None)
     r_min : float
         Minimum radius of RDF. (default 0)
     bins : int
@@ -79,7 +79,7 @@ def all_atom_rdf(gsdfile,
     (freud.density.RDF, float)
     """
 
-    if not stop:
+    if stop is None:
         stop = -1
 
     with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
