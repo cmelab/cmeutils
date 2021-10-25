@@ -67,6 +67,7 @@ def gsd_rdf(
     This function calculates the radial distribution function given a GSD file
     and the names of the particle types. By default it will calculate the RDF
     for the entire trajectory.
+
     It is assumed that the bonding, number of particles, and simulation box do
     not change during the simulation.
 
