@@ -62,6 +62,7 @@ def gsd_rdf(
     exclude_bonded=True,
 ):
     """Compute intermolecular RDF from a GSD file.
+
     This function calculates the radial distribution function given a GSD file
     and the names of the particle types. By default it will calculate the RDF
     for the entire trajectory.
