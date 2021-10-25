@@ -3,6 +3,7 @@ import gsd
 import gsd.hoomd
 import numpy as np
 from rowan import vector_vector_rotation
+
 from cmeutils import gsd_utils
 from cmeutils.geometry import get_plane_normal, angle_between_vectors
 
