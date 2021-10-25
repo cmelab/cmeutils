@@ -92,6 +92,7 @@ def gsd_rdf(
     exclude_bonded : bool
         Whether to remove particles in same molecule from the neighbor list.
         (default True)
+
     Returns
     -------
     (freud.density.RDF, float)
