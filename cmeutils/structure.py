@@ -50,6 +50,7 @@ def get_quaternions(n_views = 20):
     unit_z = np.array([0, 0, 1])
     return [vector_vector_rotation(i, unit_z) for i in points]
 
+
 def gsd_rdf(
     gsdfile,
     A_name,
