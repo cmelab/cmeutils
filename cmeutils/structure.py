@@ -197,7 +197,8 @@ def all_atom_rdf(gsdfile,
             r_max = np.nextafter(
             np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
             )
-        rdf.compute(snap, reset=False) 
+        for snap in trajectory[start:stop]:
+            rdf.compute(snap, reset=False) 
     return rdf
 
 
