@@ -1,6 +1,8 @@
 import freud
 import gsd
 import gsd.hoomd
+import hoomd
+from hoomd.deprecated.init import read_xml
 import numpy as np
 
 
@@ -184,3 +186,17 @@ def snap_delete_types(snap, delete_types):
             new_snap.bonds.N = len(new_snap.bonds.group)
     new_snap.validate()
     return new_snap
+
+
+def xml_to_gsd(xmlfile, gsdfile, overwrite=False):
+    hoomd.util.quiet_status()
+    hoomd.context.initialize("")
+    read_xml(xmlfile, restart=xmlfile)
+    hoomd.dump.gsd(
+        filename=gsdfile,
+        period=None,
+        group=hoomd.group.all(),
+        dynamic=["momentum"],
+        overwrite=overwrite
+    )
+    hoomd.util.unquiet_status()
