@@ -211,7 +211,7 @@ def xml_to_gsd(xmlfile, gsdfile):
             period=None,
             group=hoomd.group.all(),
             dynamic=["momentum"],
-            overwrite=overwrite
+            overwrite=True
         )
         hoomd.util.unquiet_status()
         with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "wb") as newt:
