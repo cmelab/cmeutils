@@ -1,5 +1,6 @@
+from tempfile import NamedTemporaryFile
+
 import freud
-import gsd
 import gsd.hoomd
 import hoomd
 from hoomd.deprecated.init import read_xml
@@ -188,15 +189,35 @@ def snap_delete_types(snap, delete_types):
     return new_snap
 
 
-def xml_to_gsd(xmlfile, gsdfile, overwrite=False):
+def xml_to_gsd(xmlfile, gsdfile):
+    """Writes hoomdxml data to gsd file.
+
+    Assumes xml only contains one frame. Also sorts bonds so they will work with
+    freud Neighborlist. Overwrites gsd file if it exists.
+
+    Parameters
+    ----------
+    xmlfile : str
+        Path to xml file
+    gsdfile : str
+        Path to gsd file
+    """
     hoomd.util.quiet_status()
     hoomd.context.initialize("")
     read_xml(xmlfile, restart=xmlfile)
-    hoomd.dump.gsd(
-        filename=gsdfile,
-        period=None,
-        group=hoomd.group.all(),
-        dynamic=["momentum"],
-        overwrite=overwrite
-    )
-    hoomd.util.unquiet_status()
+    with NamedTemporaryFile() as f:
+        hoomd.dump.gsd(
+            filename=f.name,
+            period=None,
+            group=hoomd.group.all(),
+            dynamic=["momentum"],
+            overwrite=overwrite
+        )
+        hoomd.util.unquiet_status()
+        with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "wb") as newt:
+            snap = t[0]
+            bonds = snap.bonds.group
+            bonds = bonds[np.lexsort((bonds[:,1], bonds[:,0]))]
+            snap.bonds.group = bonds
+            newt.append(snap)
+    print(f"XML data written to {gsdfile}")
