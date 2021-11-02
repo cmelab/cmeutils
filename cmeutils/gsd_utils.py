@@ -3,7 +3,7 @@ from tempfile import NamedTemporaryFile
 import freud
 import gsd.hoomd
 import hoomd
-from hoomd.deprecated.init import read_xml
+import hoomd.deprecated
 import numpy as np
 
 
@@ -204,7 +204,7 @@ def xml_to_gsd(xmlfile, gsdfile):
     """
     hoomd.util.quiet_status()
     hoomd.context.initialize("")
-    read_xml(xmlfile, restart=xmlfile)
+    hoomd.deprecated.init.read_xml(xmlfile, restart=xmlfile)
     with NamedTemporaryFile() as f:
         hoomd.dump.gsd(
             filename=f.name,
