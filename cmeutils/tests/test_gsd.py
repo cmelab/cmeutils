@@ -1,10 +1,12 @@
-import numpy as np
 import pytest
+
+import gsd.hoomd
+import numpy as np
 
 from base_test import BaseTest
 from cmeutils.gsd_utils import (
     get_type_position, snap_molecule_cluster, get_all_types, _validate_inputs,
-    snap_delete_types
+    snap_delete_types, xml_to_gsd
 )
 
 
@@ -54,3 +56,15 @@ class TestGSD(BaseTest):
     def test_snap_delete_types_bonded(self, snap_bond):
         new_snap = snap_delete_types(snap_bond, "A")
         assert "A" not in new_snap.particles.types
+
+    def test_xml_to_gsd(self, tmp_path, p3ht_gsd, p3ht_xml):
+        new_gsd = tmp_path / "new.gsd"
+        xml_to_gsd(p3ht_xml, new_gsd)
+        with gsd.hoomd.open(p3ht_gsd) as old, gsd.hoomd.open(new_gsd) as new:
+            old_snap = old[-1]
+            new_snap = new[-1]
+        assert np.all(
+            old_snap.particles.position == new_snap.particles.position
+        )
+        assert np.all(old_snap.particles.image == new_snap.particles.image)
+
