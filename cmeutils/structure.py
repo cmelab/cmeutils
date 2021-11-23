@@ -112,6 +112,7 @@ def gsd_rdf(
 
         type_A = snap.particles.typeid == snap.particles.types.index(A_name)
         type_B = snap.particles.typeid == snap.particles.types.index(B_name)
+
         if exclude_bonded:
             molecules = gsd_utils.snap_molecule_cluster(snap=snap)
             molecules_A = molecules[type_A]
@@ -142,6 +143,7 @@ def gsd_rdf(
                 post_filter = len(nlist)
 
             rdf.compute(aq, neighbors=nlist, reset=False)
+
         normalization = post_filter / pre_filter if exclude_bonded else 1
         return rdf, normalization
 
@@ -168,18 +170,17 @@ def get_centers(gsdfile, new_gsdfile):
             new_snap.configuration.box = snap.configuration.box
             f_box = freud.box.Box.from_box(snap.configuration.box)
             # Use the freud box to unwrap the particle positions
-            unwrapped_positions = f_box.unwrap(snap.particle.positions, snap.particle.images)
-            # Use the unwrapped positions to calculate unwrapped center positions
-            # You can use the clp.compute method below with a different system
-
-            # use f_box.get_images to get the center images from the unwrapped centers
-
-            clp = freud.cluster.ClusterProperties()
-            clp.compute(snap, cluster_idx);
-            new_snap.particles.position = clp.centers
-            new_snap.particles.N = len(clp.centers)
+            unwrapped_positions = f_box.unwrap(snap.particles.position, snap.particles.image)
+            uw_centers = []
+            for i in range(max(cluster_idx)+1):
+                cluster_uw_pos = unwrapped_positions[np.where(cluster_idx == i)]
+                uw_centers.append(np.mean(cluster_uw_pos, axis = 0))
+            uw_centers = np.stack(uw_centers)
+            new_snap.particles.position = f_box.wrap(uw_centers)
+            new_snap.particles.N = len(uw_centers)
             new_snap.particles.types = ["A"]
-            new_snap.particles.typeid = np.zeros(len(clp.centers))
+            new_snap.particles.image = f_box.get_images(uw_centers)
+            new_snap.particles.typeid = np.zeros(len(uw_centers))
             new_snap.validate()
             new_traj.append(new_snap)
 
