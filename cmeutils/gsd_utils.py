@@ -1,27 +1,32 @@
+from tempfile import NamedTemporaryFile
+
 import freud
-import gsd
 import gsd.hoomd
+import hoomd
+import hoomd.deprecated
 import numpy as np
 
 
 def get_type_position(
-        typename,
-        gsd_file=None,
-        snap=None,
-        gsd_frame=-1,
-        images=False):
-    """
-    This function returns the  positions of a particular particle
-    type from a frame of a gsd trajectory file or from a snapshot.
+    typename,
+    gsd_file=None,
+    snap=None,
+    gsd_frame=-1,
+    images=False
+):
+    """Get the positions of a particle type.
+
+    This function returns the positions of a particular particle type from a
+    frame of a gsd trajectory file or from a snapshot.
     Pass in either a gsd file or a snapshot, but not both.
 
     Parameters
     ----------
     typename : str or list of str
-        Name of particles of which to get the positions
-        (found in gsd.hoomd.Snapshot.particles.types)
-        If you want the positions of multiple types, pass
-        in a list. Ex.) ['ca', 'c3']
+        Name of particles of which to get the positions (found in
+        gsd.hoomd.Snapshot.particles.types)
+        If you want the positions of multiple types, pass in a list
+        e.g., ['ca', 'c3']
     gsd_file : str, default None
         Filename of the gsd trajectory
     snap : gsd.hoomd.Snapshot, default None
@@ -35,8 +40,7 @@ def get_type_position(
     Returns
     -------
     numpy.ndarray(s)
-        Retruns a single array of positions or
-        arrays of positions and images
+        Returns an array of positions or arrays of positions and images
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     if isinstance(typename, str):
@@ -63,8 +67,7 @@ def get_type_position(
 
 
 def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
-    """
-    Returns all particle types in a hoomd trajectory
+    """Return all particle types in a hoomd trajectory.
 
     Parameters
     ----------
@@ -101,7 +104,7 @@ def snap_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
 
     Returns
     -------
-    numpy array (N_particles,)
+    numpy.ndarray (N_particles,)
     """
     snap = _validate_inputs(gsd_file, snap, gsd_frame)
     system = freud.AABBQuery.from_system(snap)
@@ -133,3 +136,88 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
     elif snap:
         assert isinstance(snap, gsd.hoomd.Snapshot)
     return snap
+
+
+def snap_delete_types(snap, delete_types):
+    """Create a new snapshot with certain particle types deleted.
+
+    Reads in a snapshot and writes the information (excluding delete_types) to
+    a new snapshot. Does not change the original snapshot.
+
+    Information written:
+        - particles (N, types, position, typeid, image)
+        - configuration (box)
+        - bonds (N, group)
+
+    Parameters
+    ----------
+    snap : gsd.hoomd.Snapshot
+        The snapshot to read in
+
+    Returns
+    -------
+    gsd.hoomd.Snapshot
+        The new snapshot with particles deleted.
+    """
+    new_snap = gsd.hoomd.Snapshot()
+    delete_ids = [snap.particles.types.index(i) for i in delete_types]
+    selection = np.where(~np.isin(snap.particles.typeid, delete_ids))[0]
+    new_snap.particles.N = len(selection)
+    new_snap.particles.types = [
+        i for i in snap.particles.types if i not in delete_types
+    ]
+    typeid_map = {
+        i:new_snap.particles.types.index(e)
+        for i, e in enumerate(snap.particles.types)
+        if e in new_snap.particles.types
+    }
+    new_snap.particles.position = snap.particles.position[selection]
+    new_snap.particles.image = snap.particles.image[selection]
+    new_snap.particles.typeid = np.vectorize(typeid_map.get)(
+        snap.particles.typeid[selection]
+    )
+    new_snap.configuration.box = snap.configuration.box
+    if snap.bonds.N > 0:
+        bonds = np.isin(snap.bonds.group, selection).all(axis=1)
+        if bonds.any():
+            inds = {e:i for i, e in enumerate(selection)}
+            new_snap.bonds.group = np.vectorize(inds.get)(
+                snap.bonds.group[bonds]
+            )
+            new_snap.bonds.N = len(new_snap.bonds.group)
+    new_snap.validate()
+    return new_snap
+
+
+def xml_to_gsd(xmlfile, gsdfile):
+    """Writes hoomdxml data to gsd file.
+
+    Assumes xml only contains one frame. Also sorts bonds so they will work with
+    freud Neighborlist. Overwrites gsd file if it exists.
+
+    Parameters
+    ----------
+    xmlfile : str
+        Path to xml file
+    gsdfile : str
+        Path to gsd file
+    """
+    hoomd.util.quiet_status()
+    hoomd.context.initialize("")
+    hoomd.deprecated.init.read_xml(xmlfile, restart=xmlfile)
+    with NamedTemporaryFile() as f:
+        hoomd.dump.gsd(
+            filename=f.name,
+            period=None,
+            group=hoomd.group.all(),
+            dynamic=["momentum"],
+            overwrite=True
+        )
+        hoomd.util.unquiet_status()
+        with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "wb") as newt:
+            snap = t[0]
+            bonds = snap.bonds.group
+            bonds = bonds[np.lexsort((bonds[:,1], bonds[:,0]))]
+            snap.bonds.group = bonds
+            newt.append(snap)
+    print(f"XML data written to {gsdfile}")

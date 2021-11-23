@@ -3,7 +3,8 @@ import pytest
 import numpy as np
 
 from cmeutils.tests.base_test import BaseTest
-from cmeutils.structure import gsd_rdf, get_quaternions
+from cmeutils.structure import gsd_rdf, get_quaternions, order_parameter
+
 
 class TestStructure(BaseTest):
     def test_gsd_rdf(self, gsdfile_bond):
@@ -28,3 +29,14 @@ class TestStructure(BaseTest):
         qs = get_quaternions()
         assert len(qs) == 20
         assert len(qs[0]) == 4
+
+    def test_order_parameter(self, p3ht_gsd, p3ht_cg_gsd, mapping):
+        r_max = 2
+        a_max = 30
+
+        order, cl_idx = order_parameter(
+            p3ht_gsd, p3ht_cg_gsd, mapping, r_max, a_max
+        )
+
+        assert np.isclose(order[0], 0.33125)
+        assert len(cl_idx[0]) == 160
