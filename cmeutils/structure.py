@@ -277,8 +277,6 @@ def all_atom_rdf(gsdfile,
     -------
     (freud.density.RDF, float)
     """
-
-
     with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
         snap = trajectory[0]
         if r_max is None:
