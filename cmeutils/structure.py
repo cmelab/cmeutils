@@ -271,6 +271,7 @@ def all_atom_rdf(gsdfile,
         Minimum radius of RDF. (default 0)
     bins : int
         Number of bins to use when calculating the RDF. (default 100)
+        
     Returns
     -------
     (freud.density.RDF, float)
