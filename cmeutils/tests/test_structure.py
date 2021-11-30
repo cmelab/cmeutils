@@ -1,9 +1,11 @@
 import pytest
 
+import os
+
 import numpy as np
 
 from cmeutils.tests.base_test import BaseTest
-from cmeutils.structure import gsd_rdf, get_quaternions, order_parameter
+from cmeutils.structure import gsd_rdf, get_quaternions, order_parameter, get_centers
 
 
 class TestStructure(BaseTest):
@@ -40,3 +42,7 @@ class TestStructure(BaseTest):
 
         assert np.isclose(order[0], 0.33125)
         assert len(cl_idx[0]) == 160
+        
+    def test_get_centers(self, gsdfile, new_gsdfile):
+        centers = get_centers(gsdfile) 
+        assert centers == os.file.exists(new_gsdfile)
