@@ -45,4 +45,4 @@ class TestStructure(BaseTest):
 
     def test_all_atom_rdf(self, gsdfile):
         rdf = all_atom_rdf(gsdfile)
-        assert type(rdf) == freud.density.RDF
+        assert isinstance(rdf, freud.density.RDF)
