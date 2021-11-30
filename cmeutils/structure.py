@@ -148,7 +148,6 @@ def gsd_rdf(
         return rdf, normalization
 
 
-
 def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
     """Calculate the order parameter of a system.
 
