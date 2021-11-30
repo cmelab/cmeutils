@@ -275,7 +275,7 @@ def all_atom_rdf(gsdfile,
         
     Returns
     -------
-    (freud.density.RDF, float)
+    freud.density.RDF
     """
     with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
         snap = trajectory[0]
