@@ -1,7 +1,6 @@
 import pytest
 
 import numpy as np
-
 import freud
 
 from cmeutils.tests.base_test import BaseTest
