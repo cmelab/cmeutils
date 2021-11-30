@@ -259,19 +259,18 @@ def all_atom_rdf(gsdfile,
     ----------
     gsdfile : str
         Filename of the GSD trajectory.
-    start : int
+    start : int, default 0
         Starting frame index for accumulating the RDF. Negative numbers index
-        from the end. (default 0)
-    stop : int
+        from the end. 
+    stop : int, default -1
         Final frame index for accumulating the RDF. If None, the last frame
-        will be used. (default -1)
-    r_max : float
+        will be used.
+    r_max : float, default None
         Maximum radius of RDF. If None, half of the maximum box size is used.
-        (default -1)
-    r_min : float
-        Minimum radius of RDF. (default 0)
-    bins : int
-        Number of bins to use when calculating the RDF. (default 100)
+    r_min : float, default 0
+        Minimum radius of RDF.
+    bins : int, default 100
+        Number of bins to use when calculating the RDF.
         
     Returns
     -------
