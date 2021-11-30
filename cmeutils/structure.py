@@ -248,6 +248,7 @@ def all_atom_rdf(gsdfile,
                  bins=100,
                  ):
     """Compute intermolecular RDF from a GSD file.
+    
     This function calculates the radial distribution function given a GSD file
     for all atoms. By default it will calculate the RDF
     for the entire trajectory.
