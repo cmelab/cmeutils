@@ -254,6 +254,7 @@ def all_atom_rdf(gsdfile,
     for the entire trajectory.
     It is assumed that the bonding, number of particles, and simulation box do
     not change during the simulation.
+    
     Parameters
     ----------
     gsdfile : str
