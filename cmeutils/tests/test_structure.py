@@ -3,10 +3,11 @@ import pytest
 import gsd
 
 import numpy as np
+import freud
 
 from cmeutils.tests.base_test import BaseTest
-from cmeutils.structure import gsd_rdf, get_quaternions, order_parameter, get_centers
 
+from cmeutils.structure import gsd_rdf, get_quaternions, order_parameter, all_atom_rdf, get_centers
 
 class TestStructure(BaseTest):
     def test_gsd_rdf(self, gsdfile_bond):
@@ -42,6 +43,10 @@ class TestStructure(BaseTest):
 
         assert np.isclose(order[0], 0.33125)
         assert len(cl_idx[0]) == 160
+
+    def test_all_atom_rdf(self, gsdfile):
+        rdf = all_atom_rdf(gsdfile)
+        assert isinstance(rdf, freud.density.RDF)
         
     def test_get_centers(self, gsdfile):
         new_gsdfile = "centers.gsd"

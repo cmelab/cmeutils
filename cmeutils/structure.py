@@ -275,3 +275,52 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
             order.append(n_large / n_total)
             cl_idx.append(cl.cluster_idx)
     return order, cl_idx
+
+
+def all_atom_rdf(gsdfile,
+                 start=0,
+                 stop=-1,
+                 r_max=None,
+                 r_min=0,
+                 bins=100,
+                 ):
+    """Compute intermolecular RDF from a GSD file.
+    
+    This function calculates the radial distribution function given a GSD file
+    for all atoms. By default it will calculate the RDF
+    for the entire trajectory.
+    It is assumed that the bonding, number of particles, and simulation box do
+    not change during the simulation.
+    
+    Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory.
+    start : int, default 0
+        Starting frame index for accumulating the RDF. Negative numbers index
+        from the end. 
+    stop : int, default -1
+        Final frame index for accumulating the RDF. If None, the last frame
+        will be used.
+    r_max : float, default None
+        Maximum radius of RDF. If None, half of the maximum box size is used.
+    r_min : float, default 0
+        Minimum radius of RDF.
+    bins : int, default 100
+        Number of bins to use when calculating the RDF.
+        
+    Returns
+    -------
+    freud.density.RDF
+    """
+    with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
+        snap = trajectory[0]
+        if r_max is None:
+            #Use a value just less than half the maximum box length.
+            r_max = np.nextafter(
+                np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
+            )
+        rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
+        for snap in trajectory[start:stop]:
+            rdf.compute(snap, reset=False)
+    return rdf
