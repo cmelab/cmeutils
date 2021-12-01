@@ -124,7 +124,7 @@ def get_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
 
 def _validate_inputs(gsd_file, snap, gsd_frame):
     if all([gsd_file, snap]):
-        raise ValueError("Only pass in one of snapshot, gsd_file")
+        raise ValueError("Only pass in a snapshot or a gsd_file")
     if gsd_file:
         assert isinstance(gsd_frame, int)
         try:
