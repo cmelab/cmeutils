@@ -1,6 +1,6 @@
 import pytest
 
-import os
+import gsd
 
 import numpy as np
 
@@ -43,6 +43,7 @@ class TestStructure(BaseTest):
         assert np.isclose(order[0], 0.33125)
         assert len(cl_idx[0]) == 160
         
-    def test_get_centers(self, gsdfile, new_gsdfile):
-        centers = get_centers(gsdfile) 
-        assert centers == os.file.exists(new_gsdfile)
+    def test_get_centers(self, gsdfile):
+        new_gsdfile = "centers.gsd"
+        centers = get_centers(gsdfile, new_gsdfile) 
+        assert isinstance(centers, type(None))
