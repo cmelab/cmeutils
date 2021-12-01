@@ -1,7 +1,6 @@
 import pytest
 
 import numpy as np
-
 import freud
 
 from cmeutils.tests.base_test import BaseTest
@@ -45,4 +44,4 @@ class TestStructure(BaseTest):
 
     def test_all_atom_rdf(self, gsdfile):
         rdf = all_atom_rdf(gsdfile)
-        assert type(rdf) == freud.density.RDF
+        assert isinstance(rdf, freud.density.RDF)
