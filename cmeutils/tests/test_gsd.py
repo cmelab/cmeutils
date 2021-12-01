@@ -5,7 +5,7 @@ import numpy as np
 
 from base_test import BaseTest
 from cmeutils.gsd_utils import (
-    get_type_position, snap_molecule_cluster, get_all_types, _validate_inputs,
+    get_type_position, get_molecule_cluster, get_all_types, _validate_inputs,
     snap_delete_types, xml_to_gsd
 )
 
@@ -45,8 +45,8 @@ class TestGSD(BaseTest):
         types = get_all_types(gsdfile)
         assert types == ["A", "B"]
 
-    def test_snap_molecule_cluster(self, gsdfile_bond):
-        cluster = snap_molecule_cluster(gsd_file=gsdfile_bond)
+    def test_get_molecule_cluster(self, gsdfile_bond):
+        cluster = get_molecule_cluster(gsd_file=gsdfile_bond)
         assert np.array_equal(cluster, [1, 0, 1, 0, 0])
 
     def test_snap_delete_types(self, snap):

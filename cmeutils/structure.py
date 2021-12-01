@@ -114,7 +114,7 @@ def gsd_rdf(
         type_B = snap.particles.typeid == snap.particles.types.index(B_name)
 
         if exclude_bonded:
-            molecules = gsd_utils.snap_molecule_cluster(snap=snap)
+            molecules = gsd_utils.get_molecule_cluster(snap=snap)
             molecules_A = molecules[type_A]
             molecules_B = molecules[type_B]
 
@@ -285,20 +285,20 @@ def all_atom_rdf(gsdfile,
                  bins=100,
                  ):
     """Compute intermolecular RDF from a GSD file.
-    
+
     This function calculates the radial distribution function given a GSD file
     for all atoms. By default it will calculate the RDF
     for the entire trajectory.
     It is assumed that the bonding, number of particles, and simulation box do
     not change during the simulation.
-    
+
     Parameters
     ----------
     gsdfile : str
         Filename of the GSD trajectory.
     start : int, default 0
         Starting frame index for accumulating the RDF. Negative numbers index
-        from the end. 
+        from the end.
     stop : int, default -1
         Final frame index for accumulating the RDF. If None, the last frame
         will be used.
@@ -308,7 +308,7 @@ def all_atom_rdf(gsdfile,
         Minimum radius of RDF.
     bins : int, default 100
         Number of bins to use when calculating the RDF.
-        
+
     Returns
     -------
     freud.density.RDF
