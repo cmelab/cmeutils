@@ -5,7 +5,7 @@ import numpy as np
 
 from base_test import BaseTest
 from cmeutils.gsd_utils import (
-    get_type_position, snap_molecule_cluster, get_all_types, _validate_inputs,
+    get_type_position, get_molecule_cluster, get_all_types, _validate_inputs,
     snap_delete_types, xml_to_gsd
 )
 
