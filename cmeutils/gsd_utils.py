@@ -83,7 +83,7 @@ def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
     return snap.particles.types
 
 
-def snap_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
+def get_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
     """Find molecule index for each particle.
 
     Compute clusters of bonded molecules and return an array of the molecule
