@@ -4,6 +4,7 @@ import tempfile
 
 import gsd.hoomd
 import numpy as np
+from pymbar.testsystems import correlated_timeseries_example
 
 
 asset_dir = path.join(path.dirname(__file__), "assets")
@@ -55,6 +56,10 @@ class BaseTest:
     @pytest.fixture
     def p3ht_xml(self):
         return path.join(asset_dir, "p3ht.xml")
+
+    @pytest.fixture(scope="session")
+    def correlated_data_tau100_n10000(self):
+        return correlated_timeseries_example(N=10000, tau=100, seed=432)
 
 
 def create_frame(i, add_bonds, images, seed=42):

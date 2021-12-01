@@ -9,6 +9,7 @@ dependencies:
   - pip
   - python=3.7
   - matplotlib
+  - pymbar
   - pytest
   - pytest-cov
   - rowan
