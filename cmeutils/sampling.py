@@ -23,6 +23,36 @@ def equil_sample(
         )
 
 def is_equilibrated(data, threshold_fraction=0.80, threshold_neff=100, nskip=1):
+    """Check if a dataset is equilibrated based on a fraction of equil data.
+
+    Using `pymbar.timeseries` module, check if a timeseries dataset has enough
+    equilibrated data based on two threshold values. The threshold_fraction
+    value translates to the fraction of total data from the dataset 'a_t' that
+    can be thought of as being in the 'production' region. The threshold_neff
+    is the minimum amount of effectively uncorrelated samples to have in a_t to
+    consider it equilibrated.
+
+    The `pymbar.timeseries` module returns the starting index of the
+    'production' region from 'a_t'. The fraction of 'production' data is
+    then compared to the threshold value. If the fraction of 'production' data
+    is >= threshold fraction this will return a list of
+    [True, t0, g, Neff] and [False, None, None, None] otherwise.
+
+    Parameters
+    ----------
+    data : numpy.typing.Arraylike
+        1-D time dependent data to check for equilibration.
+    threshold_fraction : float, optional, default=0.8
+        Fraction of data expected to be equilibrated.
+    threshold_neff : int, optional, default=100
+        Minimum amount of effectively correlated samples to consider a_t
+        'equilibrated'.
+    nskip : int, optional, default=1
+        Since the statistical inefficiency is computed for every time origin
+        in a call to timeseries.detectEquilibration, for larger datasets
+        (> few hundred), increasing nskip might speed this up, while
+        discarding more data.
+    """
     if threshold_fraction < 0.0 or threshold_fraction > 1.0:
         raise ValueError(
             f"Passed 'threshold_fraction' value: {threshold_fraction}, "
@@ -41,45 +71,3 @@ def is_equilibrated(data, threshold_fraction=0.80, threshold_neff=100, nskip=1):
         return [True, t0, g, Neff]
     else:
         return [False, None, None, None]
-
-def trim_non_equilibrated(data, threshold_fraction=0.80, threshold_neff=100, nskip=1):
-    """Prune timeseries array to just the production data.
-
-    Refer to equilibration.is_equilibrated for addtional information.
-
-    This method returns a list of length 3, where list[0] is the trimmed array,
-    list[1] is the index of the original dataset where equilibration begins,
-    list[2] is the calculated statistical inefficiency, which can be used
-    when subsampling the data using `pymbar.timseries.subsampleCorrelatedData`,
-    list[3] is the number of effective uncorrelated data points.
-
-    Refer to https://pymbar.readthedocs.io/en/master/timeseries.html for
-    additional information.
-
-    Parameters
-    ----------
-    data : numpy.typing.Arraylike
-        1-D time dependent data to check for equilibration.
-    threshold_fraction : float, optional, default=0.75
-        Fraction of data expected to be equilibrated.
-    threshold_neff : int, optional, default=100
-        Minimum amount of uncorrelated samples.
-    nskip : int, optional, default=1
-        Since the statistical inefficiency is computed for every time origin
-        in a call to timeseries.detectEquilibration, for larger datasets
-        (> few hundred), increasing nskip might speed this up, while
-        discarding more data.
-    """
-    [truth, t0, g, Neff] = is_equilibrated(
-        data,
-        threshold_fraction=threshold_fraction,
-        threshold_neff=threshold_neff,
-        nskip=nskip,
-    )
-    if not truth:
-        raise ValueError(
-            f"Data with a threshold_fraction of {threshold_fraction} and "
-            f"threshold_neff {threshold_neff} is not equilibrated!"
-        )
-
-    return [data[t0:], t0, g, Neff]

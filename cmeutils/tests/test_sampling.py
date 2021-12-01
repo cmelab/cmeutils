@@ -4,7 +4,7 @@ from pymbar import testsystems
 from pymbar.testsystems.timeseries import correlated_timeseries_example
 
 from cmeutils.tests.base_test import BaseTest
-from cmeutils.sampling import equil_sample, is_equilibrated, trim_non_equilibrated
+from cmeutils.sampling import equil_sample, is_equilibrated
 
 class TestSampler(BaseTest):
     def test_is_equilibrated(self, correlated_data_tau100_n10000):
@@ -63,21 +63,21 @@ class TestSampler(BaseTest):
 
     def test_return_trimmed_data(self, correlated_data_tau100_n10000):
         data = correlated_data_tau100_n10000
-        [new_a_t, t0, g, Neff] = trim_non_equilibrated(
+        [equil_data, uncorr_indices, prod_start, Neff] = equil_sample(
             data, threshold_fraction=0.2, threshold_neff=10
         )
-        assert np.shape(new_a_t)[0] < np.shape(data)[0]
+        assert np.shape(equil_data)[0] < np.shape(data)[0]
 
     def test_trim_high_threshold(self, correlated_data_tau100_n10000):
         data = correlated_data_tau100_n10000
-        with pytest.raises(ValueError, match=r"Data with a threshold_fraction"):
-            [new_a_t, t0, g, Neff] = trim_non_equilibrated(
+        with pytest.raises(ValueError, match=r"Property does not have requisite threshold"):
+            [equil_data, uncorr_indices, prod_start, Neff] = equil_sample(
                 data, threshold_fraction=0.98
             )
         with pytest.raises(
             ValueError,
-            match=r"Data with a threshold\_fraction of 0\.75 and threshold\_neff 10000 is not equilibrated\!",
+            match=r"More production data is needed",
         ):
-            [new_a_t, t0, g, Neff] = trim_non_equilibrated(
+            [equil_data, uncorr_indices, prod_start, Neff] = equil_sample(
                 data, threshold_fraction=0.75, threshold_neff=10000
             )
