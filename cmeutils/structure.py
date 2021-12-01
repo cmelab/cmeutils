@@ -314,7 +314,7 @@ def all_atom_rdf(gsdfile,
     freud.density.RDF
     """
     with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
-        snap = trajectory[0]
+        snap = trajectory[start]
         if r_max is None:
             #Use a value just less than half the maximum box length.
             r_max = np.nextafter(
