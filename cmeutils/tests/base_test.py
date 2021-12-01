@@ -52,6 +52,10 @@ class BaseTest:
     def mapping(self):
         return np.loadtxt(path.join(asset_dir, "mapping.txt"), dtype=int)
 
+    @pytest.fixture
+    def p3ht_xml(self):
+        return path.join(asset_dir, "p3ht.xml")
+
 
 def create_frame(i, add_bonds, images, seed=42):
     np.random.seed(seed)
