@@ -164,7 +164,7 @@ def get_centers(gsdfile, new_gsdfile):
     """
     with gsd.hoomd.open(new_gsdfile, 'wb') as new_traj, gsd.hoomd.open(gsdfile, 'rb') as traj:
         snap = traj[0]
-        cluster_idx = gsd_utils.snap_molecule_cluster(snap=snap)
+        cluster_idx = gsd_utils.get_molecule_cluster(snap=snap)
         for snap in traj:
             new_snap = gsd.hoomd.Snapshot()
             new_snap.configuration.box = snap.configuration.box
