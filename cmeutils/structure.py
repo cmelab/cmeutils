@@ -147,7 +147,9 @@ def gsd_rdf(
             rdf.compute(aq, neighbors=nlist, reset=False)
 
         normalization = post_filter / pre_filter if exclude_bonded else 1
-        return rdf, normalization, ab_ratio
+        normalization *= ab_ratio
+
+        return rdf, normalization
 
 
 def get_centers(gsdfile, new_gsdfile):
