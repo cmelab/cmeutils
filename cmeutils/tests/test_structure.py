@@ -22,6 +22,15 @@ class TestStructure(BaseTest):
         assert norm2 == 1
         assert not np.array_equal(rdf_noex, rdf_ex)
 
+    def test_gsd_rdf_pair_order(self, gsdfile_bond):
+        rdf, norm = gsd_rdf(gsdfile_bond, "A", "B")
+        rdf_y = rdf.rdf*norm
+        rdf2, norm2 = gsd_rdf(gsdfile_bond, "B", "A")
+        rdf_y2 = rdf2.rdf*norm2
+
+        for i,j in zip(rdf_y, rdf_y2):
+            assert np.allclose(i,j,atol=1e-4)
+
     def test_get_quaternions(self):
         with pytest.raises(ValueError):
             get_quaternions(0)
