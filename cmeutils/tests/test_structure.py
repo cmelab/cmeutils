@@ -13,7 +13,7 @@ class TestStructure(BaseTest):
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")
         rdf_noex, norm2 = gsd_rdf(gsdfile_bond, "A", "B", exclude_bonded=False)
-        assert norm2 == 1
+        assert np.round(norm2, 3) == np.round(2/3, 3)
         assert not np.array_equal(rdf_noex, rdf_ex)
 
     def test_gsd_rdf_samename(self, gsdfile_bond):
