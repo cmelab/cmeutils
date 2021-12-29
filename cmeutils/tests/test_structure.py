@@ -5,7 +5,7 @@ import gsd
 import numpy as np
 import freud
 
-from cmeutils.tests.base_test import BaseTest
+from base_test import BaseTest
 
 from cmeutils.structure import gsd_rdf, get_quaternions, order_parameter, all_atom_rdf, get_centers
 

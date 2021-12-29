@@ -1,6 +1,6 @@
 import pytest
 
-from cmeutils.tests.base_test import BaseTest
+from base_test import BaseTest
 from cmeutils.dynamics import msd_from_gsd
 
 class TestDynamics(BaseTest):
