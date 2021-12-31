@@ -14,3 +14,4 @@ class TestPlot(BaseTest):
         peaks = signal.find_peaks(data)
         assert isinstance(data, np.ndarray)
         assert isinstance(peaks, tuple)
+        
