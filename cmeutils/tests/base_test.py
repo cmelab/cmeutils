@@ -55,6 +55,10 @@ class BaseTest:
     @pytest.fixture
     def p3ht_xml(self):
         return path.join(asset_dir, "p3ht.xml")
+    
+    @pytest.fixture
+    def rdf_txt(self):
+        return path.join(asset_dir, "cztptz8fitic_rdf.txt")
 
 
 def create_frame(i, add_bonds, images, seed=42):
