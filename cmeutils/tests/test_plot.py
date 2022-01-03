@@ -8,10 +8,9 @@ from base_test import BaseTest
 from cmeutils.plot_tools import find_peaks
 
 class TestPlot(BaseTest):
-    def test_plot(self, rdf_txt):
+    def test_find_peaks(self, rdf_txt):
         line= np.genfromtxt(rdf_txt, names=True, delimiter=",")
         y= line["rdf"]
         peaks = signal.find_peaks(y)
         assert isinstance(y, np.ndarray)
         assert isinstance(peaks, tuple)
-
