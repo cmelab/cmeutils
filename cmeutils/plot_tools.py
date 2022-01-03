@@ -12,8 +12,9 @@ def find_peaks(data):
        Such as x, y, OR z.
     Returns
     ----------
-     tuple   
-       """
+    tuple
+        The indices of peaks
+    """
     total_peaks = signal.find_peaks(data)
     avg_peaks = sum(data) / len(data)
     peaks = signal.find_peaks(data, height=avg_peaks)
