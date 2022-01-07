@@ -4,6 +4,28 @@ from pymbar import timeseries
 def equil_sample(
         data, threshold_fraction=0.0, threshold_neff=1, conservative=True
     ):
+    """Returns a statistically independent subset of an array of data.
+
+    Parameters
+    ----------
+    data : numpy.typing.Arraylike
+        1-D time dependent data to check for equilibration.
+    threshold_fraction : float, optional, default=0.8
+        Fraction of data expected to be equilibrated.
+    threshold_neff : int, optional, default=100
+        Minimum amount of effectively correlated samples to consider a_t
+        'equilibrated'.
+    conservative : bool, default=True
+        if set to True, uniformly-spaced indices are chosen with interval
+        ceil(g), where g is the statistical inefficiency.  
+        Otherwise, indices are chosen non-uniformly with interval of
+        approximately g in order to end up with approximately T/g total indices
+
+    Returns
+    -------
+    Tuple containing
+
+    """
     is_equil, prod_start, ineff, Neff = is_equilibrated(
             data, threshold_fraction, threshold_neff
             )
