@@ -29,23 +29,25 @@ def angle_distribution(
 
     Returns
     -------
-    1-D nump.array 
+    1-D numpy.array 
         Array of bond angles in degrees
 
     """
     angles = []
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
-    angle_name = "-".join([A_name, B_name, C_name])
+    name = "-".join([A_name, B_name, C_name])
+    name_rev = "-".join([C_name, B_name, A_name])
     for snap in trajectory[start: stop]:
-        if angle_name not in snap.angles.types:
+        if name not in snap.angles.types and name_rev not in snap.angles.types:
             raise ValueError(
-                    f"Angle {angle_name} not found in snap.angles.types. "
+                    f"Angles {name} or {name_rev} not found in "
+                    " snap.angles.types. "
                     "A_name, B_name, C_name must match the order "
                     "as they appear in snap.angles.types."
                 )
         for idx, angle_id in enumerate(snap.angles.typeid):
-            _angle_name = snap.angles.types[angle_id]
-            if _angle_name == angle_name:
+            angle_name = snap.angles.types[angle_id]
+            if angle_name == name or angle_name == name_rev:
                 pos1 = snap.particles.position[snap.angles.group[idx][0]]
                 img1 = snap.particles.image[snap.angles.group[idx][0]]
                 pos2 = snap.particles.position[snap.angles.group[idx][1]]
@@ -88,13 +90,16 @@ def bond_distribution(
     """
     bonds = []
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
+    name = "-".join([A_name, B_name])
+    name_rev = name[::-1]
     for snap in trajectory[start:stop]:
+        if name not in snap.bonds.types and name_rev not in snap.bonds.types:
+            raise ValueError(f"Bond types {name} and {name_rev} not found "
+                    "snap.bonds.types."
+                )
         for idx, bond in enumerate(snap.bonds.typeid):
             bond_name = snap.bonds.types[bond]
-            if bond_name in [
-                    "-".join([A_name, B_name]),
-                    "-".join([B_name, A_name])
-                ]:
+            if bond_name in [name, name_rev]:
                 pos1 = snap.particles.position[snap.bonds.group[idx][0]]
                 img1 = snap.particles.image[snap.bonds.group[idx][0]]
                 pos2 = snap.particles.position[snap.bonds.group[idx][1]]

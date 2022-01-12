@@ -23,6 +23,12 @@ class TestStructure(BaseTest):
         for ang in angles:
             assert 80 < ang < 100
 
+    def test_angle_distribution_order(self, p3ht_gsd):
+        angles = angle_distribution(p3ht_gsd, "ss", "cc", "cd", start=0, stop=1)
+        angles2 = angle_distribution(p3ht_gsd, "cd", "cc", "ss", start=0, stop=1)
+        assert angles.shape[0] > 0
+        assert angles.shape == angles2.shape
+
     def test_angle_not_found(self, p3ht_gsd):
         with pytest.raises(ValueError):
             angles = angle_distribution(p3ht_gsd, "cc", "xx", "cc", start=0, stop=1)
@@ -38,6 +44,10 @@ class TestStructure(BaseTest):
         assert bonds.shape == bonds2.shape
         for i, j in zip(bonds, bonds2):
             assert i == j
+
+    def test_bond_not_found(self, p3ht_gsd):
+        with pytest.raises(ValueError):
+            bonds = bond_distribution(p3ht_gsd, "xx", "ss", start=0, stop=1)
 
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")
