@@ -28,6 +28,7 @@ class TestStructure(BaseTest):
         angles2 = angle_distribution(p3ht_gsd, "cd", "cc", "ss", start=0, stop=1)
         assert angles.shape[0] > 0
         assert angles.shape == angles2.shape
+        assert np.array_equal(angles, angles2)
 
     def test_angle_not_found(self, p3ht_gsd):
         with pytest.raises(ValueError):
@@ -42,8 +43,7 @@ class TestStructure(BaseTest):
         bonds = bond_distribution(p3ht_gsd, "cc", "ss", start=0, stop=1)
         bonds2 = bond_distribution(p3ht_gsd, "ss", "cc", start=0, stop=1)
         assert bonds.shape == bonds2.shape
-        for i, j in zip(bonds, bonds2):
-            assert i == j
+        assert np.array_equal(bonds, bonds2)
 
     def test_bond_not_found(self, p3ht_gsd):
         with pytest.raises(ValueError):
