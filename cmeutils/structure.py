@@ -28,12 +28,13 @@ def angle_distribution(
 
     Returns
     -------
-    List of angles (in degrees)
+    1D nump.array 
+        Array of angles in degrees
 
     """
     angles = []
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
-    for snap in trajectory[start, stop]:
+    for snap in trajectory[start: stop]:
         for idx, angle_id in enumerate(snap.angles.typeid):
             angle_name = snap.angles.types[angle_id]
             if angle_name == "-".join([A_name, B_name, C_name]):
@@ -49,7 +50,8 @@ def angle_distribution(
                 u = pos1_unwrap - pos2_unwrap
                 v = pos3_unwrap - pos2_unwrap
                 angles.append(np.round(angle_between_vectors(u, v, False), 3))
-    return angles
+    trajectory.close()
+    return np.array(angles)
 
 
 def bond_distribution(

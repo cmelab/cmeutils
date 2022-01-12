@@ -7,9 +7,22 @@ import freud
 
 from cmeutils.tests.base_test import BaseTest
 
-from cmeutils.structure import gsd_rdf, get_quaternions, order_parameter, all_atom_rdf, get_centers
+from cmeutils.structure import (
+        angle_distribution,
+        bond_distribution,
+        gsd_rdf,
+        get_quaternions, 
+        order_parameter,
+        all_atom_rdf,
+        get_centers
+    )
 
 class TestStructure(BaseTest):
+    def test_angle_distribution(self, p3ht_gsd):
+        angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc")
+        for ang in angles:
+            assert 80 < ang < 100
+
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")
         rdf_noex, norm2 = gsd_rdf(gsdfile_bond, "A", "B", exclude_bonded=False)
