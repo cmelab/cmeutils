@@ -82,7 +82,8 @@ def bond_distribution(
 
     Returns
     -------
-    List of bond lengths
+    1-D numpy array
+        Array of bond lengths
 
     """
     bonds = []
