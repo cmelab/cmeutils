@@ -37,6 +37,8 @@ def angle_distribution(
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
     name = "-".join([A_name, B_name, C_name])
     name_rev = "-".join([C_name, B_name, A_name])
+
+    angles = []
     for snap in trajectory[start: stop]:
         if name not in snap.angles.types and name_rev not in snap.angles.types:
             raise ValueError(
@@ -88,10 +90,11 @@ def bond_distribution(
         Array of bond lengths
 
     """
-    bonds = []
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
     name = "-".join([A_name, B_name])
-    name_rev = name[::-1]
+    name_rev = "-".join([B_name, A_name])
+
+    bonds = []
     for snap in trajectory[start:stop]:
         if name not in snap.bonds.types and name_rev not in snap.bonds.types:
             raise ValueError(f"Bond types {name} and {name_rev} not found "
