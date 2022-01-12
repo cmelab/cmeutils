@@ -27,6 +27,18 @@ class TestStructure(BaseTest):
         with pytest.raises(ValueError):
             angles = angle_distribution(p3ht_gsd, "cc", "xx", "cc", start=0, stop=1)
 
+    def test_bond_distribution(self, p3ht_gsd):
+        bonds = bond_distribution(p3ht_gsd, "cc", "ss", start=0, stop=1)
+        for bond in bonds:
+            assert 0.45 < bond < 0.52
+
+    def test_bond_distribution_order(self, p3ht_gsd):
+        bonds = bond_distribution(p3ht_gsd, "cc", "ss", start=0, stop=1)
+        bonds2 = bond_distribution(p3ht_gsd, "ss", "cc", start=0, stop=1)
+        assert bonds.shape == bonds2.shape
+        for i, j in zip(bonds, bonds2):
+            assert i == j
+
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")
         rdf_noex, norm2 = gsd_rdf(gsdfile_bond, "A", "B", exclude_bonded=False)
