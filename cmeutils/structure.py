@@ -55,7 +55,7 @@ def angle_distribution(
                 pos1_unwrap = pos1 + (img1 * snap.configuration.box[:3])
                 pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
                 pos3_unwrap = pos3 + (img3 * snap.configuration.box[:3])
-                u = pos1_unwrap - pos2_unwrap
+                u = pos2_unwrap - pos1_unwrap
                 v = pos3_unwrap - pos2_unwrap
                 angles.append(np.round(angle_between_vectors(u, v, False), 3))
     trajectory.close()
