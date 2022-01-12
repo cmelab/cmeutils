@@ -19,9 +19,13 @@ from cmeutils.structure import (
 
 class TestStructure(BaseTest):
     def test_angle_distribution(self, p3ht_gsd):
-        angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc")
+        angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", start=0, stop=1)
         for ang in angles:
             assert 80 < ang < 100
+
+    def test_angle_not_found(self, p3ht_gsd):
+        with pytest.raises(ValueError):
+            angles = angle_distribution(p3ht_gsd, "cc", "xx", "cc", start=0, stop=1)
 
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")

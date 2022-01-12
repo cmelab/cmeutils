@@ -34,10 +34,18 @@ def angle_distribution(
     """
     angles = []
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
+    angle_name = "-".join([A_name, B_name, C_name])
+    print(angle_name)
     for snap in trajectory[start: stop]:
+        if angle_name not in snap.angles.types:
+            raise ValueError(
+                    f"Angle {angle_name} not found in snap.angles.types. "
+                    "A_name, B_name, C_name must match the order "
+                    "as they appear in snap.angles.types."
+                )
         for idx, angle_id in enumerate(snap.angles.typeid):
-            angle_name = snap.angles.types[angle_id]
-            if angle_name == "-".join([A_name, B_name, C_name]):
+            _angle_name = snap.angles.types[angle_id]
+            if _angle_name == angle_name:
                 pos1 = snap.particles.position[snap.angles.group[idx][0]]
                 img1 = snap.particles.image[snap.angles.group[idx][0]]
                 pos2 = snap.particles.position[snap.angles.group[idx][1]]
@@ -79,10 +87,9 @@ def bond_distribution(
     """
     bonds = []
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
-    for snap in trajectory[start, stop]:
+    for snap in trajectory[start:stop]:
         for idx, bond in enumerate(snap.bonds.typeid):
             bond_name = snap.bonds.types[bond]
-            print(bond_name)
             if bond_name in [
                     "-".join([A_name, B_name]),
                     "-".join([B_name, A_name])
