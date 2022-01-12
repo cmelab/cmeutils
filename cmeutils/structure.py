@@ -8,6 +8,53 @@ from cmeutils import gsd_utils
 from cmeutils.geometry import get_plane_normal, angle_between_vectors
 
 
+def bond_distribution(
+    gsd_file
+    A_name,
+    B_name,
+    start=0,
+    stop=-1
+):
+    """Returns the bond length distribution for a given bond pair 
+    
+    Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory.
+    A_name, B_name : str
+        Name(s) of particles that form the bond pair
+        (found in gsd.hoomd.Snapshot.particles.types)
+    start : int
+        Starting frame index for accumulating bond lengths.
+        Negative numbers index from the end. (default 0)
+    stop : int
+        Final frame index for accumulating bond lengths. (default -1)
+
+    Returns
+    -------
+
+    """
+    bonds = []
+    trajectory = gsd.hoomd.open(gsdfile, mode="rb")
+    for snap in trajectory[start:stop]:
+        for idx, bond in enumerate(snap.bonds.typeid):
+            bond_name = snap.bonds.types[bond]
+            if bond_name in [
+                    "-".join([type1, type2]),
+                    "-".join([type2, type1])
+                ]:
+                pos1 = snap.particles.position[snap.bonds.group[idx][0]]
+                img1 = snap.particles.image[snap.bonds.group[idx][0]]
+                pos2 = snap.particles.position[snap.bonds.group[idx][1]]
+                img2 = snap.particles.image[snap.bonds.group[idx][1]]
+                pos1_unwrap = pos1 + (img1 * snap.configuration.box[:3])
+                pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
+                bonds.append(
+                        np.round(np.linalg.norm(pos2_unwrap - pos1_unwrap), 3)
+                    )
+    trajectory.close()
+    return bonds
+
 def get_quaternions(n_views = 20):
     """Get the quaternions for the specified number of views.
 
