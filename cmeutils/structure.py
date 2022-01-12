@@ -20,6 +20,7 @@ def angle_distribution(
     A_name, B_name, C_name : str
         Name(s) of particles that form the angle triplet 
         (found in gsd.hoomd.Snapshot.particles.types)
+        They must be given in the same order as they form the angle
     start : int
         Starting frame index for accumulating bond lengths.
         Negative numbers index from the end. (default 0)
@@ -28,14 +29,13 @@ def angle_distribution(
 
     Returns
     -------
-    1D nump.array 
-        Array of angles in degrees
+    1-D nump.array 
+        Array of bond angles in degrees
 
     """
     angles = []
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
     angle_name = "-".join([A_name, B_name, C_name])
-    print(angle_name)
     for snap in trajectory[start: stop]:
         if angle_name not in snap.angles.types:
             raise ValueError(
@@ -104,7 +104,7 @@ def bond_distribution(
                         np.round(np.linalg.norm(pos2_unwrap - pos1_unwrap), 3)
                     )
     trajectory.close()
-    return bonds
+    return np.array(bonds) 
 
 
 def get_quaternions(n_views = 20):
