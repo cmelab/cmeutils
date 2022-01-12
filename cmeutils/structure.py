@@ -8,6 +8,114 @@ from cmeutils import gsd_utils
 from cmeutils.geometry import get_plane_normal, angle_between_vectors
 
 
+def angle_distribution(
+        gsd_file, A_name, B_name, C_name, start=0, stop=-1
+):
+    """Returns the bond angle distribution for a given triplet of particles 
+    
+    Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory.
+    A_name, B_name, C_name : str
+        Name(s) of particles that form the angle triplet 
+        (found in gsd.hoomd.Snapshot.particles.types)
+        They must be given in the same order as they form the angle
+    start : int
+        Starting frame index for accumulating bond lengths.
+        Negative numbers index from the end. (default 0)
+    stop : int
+        Final frame index for accumulating bond lengths. (default -1)
+
+    Returns
+    -------
+    1-D numpy.array 
+        Array of bond angles in degrees
+
+    """
+    angles = []
+    trajectory = gsd.hoomd.open(gsd_file, mode="rb")
+    name = "-".join([A_name, B_name, C_name])
+    name_rev = "-".join([C_name, B_name, A_name])
+
+    angles = []
+    for snap in trajectory[start: stop]:
+        if name not in snap.angles.types and name_rev not in snap.angles.types:
+            raise ValueError(
+                    f"Angles {name} or {name_rev} not found in "
+                    " snap.angles.types. "
+                    "A_name, B_name, C_name must match the order "
+                    "as they appear in snap.angles.types."
+                )
+        for idx, angle_id in enumerate(snap.angles.typeid):
+            angle_name = snap.angles.types[angle_id]
+            if angle_name == name or angle_name == name_rev:
+                pos1 = snap.particles.position[snap.angles.group[idx][0]]
+                img1 = snap.particles.image[snap.angles.group[idx][0]]
+                pos2 = snap.particles.position[snap.angles.group[idx][1]]
+                img2 = snap.particles.image[snap.angles.group[idx][1]]
+                pos3 = snap.particles.position[snap.angles.group[idx][2]]
+                img3 = snap.particles.image[snap.angles.group[idx][2]]
+                pos1_unwrap = pos1 + (img1 * snap.configuration.box[:3])
+                pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
+                pos3_unwrap = pos3 + (img3 * snap.configuration.box[:3])
+                u = pos2_unwrap - pos1_unwrap
+                v = pos3_unwrap - pos2_unwrap
+                angles.append(np.round(angle_between_vectors(u, v, False), 3))
+    trajectory.close()
+    return np.array(angles)
+
+
+def bond_distribution(
+    gsd_file, A_name, B_name, start=0, stop=-1
+):
+    """Returns the bond length distribution for a given bond pair 
+    
+    Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory.
+    A_name, B_name : str
+        Name(s) of particles that form the bond pair
+        (found in gsd.hoomd.Snapshot.particles.types)
+    start : int
+        Starting frame index for accumulating bond lengths.
+        Negative numbers index from the end. (default 0)
+    stop : int
+        Final frame index for accumulating bond lengths. (default -1)
+
+    Returns
+    -------
+    1-D numpy array
+        Array of bond lengths
+
+    """
+    trajectory = gsd.hoomd.open(gsd_file, mode="rb")
+    name = "-".join([A_name, B_name])
+    name_rev = "-".join([B_name, A_name])
+
+    bonds = []
+    for snap in trajectory[start:stop]:
+        if name not in snap.bonds.types and name_rev not in snap.bonds.types:
+            raise ValueError(f"Bond types {name} or {name_rev} not found "
+                    "snap.bonds.types."
+                )
+        for idx, bond in enumerate(snap.bonds.typeid):
+            bond_name = snap.bonds.types[bond]
+            if bond_name in [name, name_rev]:
+                pos1 = snap.particles.position[snap.bonds.group[idx][0]]
+                img1 = snap.particles.image[snap.bonds.group[idx][0]]
+                pos2 = snap.particles.position[snap.bonds.group[idx][1]]
+                img2 = snap.particles.image[snap.bonds.group[idx][1]]
+                pos1_unwrap = pos1 + (img1 * snap.configuration.box[:3])
+                pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
+                bonds.append(
+                        np.round(np.linalg.norm(pos2_unwrap - pos1_unwrap), 3)
+                    )
+    trajectory.close()
+    return np.array(bonds) 
+
+
 def get_quaternions(n_views = 20):
     """Get the quaternions for the specified number of views.
 
