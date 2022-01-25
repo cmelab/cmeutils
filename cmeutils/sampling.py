@@ -23,28 +23,28 @@ def equil_sample(
 
     Returns
     -------
-    Tuple containing
+    (numpy.ndarray, numpy.ndarray, int, int)
 
     """
     is_equil, prod_start, ineff, Neff = is_equilibrated(
             data, threshold_fraction, threshold_neff
             )
 
-    if is_equil is True:
+    if is_equil:
         uncorr_indices = timeseries.subsampleCorrelatedData(
                 data[prod_start:], g=ineff, conservative=conservative
             )
         uncorr_sample = data[prod_start:][uncorr_indices]
         return(uncorr_sample, uncorr_indices, prod_start, Neff)
 
-    elif is_equil is False:
+    else:
         raise ValueError(
             "Property does not have requisite threshold of production data "
             "expected. More production data is needed, or the threshold needs "
             "to be lowered. See is_equilibrated for more information."
         )
 
-def is_equilibrated(data, threshold_fraction=0.80, threshold_neff=100, nskip=1):
+def is_equilibrated(data, threshold_fraction=0.50, threshold_neff=50, nskip=1):
     """Check if a dataset is equilibrated based on a fraction of equil data.
 
     Using `pymbar.timeseries` module, check if a timeseries dataset has enough
@@ -74,6 +74,14 @@ def is_equilibrated(data, threshold_fraction=0.80, threshold_neff=100, nskip=1):
         in a call to timeseries.detectEquilibration, for larger datasets
         (> few hundred), increasing nskip might speed this up, while
         discarding more data.
+
+    Returns
+    -------
+    list : [True, t0, g, Neff]
+        If the data set is considered properly equilibrated
+    list : [False, None, None, None]
+        If the data set is not considered properly equilibrated
+
     """
     if threshold_fraction < 0.0 or threshold_fraction > 1.0:
         raise ValueError(
