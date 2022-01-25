@@ -52,7 +52,7 @@ class TestStructure(BaseTest):
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")
         rdf_noex, norm2 = gsd_rdf(gsdfile_bond, "A", "B", exclude_bonded=False)
-        assert norm2 == 1
+        assert np.isclose(norm2, 2/3, 1e-4)
         assert not np.array_equal(rdf_noex, rdf_ex)
 
     def test_gsd_rdf_samename(self, gsdfile_bond):
@@ -60,6 +60,15 @@ class TestStructure(BaseTest):
         rdf_noex, norm2 = gsd_rdf(gsdfile_bond, "A", "A", exclude_bonded=False)
         assert norm2 == 1
         assert not np.array_equal(rdf_noex, rdf_ex)
+
+    def test_gsd_rdf_pair_order(self, gsdfile_bond):
+        rdf, norm = gsd_rdf(gsdfile_bond, "A", "B")
+        rdf_y = rdf.rdf*norm
+        rdf2, norm2 = gsd_rdf(gsdfile_bond, "B", "A")
+        rdf_y2 = rdf2.rdf*norm2
+
+        for i,j in zip(rdf_y, rdf_y2):
+            assert np.allclose(i,j,atol=1e-4)
 
     def test_get_quaternions(self):
         with pytest.raises(ValueError):

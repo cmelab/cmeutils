@@ -231,9 +231,11 @@ def gsd_rdf(
             if A_name == B_name:
                 B_pos = A_pos
                 exclude_ii = True
+                ab_ratio = 1
             else:
                 B_pos = snap.particles.position[type_B]
                 exclude_ii = False
+                ab_ratio = len(A_pos) / len(B_pos)
 
             box = snap.configuration.box
             system = (box, A_pos)
@@ -253,6 +255,8 @@ def gsd_rdf(
             rdf.compute(aq, neighbors=nlist, reset=False)
 
         normalization = post_filter / pre_filter if exclude_bonded else 1
+        normalization *= ab_ratio
+
         return rdf, normalization
 
 
