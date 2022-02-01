@@ -25,7 +25,9 @@ def get_histogram(data, normalize=False, bins="auto"):
     """
     bin_heights, bin_borders = np.histogram(data, bins=bins)
     if normalize is True:
-        bin_heights = [float(i)/sum(bin_heights) for i in bin_heights]
+        bin_heights = np.array(
+                [float(i)/sum(bin_heights) for i in bin_heights]
+        )
     bin_widths = np.diff(bin_borders)
     bin_centers = bin_borders[:-1] + bin_widths / 2
     return bin_centers, bin_heights
