@@ -34,11 +34,9 @@ def angle_distribution(
 
     Returns
     -------
-    1-D numpy.array 
+    1-D numpy.array  or 2-D numpy.array
         If histogram is False, Array of actual bond angles in degrees
-    
-    tuple of (bin_centers, bin_heights)
-        If histogram is True, returns a tuple of two arrays.
+        If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
     angles = []
@@ -74,7 +72,7 @@ def angle_distribution(
 
     if histogram:
         bin_centers, bin_heights = get_histogram(np.array(angles))
-        return bin_centers, bin_heights
+        return np.array([bin_centers, bin_heights])
     else:
         return np.array(angles)
 
@@ -103,11 +101,9 @@ def bond_distribution(
 
     Returns
     -------
-    1-D numpy.array 
-        If histogram is False, Array of actual bond lengths
-    
-    tuple of (bin_centers, bin_heights)
-        If histogram is True, returns a tuple of two arrays.
+    1-D numpy.array  or 2-D numpy.array
+        If histogram is False, Array of actual bond angles in degrees
+        If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
@@ -136,7 +132,7 @@ def bond_distribution(
 
     if histogram:
         bin_centers, bin_heights = get_histogram(np.array(bonds))
-        return bin_centers, bin_heights
+        return np.array([bin_centers, bin_heights])
     else:
         return np.array(bonds)
 
