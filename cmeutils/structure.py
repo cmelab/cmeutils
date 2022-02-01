@@ -72,7 +72,7 @@ def angle_distribution(
 
     if histogram:
         bin_centers, bin_heights = get_histogram(np.array(angles))
-        return np.array([bin_centers, bin_heights])
+        return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(angles)
 
@@ -132,7 +132,7 @@ def bond_distribution(
 
     if histogram:
         bin_centers, bin_heights = get_histogram(np.array(bonds))
-        return np.array([bin_centers, bin_heights])
+        return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(bonds)
 
