@@ -6,10 +6,11 @@ from rowan import vector_vector_rotation
 
 from cmeutils import gsd_utils
 from cmeutils.geometry import get_plane_normal, angle_between_vectors
+from cmeutils.plotting import get_histogram
 
 
 def angle_distribution(
-        gsd_file, A_name, B_name, C_name, start=0, stop=-1
+        gsd_file, A_name, B_name, C_name, start=0, stop=-1, histogram=False
 ):
     """Returns the bond angle distribution for a given triplet of particles 
     
@@ -26,11 +27,18 @@ def angle_distribution(
         Negative numbers index from the end. (default 0)
     stop : int
         Final frame index for accumulating bond lengths. (default -1)
+    histogram : bool, default=False
+        If set to True, places the resulting angles into a histogram
+        and retrums the histogram's bin centers and heights as 
+        opposed to the actual calcualted angles.
 
     Returns
     -------
     1-D numpy.array 
-        Array of bond angles in degrees
+        If histogram is False, Array of actual bond angles in degrees
+    
+    tuple of (bin_centers, bin_heights)
+        If histogram is True, returns a tuple of two arrays.
 
     """
     angles = []
@@ -63,11 +71,16 @@ def angle_distribution(
                 v = pos3_unwrap - pos2_unwrap
                 angles.append(np.round(angle_between_vectors(u, v, False), 3))
     trajectory.close()
-    return np.array(angles)
+
+    if histogram:
+        bin_centers, bin_heights = get_histogram(angles)
+        return bin_centers, bin_heights
+    else:
+        return np.array(angles)
 
 
 def bond_distribution(
-    gsd_file, A_name, B_name, start=0, stop=-1
+    gsd_file, A_name, B_name, start=0, stop=-1, histogram=False
 ):
     """Returns the bond length distribution for a given bond pair 
     
@@ -83,11 +96,18 @@ def bond_distribution(
         Negative numbers index from the end. (default 0)
     stop : int
         Final frame index for accumulating bond lengths. (default -1)
+    histogram : bool, default=False
+        If set to True, places the resulting bonds into a histogram
+        and retrums the histogram's bin centers and heights as 
+        opposed to the actual calcualted bonds.
 
     Returns
     -------
-    1-D numpy array
-        Array of bond lengths
+    1-D numpy.array 
+        If histogram is False, Array of actual bond lengths
+    
+    tuple of (bin_centers, bin_heights)
+        If histogram is True, returns a tuple of two arrays.
 
     """
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
@@ -113,7 +133,12 @@ def bond_distribution(
                         np.round(np.linalg.norm(pos2_unwrap - pos1_unwrap), 3)
                     )
     trajectory.close()
-    return np.array(bonds) 
+
+    if histogram:
+        bin_centers, bin_heights = get_histogram(bonds)
+        return bin_centers, bin_heights
+    else:
+        return np.array(bonds)
 
 
 def get_quaternions(n_views = 20):
