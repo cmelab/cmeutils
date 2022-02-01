@@ -340,7 +340,7 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
     r_max : float
         Cut-off distance for the order parameter analysis
     a_max : float
-        Cut-off angle for the order parameter analysis
+        Cut-off angle in degrees for the order parameter analysis
     large : int, default 6
         The number of "beads" needed for a cluster to be considered "large"
     start : int, default -10
