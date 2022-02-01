@@ -73,7 +73,7 @@ def angle_distribution(
     trajectory.close()
 
     if histogram:
-        bin_centers, bin_heights = get_histogram(angles)
+        bin_centers, bin_heights = get_histogram(np.array(angles))
         return bin_centers, bin_heights
     else:
         return np.array(angles)
@@ -135,7 +135,7 @@ def bond_distribution(
     trajectory.close()
 
     if histogram:
-        bin_centers, bin_heights = get_histogram(bonds)
+        bin_centers, bin_heights = get_histogram(np.array(bonds))
         return bin_centers, bin_heights
     else:
         return np.array(bonds)
