@@ -10,7 +10,14 @@ from cmeutils.plotting import get_histogram
 
 
 def angle_distribution(
-        gsd_file, A_name, B_name, C_name, start=0, stop=-1, histogram=False
+        gsd_file,
+        A_name,
+        B_name,
+        C_name,
+        start=0,
+        stop=-1,
+        histogram=False,
+        bins="auto"
 ):
     """Returns the bond angle distribution for a given triplet of particles 
     
@@ -31,6 +38,11 @@ def angle_distribution(
         If set to True, places the resulting angles into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted angles.
+    bins : float, int, or str,  default="auto"
+        The number of bins to use when finding the distribution
+        of bond angles. Using "auto" will set the number of
+        bins based on the ideal bin size for the data. 
+        See the numpy.histogram docs for more details.
 
     Returns
     -------
@@ -71,14 +83,14 @@ def angle_distribution(
     trajectory.close()
 
     if histogram:
-        bin_centers, bin_heights = get_histogram(np.array(angles))
+        bin_centers, bin_heights = get_histogram(np.array(angles), bins=bins)
         return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(angles)
 
 
 def bond_distribution(
-    gsd_file, A_name, B_name, start=0, stop=-1, histogram=False
+    gsd_file, A_name, B_name, start=0, stop=-1, histogram=False, bins=100
 ):
     """Returns the bond length distribution for a given bond pair 
     
@@ -98,6 +110,11 @@ def bond_distribution(
         If set to True, places the resulting bonds into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted bonds.
+    bins : float, int, or str,  default="auto"
+        The number of bins to use when finding the distribution
+        of bond angles. Using "auto" will set the number of
+        bins based on the ideal bin size for the data. 
+        See the numpy.histogram docs for more details.
 
     Returns
     -------
@@ -131,7 +148,7 @@ def bond_distribution(
     trajectory.close()
 
     if histogram:
-        bin_centers, bin_heights = get_histogram(np.array(bonds))
+        bin_centers, bin_heights = get_histogram(np.array(bonds), bins=bins)
         return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(bonds)
