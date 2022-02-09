@@ -61,10 +61,10 @@ class TestStructure(BaseTest):
 
     def test_angle_histogram(self, p3ht_gsd):
         angles_hist = angle_distribution(
-                p3ht_gsd, "cc", "ss", start=0, stop=1, histogram=True
+                p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, histogram=True
         )
         angles_no_hist = angle_distribution(
-                p3ht_gsd, "cc", "ss", start=0, stop=1, histogram=False
+                p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, histogram=False
         )
         assert angles_hist.ndim == 2
         assert angles_no_hist.ndim == 1
