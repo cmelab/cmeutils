@@ -11,6 +11,8 @@ def get_histogram(data, normalize=False, bins="auto"):
         Array of data used to generate the histogram
     normalize : boolean, default=False
         If set to true, normalizes the histogram bin heights
+        by the sum of data so that the distribution adds
+        up to 1
     bins : float, int, or str, default="auto"
         Method used by numpy to determine bin borders.
         Check the numpy.histogram docs for more details.

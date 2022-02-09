@@ -14,6 +14,5 @@ class TestPlotting(BaseTest):
     def test_histogram_normalize(self):
         sample = np.random.randn(100)*-1
         bin_c, bin_h = get_histogram(sample, normalize=True)
-        for n in bin_h:
-            assert n <= 1
+        assert all(bin_h <= 1)
 

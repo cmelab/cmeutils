@@ -17,6 +17,7 @@ def angle_distribution(
         start=0,
         stop=-1,
         histogram=False,
+        normalize=False,
         bins="auto"
 ):
     """Returns the bond angle distribution for a given triplet of particles 
@@ -38,6 +39,9 @@ def angle_distribution(
         If set to True, places the resulting angles into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted angles.
+    normalize : bool, default=False
+        If set to True, normalizes the angle distribution by the
+        sum of the bin heights, so that the distribution adds up to 1. 
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
@@ -90,7 +94,14 @@ def angle_distribution(
 
 
 def bond_distribution(
-    gsd_file, A_name, B_name, start=0, stop=-1, histogram=False, bins=100
+    gsd_file,
+    A_name,
+    B_name,
+    start=0,
+    stop=-1,
+    histogram=False,
+    normalize=True,
+    bins=100
 ):
     """Returns the bond length distribution for a given bond pair 
     
@@ -110,6 +121,9 @@ def bond_distribution(
         If set to True, places the resulting bonds into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted bonds.
+    normalize : bool, default=False
+        If set to True, normalizes the angle distribution by the
+        sum of the bin heights, so that the distribution adds up to 1. 
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
