@@ -49,6 +49,26 @@ class TestStructure(BaseTest):
         with pytest.raises(ValueError):
             bonds = bond_distribution(p3ht_gsd, "xx", "ss", start=0, stop=1)
 
+    def test_bond_histogram(self, p3ht_gsd):
+        bonds_hist = bond_distribution(
+                p3ht_gsd, "cc", "ss", start=0, stop=1, histogram=True
+        )
+        bonds_no_hist = bond_distribution(
+                p3ht_gsd, "cc", "ss", start=0, stop=1, histogram=False
+        )
+        assert bonds_hist.ndim == 2
+        assert bonds_no_hist.ndim == 1
+
+    def test_angle_histogram(self, p3ht_gsd):
+        angles_hist = angle_distribution(
+                p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, histogram=True
+        )
+        angles_no_hist = angle_distribution(
+                p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, histogram=False
+        )
+        assert angles_hist.ndim == 2
+        assert angles_no_hist.ndim == 1
+
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")
         rdf_noex, norm2 = gsd_rdf(gsdfile_bond, "A", "B", exclude_bonded=False)
