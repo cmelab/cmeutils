@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 
 def threedplot(
-    x = [],
-    y = [],
-    z = [],
+    x,
+    y,
+    z,
     xlabel = "xlabel",
     ylabel = "ylabel",
     zlabel = "zlabel",
@@ -15,7 +15,6 @@ def threedplot(
     In the example below we use f(x,y)= -x^2 - y^2 +6 because it looks cool.
 
     Example
-
     -------
 
     We create two indepent variables and a dependent variable in the z axis and
@@ -37,10 +36,10 @@ def threedplot(
     for i in range(0,len(x)):
         z.append(-x[i]**2 - y[i]**2 +6)
 
-    threedplot(x,y,z)
+    fig = threedplot(x,y,z)
+    fig.show()
 
     Parameters
-
     ----------
 
     x,y,z : list of int
@@ -51,15 +50,12 @@ def threedplot(
 
 
     '''
-    x = x
-    y = y
-    z = z
-    fig = plt.figure(figsize = (10, 10))
+    fig = plt.figure(figsize = (10, 10), facecolor = 'white')
     ax = plt.axes(projection='3d')
     ax.set_xlabel(xlabel,fontdict=dict(weight='bold'),fontsize=12)
     ax.set_ylabel(ylabel,fontdict=dict(weight='bold'),fontsize=12)
     ax.set_zlabel(zlabel,fontdict=dict(weight='bold'),fontsize=12)
     p = ax.scatter(x, y, z, c=z, cmap='rainbow', linewidth=7);
     plt.colorbar(p, pad = .1, aspect = 2.3)
-    fig.show()
-    fig.savefig(plot_name, bbox_inches = "tight", facecolor = "white")
+
+    return fig
