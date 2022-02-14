@@ -1,3 +1,5 @@
+import math
+
 import freud
 import gsd
 import gsd.hoomd
@@ -17,6 +19,8 @@ def angle_distribution(
         start=0,
         stop=-1,
         histogram=False,
+        theta_min=0.0,
+        theta_max=math.pi,
         normalize=False,
         bins="auto"
 ):
@@ -39,6 +43,10 @@ def angle_distribution(
         If set to True, places the resulting angles into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted angles.
+    theta_min : float, default = 0.0
+        Sets the minimum theta value to be included in the distribution
+    theta_max : float, default = math.pi
+        Sets the maximum theta value to be included in the distribution
     normalize : bool, default=False
         If set to True, normalizes the angle distribution by the
         sum of the bin heights, so that the distribution adds up to 1. 
@@ -87,7 +95,9 @@ def angle_distribution(
     trajectory.close()
 
     if histogram:
-        bin_centers, bin_heights = get_histogram(np.array(angles), bins=bins)
+        bin_centers, bin_heights = get_histogram(
+                np.array(angles), bins=bins, x_range=(theta_min, theta_max)
+        )
         return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(angles)
@@ -100,6 +110,8 @@ def bond_distribution(
     start=0,
     stop=-1,
     histogram=False,
+    l_min=0.0,
+    l_max=5.0,
     normalize=True,
     bins=100
 ):
@@ -121,6 +133,10 @@ def bond_distribution(
         If set to True, places the resulting bonds into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted bonds.
+    l_min : float, default = 0.0
+        Sets the minimum bond length to be included in the distribution
+    l_max : float, default = 5.0 
+        Sets the maximum bond length value to be included in the distribution
     normalize : bool, default=False
         If set to True, normalizes the angle distribution by the
         sum of the bin heights, so that the distribution adds up to 1. 
@@ -162,7 +178,9 @@ def bond_distribution(
     trajectory.close()
 
     if histogram:
-        bin_centers, bin_heights = get_histogram(np.array(bonds), bins=bins)
+        bin_centers, bin_heights = get_histogram(
+                np.array(bonds), bins=bins, x_range=(l_min, l_max)
+        )
         return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(bonds)
