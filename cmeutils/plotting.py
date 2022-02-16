@@ -1,5 +1,40 @@
 import matplotlib.pyplot as plt
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def threedplot(
     x,
     y,
