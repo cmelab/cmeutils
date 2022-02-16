@@ -6,10 +6,19 @@ from rowan import vector_vector_rotation
 
 from cmeutils import gsd_utils
 from cmeutils.geometry import get_plane_normal, angle_between_vectors
+from cmeutils.plotting import get_histogram
 
 
 def angle_distribution(
-        gsd_file, A_name, B_name, C_name, start=0, stop=-1
+        gsd_file,
+        A_name,
+        B_name,
+        C_name,
+        start=0,
+        stop=-1,
+        histogram=False,
+        normalize=False,
+        bins="auto"
 ):
     """Returns the bond angle distribution for a given triplet of particles 
     
@@ -26,11 +35,24 @@ def angle_distribution(
         Negative numbers index from the end. (default 0)
     stop : int
         Final frame index for accumulating bond lengths. (default -1)
+    histogram : bool, default=False
+        If set to True, places the resulting angles into a histogram
+        and retrums the histogram's bin centers and heights as 
+        opposed to the actual calcualted angles.
+    normalize : bool, default=False
+        If set to True, normalizes the angle distribution by the
+        sum of the bin heights, so that the distribution adds up to 1. 
+    bins : float, int, or str,  default="auto"
+        The number of bins to use when finding the distribution
+        of bond angles. Using "auto" will set the number of
+        bins based on the ideal bin size for the data. 
+        See the numpy.histogram docs for more details.
 
     Returns
     -------
-    1-D numpy.array 
-        Array of bond angles in degrees
+    1-D numpy.array  or 2-D numpy.array
+        If histogram is False, Array of actual bond angles in degrees
+        If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
     angles = []
@@ -63,11 +85,23 @@ def angle_distribution(
                 v = pos3_unwrap - pos2_unwrap
                 angles.append(np.round(angle_between_vectors(u, v, False), 3))
     trajectory.close()
-    return np.array(angles)
+
+    if histogram:
+        bin_centers, bin_heights = get_histogram(np.array(angles), bins=bins)
+        return np.stack((bin_centers, bin_heights)).T
+    else:
+        return np.array(angles)
 
 
 def bond_distribution(
-    gsd_file, A_name, B_name, start=0, stop=-1
+    gsd_file,
+    A_name,
+    B_name,
+    start=0,
+    stop=-1,
+    histogram=False,
+    normalize=True,
+    bins=100
 ):
     """Returns the bond length distribution for a given bond pair 
     
@@ -83,11 +117,24 @@ def bond_distribution(
         Negative numbers index from the end. (default 0)
     stop : int
         Final frame index for accumulating bond lengths. (default -1)
+    histogram : bool, default=False
+        If set to True, places the resulting bonds into a histogram
+        and retrums the histogram's bin centers and heights as 
+        opposed to the actual calcualted bonds.
+    normalize : bool, default=False
+        If set to True, normalizes the angle distribution by the
+        sum of the bin heights, so that the distribution adds up to 1. 
+    bins : float, int, or str,  default="auto"
+        The number of bins to use when finding the distribution
+        of bond angles. Using "auto" will set the number of
+        bins based on the ideal bin size for the data. 
+        See the numpy.histogram docs for more details.
 
     Returns
     -------
-    1-D numpy array
-        Array of bond lengths
+    1-D numpy.array  or 2-D numpy.array
+        If histogram is False, Array of actual bond angles in degrees
+        If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
@@ -113,7 +160,12 @@ def bond_distribution(
                         np.round(np.linalg.norm(pos2_unwrap - pos1_unwrap), 3)
                     )
     trajectory.close()
-    return np.array(bonds) 
+
+    if histogram:
+        bin_centers, bin_heights = get_histogram(np.array(bonds), bins=bins)
+        return np.stack((bin_centers, bin_heights)).T
+    else:
+        return np.array(bonds)
 
 
 def get_quaternions(n_views = 20):
