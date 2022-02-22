@@ -18,10 +18,15 @@ from cmeutils.structure import (
     )
 
 class TestStructure(BaseTest):
-    def test_angle_distribution(self, p3ht_gsd):
-        angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", start=0, stop=1)
+    def test_angle_distribution_deg(self, p3ht_gsd):
+        angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, degrees=True)
         for ang in angles:
             assert 80 < ang < 100
+            
+    def test_angle_distribution_rad(self, p3ht_gsd):
+        angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, degrees=False)
+        for ang in angles:
+            assert 1.40 < ang < 1.75
 
     def test_angle_distribution_order(self, p3ht_gsd):
         angles = angle_distribution(p3ht_gsd, "ss", "cc", "cd", start=0, stop=1)
