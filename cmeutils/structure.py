@@ -18,6 +18,7 @@ def angle_distribution(
         C_name,
         start=0,
         stop=-1,
+        degrees=False,
         histogram=False,
         theta_min=0.0,
         theta_max=math.pi,
@@ -39,6 +40,9 @@ def angle_distribution(
         Negative numbers index from the end. (default 0)
     stop : int
         Final frame index for accumulating bond lengths. (default -1)
+    degrees : bool, default=False
+        If True, the angle values are returned in degrees.
+        if False, the angle values are returned in radians.
     histogram : bool, default=False
         If set to True, places the resulting angles into a histogram
         and retrums the histogram's bin centers and heights as 
@@ -91,7 +95,7 @@ def angle_distribution(
                 pos3_unwrap = pos3 + (img3 * snap.configuration.box[:3])
                 u = pos2_unwrap - pos1_unwrap
                 v = pos3_unwrap - pos2_unwrap
-                angles.append(np.round(angle_between_vectors(u, v, False), 3))
+                angles.append(np.round(angle_between_vectors(u, v, False, degrees), 3))
     trajectory.close()
 
     if histogram:
