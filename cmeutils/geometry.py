@@ -90,7 +90,7 @@ def angle_between_vectors(u, v, min_angle=True, degrees=True):
     if angle > math.pi/2 and min_angle:
         angle = math.pi - angle
 
-    if degrees is True:
+    if degrees:
         return np.rad2deg(angle)
     else:
         return angle

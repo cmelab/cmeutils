@@ -67,7 +67,6 @@ def angle_distribution(
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
-    angles = []
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
     name = "-".join([A_name, B_name, C_name])
     name_rev = "-".join([C_name, B_name, A_name])
@@ -117,7 +116,7 @@ def bond_distribution(
     stop=-1,
     histogram=False,
     l_min=0.0,
-    l_max=5.0,
+    l_max=4.0,
     normalize=True,
     bins=100
 ):

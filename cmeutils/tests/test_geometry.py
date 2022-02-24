@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import pytest
 
@@ -20,10 +22,25 @@ class TestGeometry(BaseTest):
         with pytest.raises(AssertionError):
             get_plane_normal(points[:2])
 
-    def test_angle_between_vectors(self):
+    def test_angle_between_vectors_deg(self):
         assert np.isclose(
             90, angle_between_vectors(np.array([1,0,0]),np.array([0,1,0]))
         )
         assert np.isclose(
             0, angle_between_vectors(np.array([1,0,0]),np.array([-1,0,0]))
         )
+
+    def test_angle_between_vectors_rad(self):
+        assert np.isclose(
+            math.pi/2,
+            angle_between_vectors(
+                np.array([1,0,0]),np.array([0,1,0]), degrees=False
+            )
+        )
+        assert np.isclose(
+            0,
+            angle_between_vectors(
+                np.array([1,0,0]),np.array([-1,0,0]), degrees=False
+            )
+        )
+
