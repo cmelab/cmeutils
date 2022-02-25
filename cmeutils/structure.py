@@ -21,7 +21,7 @@ def angle_distribution(
         degrees=False,
         histogram=False,
         theta_min=0.0,
-        theta_max=math.pi,
+        theta_max=None,
         normalize=False,
         bins="auto"
 ):
@@ -49,8 +49,10 @@ def angle_distribution(
         opposed to the actual calcualted angles.
     theta_min : float, default = 0.0
         Sets the minimum theta value to be included in the distribution
-    theta_max : float, default = math.pi
+    theta_max : float, default = None 
         Sets the maximum theta value to be included in the distribution
+        If left as None, then theta_max will be either pi radians or
+        180 degrees depending on the value set for the degrees parameter
     normalize : bool, default=False
         If set to True, normalizes the angle distribution by the
         sum of the bin heights, so that the distribution adds up to 1. 
@@ -67,6 +69,11 @@ def angle_distribution(
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
+    if not degrees and theta_max is None:
+        theta_max = math.pi
+    elif degrees and theta_max is None:
+        theta_max = 180
+
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
     name = "-".join([A_name, B_name, C_name])
     name_rev = "-".join([C_name, B_name, A_name])
