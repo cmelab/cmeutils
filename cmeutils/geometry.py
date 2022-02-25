@@ -76,8 +76,8 @@ def angle_between_vectors(u, v, min_angle=True, degrees=True):
         degrees. Useful for calculating the minimum angle between the normal
         vectors of planes as direction doesn't matter.
     degrees : bool, default True
-        If True, the angle values are returned in degrees.
-        If False, the angle values are returned in radians.
+        If True, the angle is returned in degrees.
+        If False, the angle is returned in radians.
 
     Returns
     -------
