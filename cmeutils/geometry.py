@@ -60,8 +60,8 @@ def get_plane_normal(points):
     return ctr, normal
 
 
-def angle_between_vectors(u, v, min_angle=True):
-    """Calculate the angle between two vectors in degrees.
+def angle_between_vectors(u, v, min_angle=True, degrees=True):
+    """Calculate the angle between two vectors in radians or degrees.
 
     Parameters
     ----------
@@ -73,15 +73,21 @@ def angle_between_vectors(u, v, min_angle=True):
         Whether to return the supplement if the angle is greater than 90
         degrees. Useful for calculating the minimum angle between the normal
         vectors of planes as direction doesn't matter.
+    degrees : bool, default True
+        If True, the angle is returned in degrees.
+        If False, the angle is returned in radians.
 
     Returns
     -------
     angle: float
-        Angle between u and v in degrees
+        Angle between u and v
+
     """
-    angle = np.rad2deg(
-        np.arccos(u.dot(v) / (np.linalg.norm(u) * np.linalg.norm(v)))
-    )
-    if angle > 90 and min_angle:
-        return 180 - angle
+    # Angle in radians
+    angle = np.arccos(u.dot(v) / (np.linalg.norm(u) * np.linalg.norm(v)))
+    if angle > np.pi/2 and min_angle:
+        angle = np.pi - angle
+
+    if degrees:
+        return np.rad2deg(angle)
     return angle

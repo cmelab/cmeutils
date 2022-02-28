@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def get_histogram(data, normalize=False, bins="auto"):
+
+def get_histogram(data, normalize=False, bins="auto", x_range=None):
     """Bins a 1-D array of data into a histogram using
     the numpy.histogram method.
 
@@ -16,6 +17,9 @@ def get_histogram(data, normalize=False, bins="auto"):
     bins : float, int, or str, default="auto"
         Method used by numpy to determine bin borders.
         Check the numpy.histogram docs for more details.
+    x_range : (float, float), default = None
+        The lower and upper range of the histogram bins.
+        If set to None, then the min and max values of data are used.
 
     Returns
     -------
@@ -25,7 +29,7 @@ def get_histogram(data, normalize=False, bins="auto"):
         Array of the bin height values
 
     """
-    bin_heights, bin_borders = np.histogram(data, bins=bins)
+    bin_heights, bin_borders = np.histogram(data, bins=bins, range=x_range)
     if normalize is True:
         bin_heights = bin_heights/sum(bin_heights)
     bin_widths = np.diff(bin_borders)

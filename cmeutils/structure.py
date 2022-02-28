@@ -1,3 +1,5 @@
+import warnings
+
 import freud
 import gsd
 import gsd.hoomd
@@ -16,7 +18,10 @@ def angle_distribution(
         C_name,
         start=0,
         stop=-1,
+        degrees=False,
         histogram=False,
+        theta_min=0.0,
+        theta_max=None,
         normalize=False,
         bins="auto"
 ):
@@ -35,10 +40,19 @@ def angle_distribution(
         Negative numbers index from the end. (default 0)
     stop : int
         Final frame index for accumulating bond lengths. (default -1)
+    degrees : bool, default=False
+        If True, the angle values are returned in degrees.
+        if False, the angle values are returned in radians.
     histogram : bool, default=False
         If set to True, places the resulting angles into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted angles.
+    theta_min : float, default = 0.0
+        Sets the minimum theta value to be included in the distribution
+    theta_max : float, default = None 
+        Sets the maximum theta value to be included in the distribution
+        If left as None, then theta_max will be either pi radians or
+        180 degrees depending on the value set for the degrees parameter
     normalize : bool, default=False
         If set to True, normalizes the angle distribution by the
         sum of the bin heights, so that the distribution adds up to 1. 
@@ -55,7 +69,11 @@ def angle_distribution(
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
-    angles = []
+    if not degrees and theta_max is None:
+        theta_max = np.pi
+    elif degrees and theta_max is None:
+        theta_max = 180
+
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
     name = "-".join([A_name, B_name, C_name])
     name_rev = "-".join([C_name, B_name, A_name])
@@ -81,13 +99,23 @@ def angle_distribution(
                 pos1_unwrap = pos1 + (img1 * snap.configuration.box[:3])
                 pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
                 pos3_unwrap = pos3 + (img3 * snap.configuration.box[:3])
-                u = pos2_unwrap - pos1_unwrap
+                u = pos1_unwrap - pos2_unwrap
                 v = pos3_unwrap - pos2_unwrap
-                angles.append(np.round(angle_between_vectors(u, v, False), 3))
+                angles.append(
+                        np.round(angle_between_vectors(u, v, False, degrees), 3)
+                )
     trajectory.close()
 
     if histogram:
-        bin_centers, bin_heights = get_histogram(np.array(angles), bins=bins)
+        if angles[0] < theta_min or angles[-1] > theta_max:
+            warnings.warn("There are bond angles that fall outside of "
+                    "your set theta_min and theta_max range. "
+                    "You may want to adjust this range to "
+                    "include all bond angles."
+            )
+        bin_centers, bin_heights = get_histogram(
+                np.array(angles), bins=bins, x_range=(theta_min, theta_max)
+        )
         return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(angles)
@@ -100,6 +128,8 @@ def bond_distribution(
     start=0,
     stop=-1,
     histogram=False,
+    l_min=0.0,
+    l_max=4.0,
     normalize=True,
     bins=100
 ):
@@ -121,6 +151,10 @@ def bond_distribution(
         If set to True, places the resulting bonds into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted bonds.
+    l_min : float, default = 0.0
+        Sets the minimum bond length to be included in the distribution
+    l_max : float, default = 5.0 
+        Sets the maximum bond length value to be included in the distribution
     normalize : bool, default=False
         If set to True, normalizes the angle distribution by the
         sum of the bin heights, so that the distribution adds up to 1. 
@@ -162,7 +196,14 @@ def bond_distribution(
     trajectory.close()
 
     if histogram:
-        bin_centers, bin_heights = get_histogram(np.array(bonds), bins=bins)
+        if bonds[0] < l_min or bonds[-1] > l_max:
+            warnings.warn("There are bond lengths that fall outside of "
+                    "your set l_min and l_max range. You may want to adjust "
+                    "this range to include all bond lengths."
+            )
+        bin_centers, bin_heights = get_histogram(
+                np.array(bonds), bins=bins, x_range=(l_min, l_max)
+        )
         return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(bonds)
