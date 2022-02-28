@@ -1,3 +1,5 @@
+import warnings
+
 import freud
 import gsd
 import gsd.hoomd
@@ -105,6 +107,12 @@ def angle_distribution(
     trajectory.close()
 
     if histogram:
+        if angles[0] < theta_min or angles[-1] > theta_max:
+            warnings.warn("There are bond angles that fall outside of "
+                    "your set theta_min and theta_max range. "
+                    "You may want to adjust this range to "
+                    "include all bond angles."
+            )
         bin_centers, bin_heights = get_histogram(
                 np.array(angles), bins=bins, x_range=(theta_min, theta_max)
         )
@@ -188,6 +196,11 @@ def bond_distribution(
     trajectory.close()
 
     if histogram:
+        if bonds[0] < l_min or bonds[-1] > l_max:
+            warnings.warn("There are bond lengths that fall outside of "
+                    "your set l_min and l_max range. You may want to adjust "
+                    "this range to include all bond lengths."
+            )
         bin_centers, bin_heights = get_histogram(
                 np.array(bonds), bins=bins, x_range=(l_min, l_max)
         )

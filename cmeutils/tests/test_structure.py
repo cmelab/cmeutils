@@ -58,6 +58,7 @@ class TestStructure(BaseTest):
     def test_bond_distribution(self, p3ht_gsd):
         bonds = bond_distribution(p3ht_gsd, "cc", "ss", start=0, stop=1)
         for bond in bonds:
+            print(bond)
             assert 0.45 < bond < 0.52
 
     def test_bond_distribution_range(self, p3ht_gsd):
@@ -94,6 +95,19 @@ class TestStructure(BaseTest):
         assert bonds_hist.ndim == 2
         assert bonds_no_hist.ndim == 1
 
+    def test_bond_range_outside(self, p3ht_gsd):
+        with pytest.warns(UserWarning):
+            bonds_hist = bond_distribution(
+                p3ht_gsd,
+                "cc",
+                "ss",
+                start=0,
+                stop=1,
+                histogram=True,
+                l_min=0.52,
+                l_max=0.60
+            )
+
     def test_angle_histogram(self, p3ht_gsd):
         angles_hist = angle_distribution(
                 p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, histogram=True
@@ -103,6 +117,20 @@ class TestStructure(BaseTest):
         )
         assert angles_hist.ndim == 2
         assert angles_no_hist.ndim == 1
+    
+    def test_angle_range_outside(self, p3ht_gsd):
+        with pytest.warns(UserWarning):
+            angles_hist = angle_distribution(
+                    p3ht_gsd,
+                    "cc",
+                    "ss",
+                    "cc",
+                    start=0,
+                    stop=1,
+                    histogram=True,
+                    theta_min = 120,
+                    theta_max=180
+            )
 
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")
