@@ -22,7 +22,23 @@ class TestStructure(BaseTest):
         angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, degrees=True)
         for ang in angles:
             assert 80 < ang < 100
-            
+
+    def test_angle_distribution_range(self, p3ht_gsd):
+        angles = angle_distribution(
+                p3ht_gsd,
+                "cc",
+                "ss",
+                "cc",
+                start=0,
+                stop=1,
+                histogram=True,
+                degrees=True,
+                theta_min=10,
+                theta_max=180
+        )
+        assert np.allclose(angles[0,0],10, atol=0.5)
+        assert np.allclose(angles[-1,0], 180, atol=0.5)
+
     def test_angle_distribution_rad(self, p3ht_gsd):
         angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, degrees=False)
         for ang in angles:
@@ -43,6 +59,20 @@ class TestStructure(BaseTest):
         bonds = bond_distribution(p3ht_gsd, "cc", "ss", start=0, stop=1)
         for bond in bonds:
             assert 0.45 < bond < 0.52
+
+    def test_bond_distribution_range(self, p3ht_gsd):
+        bonds = bond_distribution(
+                p3ht_gsd,
+                "cc",
+                "ss",
+                start=0,
+                stop=1,
+                l_min=0,
+                l_max=1,
+                histogram=True
+        )
+        assert np.allclose(bonds[0,0],0, atol=0.5)
+        assert np.allclose(bonds[-1,0], 1, atol=0.5)
 
     def test_bond_distribution_order(self, p3ht_gsd):
         bonds = bond_distribution(p3ht_gsd, "cc", "ss", start=0, stop=1)
