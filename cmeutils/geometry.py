@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 from numpy.linalg import svd
 
@@ -87,10 +85,9 @@ def angle_between_vectors(u, v, min_angle=True, degrees=True):
     """
     # Angle in radians
     angle = np.arccos(u.dot(v) / (np.linalg.norm(u) * np.linalg.norm(v)))
-    if angle > math.pi/2 and min_angle:
-        angle = math.pi - angle
+    if angle > np.pi/2 and min_angle:
+        angle = np.pi - angle
 
     if degrees:
         return np.rad2deg(angle)
-    else:
-        return angle
+    return angle

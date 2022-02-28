@@ -1,5 +1,3 @@
-import math
-
 import freud
 import gsd
 import gsd.hoomd
@@ -70,7 +68,7 @@ def angle_distribution(
 
     """
     if not degrees and theta_max is None:
-        theta_max = math.pi
+        theta_max = np.pi
     elif degrees and theta_max is None:
         theta_max = 180
 
