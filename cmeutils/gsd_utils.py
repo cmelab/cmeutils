@@ -6,6 +6,8 @@ import hoomd
 import hoomd.deprecated
 import numpy as np
 
+from cmeutils.geometry import moit
+
 
 def get_type_position(
     typename,
@@ -189,7 +191,7 @@ def snap_delete_types(snap, delete_types):
     return new_snap
 
 
-def create_rigid_snapshot(mb_compound, box=None):
+def create_rigid_snapshot(mb_compound):
     """Preps a hoomd snapshot to store rigid body information
 
     This method relies on using built-in mBuild methods to
@@ -199,24 +201,65 @@ def create_rigid_snapshot(mb_compound, box=None):
     ----------
     mb_compound : mbuild.Compound, required
         mBuild compound containing the rigid body information
-    box : Array like, default = None, optional
-        The box information for the snapshot.
-        If None, then the 
+        of the complete system
 
     """
-    if box is None:
-        box_info = list(mb_compound.get_boundingbox.lengths)
-        box_info.extend(list(mb_compound.get_boundingbox.angles))
-    else:
-        assert len(box) == 6
-    box = hoomd.data.boxdim(*box_info)
-
     rigid_ids = [p.rigid_id for p in mb_compound.particles()]
     rigid_bodies = set(rigid_ids)
-    init_snap = hoomd.data.make_snapshot(
-            N=len(rigid_bodies), particle_types = ["R"]
-    )
+    N_mols = len(rigid_bodies)
+    init_snap = gsd.hoomd.Snapshot()
+    # Create place holder spots in the snapshot for rigid centers
+    init_snap.particles.types = ["R"]
+    init_snap.particles.N = N_mols 
+    return init_snap
 
+
+def update_rigid_snapshot(snapshot, rigid_snapshot, mb_compound):
+    """Update a snapshot prepared for rigid bodies with system informaiton
+
+    Parameters
+    ----------
+    snapshot : gsd.hoomd.Snapshot
+        The snapshot returned from create_hoomd_forcefield
+        or create_hoomd_simulation in mBuild
+    rigid_snapshot : gsd.hoomd.Snapshot
+        The snapshot created from create_rigid_snapshot
+        in cmeutils
+    mb_compound : mbuild.Compound, required
+        mBuild compound containing the rigid body information
+        of the complete system
+
+    """
+    rigid_ids = [p.rigid_id for p in mb_compound.particles()]
+    rigid_bodies = set(rigid_ids)
+    N_mols = len(rigid_bodies)
+    N_p =  [rigid_ids.count(i) for i in rigid_bodies]
+    assert len(set(N_p)) == 1
+    N_p = N_p[0]
+    mol_inds = [
+        np.arange(N_mols + i * N_p, N_mols + i * N_p + N_p)
+        for i in range(N_mols)
+    ]
+
+    for i, inds in enumerate(mol_inds):
+	    total_mass = np.sum(snapshot.particles.mass[inds])
+	    com = (
+		    np.sum(
+			    snapshot.particles.position[inds]
+			    * snapshot.particles.mass[inds, np.newaxis],
+                axis=0,
+		    )
+		    / total_mass
+	    )
+	    snapshot.particles.position[i] = com
+	    snapshot.particles.body[i] = i
+	    snapshot.particles.body[inds] = i * np.ones_like(inds)
+	    snapshot.particles.mass[i] = np.sum(snapshot.particles.mass[inds])
+	    snapshot.particles.moment_inertia[i] = moit(
+		    snapshot.particles.position[inds],
+		    snapshot.particles.mass[inds],
+		    center=com,
+	    )		
 
 
 def xml_to_gsd(xmlfile, gsdfile):
