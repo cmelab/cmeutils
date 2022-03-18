@@ -3,7 +3,6 @@ from tempfile import NamedTemporaryFile
 import freud
 import gsd.hoomd
 import hoomd
-import hoomd.deprecated
 import numpy as np
 
 from cmeutils.geometry import moit
@@ -204,13 +203,15 @@ def create_rigid_snapshot(mb_compound):
         of the complete system
 
     """
+    import hoomd
+
     rigid_ids = [p.rigid_id for p in mb_compound.particles()]
     rigid_bodies = set(rigid_ids)
     N_mols = len(rigid_bodies)
-    init_snap = gsd.hoomd.Snapshot()
+    init_snap = hoomd.Snapshot()
     # Create place holder spots in the snapshot for rigid centers
     init_snap.particles.types = ["R"]
-    init_snap.particles.N = N_mols 
+    init_snap.particles.N = N_mols
     return init_snap
 
 
@@ -260,6 +261,7 @@ def update_rigid_snapshot(snapshot, rigid_snapshot, mb_compound):
 		    snapshot.particles.mass[inds],
 		    center=com,
 	    )		
+    return snapshot
 
 
 def xml_to_gsd(xmlfile, gsdfile):
