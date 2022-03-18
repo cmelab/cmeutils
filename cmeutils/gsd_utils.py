@@ -189,6 +189,36 @@ def snap_delete_types(snap, delete_types):
     return new_snap
 
 
+def create_rigid_snapshot(mb_compound, box=None):
+    """Preps a hoomd snapshot to store rigid body information
+
+    This method relies on using built-in mBuild methods to
+    create the rigid body information.
+    
+    Parameters
+    ----------
+    mb_compound : mbuild.Compound, required
+        mBuild compound containing the rigid body information
+    box : Array like, default = None, optional
+        The box information for the snapshot.
+        If None, then the 
+
+    """
+    if box is None:
+        box_info = list(mb_compound.get_boundingbox.lengths)
+        box_info.extend(list(mb_compound.get_boundingbox.angles))
+    else:
+        assert len(box) == 6
+    box = hoomd.data.boxdim(*box_info)
+
+    rigid_ids = [p.rigid_id for p in mb_compound.particles()]
+    rigid_bodies = set(rigid_ids)
+    init_snap = hoomd.data.make_snapshot(
+            N=len(rigid_bodies), particle_types = ["R"]
+    )
+
+
+
 def xml_to_gsd(xmlfile, gsdfile):
     """Writes hoomdxml data to gsd file.
 
