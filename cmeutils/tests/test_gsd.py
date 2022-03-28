@@ -2,12 +2,23 @@ import pytest
 
 import gsd.hoomd
 import numpy as np
+import packaging.version
 
 from base_test import BaseTest
 from cmeutils.gsd_utils import (
     get_type_position, get_molecule_cluster, get_all_types, _validate_inputs,
     snap_delete_types, xml_to_gsd
 )
+
+try:
+    import hoomd
+    if "version" in dir(hoomd):
+        hoomd_version = packaging.version.parse(hoomd.version.version)
+    else:
+        hoomd_version = packaging.version.parse(hoomd.__version__)
+    has_hoomd = True
+except ImportError:
+    has_hoomd = False
 
 
 class TestGSD(BaseTest):
@@ -57,7 +68,10 @@ class TestGSD(BaseTest):
         new_snap = snap_delete_types(snap_bond, "A")
         assert "A" not in new_snap.particles.types
 
-    @pytest.mark.skip(reason="Requires that hoomd2 is installed.")
+    @pytest.mark.skipif(
+        not has_hoomd or hoomd_version.major != 2,
+        reason="HOOMD is not installed or is wrong version"
+    )
     def test_xml_to_gsd(self, tmp_path, p3ht_gsd, p3ht_xml):
         new_gsd = tmp_path / "new.gsd"
         xml_to_gsd(p3ht_xml, new_gsd)
