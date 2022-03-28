@@ -2,7 +2,6 @@ from tempfile import NamedTemporaryFile
 
 import freud
 import gsd.hoomd
-import hoomd
 import numpy as np
 
 from cmeutils.geometry import moit
@@ -277,6 +276,14 @@ def xml_to_gsd(xmlfile, gsdfile):
     gsdfile : str
         Path to gsd file
     """
+    try:
+        import hoomd
+        import hoomd.deprecated
+    except ImportError:
+        raise ImportError(
+                "You must have hoomd version 2 installed to use xml_to_gsd()"
+        )
+
     hoomd.util.quiet_status()
     hoomd.context.initialize("")
     hoomd.deprecated.init.read_xml(xmlfile, restart=xmlfile)

@@ -40,6 +40,12 @@ jobs:
       shell: bash -l {0}
       run: python -m pytest -v -rs --cov=./ --cov-report=xml
 
+    - name: Test hoomd2 functions
+      shell: bash -l {0}
+      run: |
+        mamba install -c conda-forge hoomd=2
+        python -m pytest -v -rs -k test_xml_to_gsd --cov=./ --cov-report=xml --cov-append
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
