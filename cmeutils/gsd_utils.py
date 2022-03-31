@@ -201,6 +201,14 @@ def create_rigid_snapshot(mb_compound):
         mBuild compound containing the rigid body information
         of the complete system
 
+    Returns
+    -------
+    hoomd.Snapshot
+        A snapshot that contains the needed place-holder particles
+        to set up a rigid body simulation in HoomdBlue Version 3.
+        Pass this snapshot into the `init_snap` parameter
+        of mBuild's `create_hoomd_forcefield` function.
+
     """
     import hoomd
 
@@ -214,7 +222,7 @@ def create_rigid_snapshot(mb_compound):
     return init_snap
 
 
-def update_rigid_snapshot(snapshot, rigid_snapshot, mb_compound):
+def update_rigid_snapshot(snapshot, mb_compound):
     """Update a snapshot prepared for rigid bodies with system informaiton
 
     Parameters
@@ -222,9 +230,6 @@ def update_rigid_snapshot(snapshot, rigid_snapshot, mb_compound):
     snapshot : gsd.hoomd.Snapshot
         The snapshot returned from create_hoomd_forcefield
         or create_hoomd_simulation in mBuild
-    rigid_snapshot : gsd.hoomd.Snapshot
-        The snapshot created from create_rigid_snapshot
-        in cmeutils
     mb_compound : mbuild.Compound, required
         mBuild compound containing the rigid body information
         of the complete system
