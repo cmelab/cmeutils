@@ -260,7 +260,7 @@ def update_rigid_snapshot(snapshot, rigid_snapshot, mb_compound):
 		    snapshot.particles.mass[inds],
 		    center=com,
 	    )		
-    return snapshot
+    return snapshot, mol_inds
 
 
 def xml_to_gsd(xmlfile, gsdfile):
