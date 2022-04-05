@@ -214,6 +214,7 @@ def create_rigid_snapshot(mb_compound):
 
     rigid_ids = [p.rigid_id for p in mb_compound.particles()]
     rigid_bodies = set(rigid_ids)
+    # Total number of rigid particles
     N_mols = len(rigid_bodies)
     init_snap = hoomd.Snapshot()
     # Create place holder spots in the snapshot for rigid centers
@@ -237,10 +238,12 @@ def update_rigid_snapshot(snapshot, mb_compound):
     """
     rigid_ids = [p.rigid_id for p in mb_compound.particles()]
     rigid_bodies = set(rigid_ids)
+    # Total number of rigid body particles
     N_mols = len(rigid_bodies)
     N_p =  [rigid_ids.count(i) for i in rigid_bodies]
+	# Right now, we're assuming each molecule has the same num of particles
     assert len(set(N_p)) == 1
-    N_p = N_p[0]
+    N_p = N_p[0] # Number of particles per molecule
     mol_inds = [
         np.arange(N_mols + i * N_p, N_mols + i * N_p + N_p)
         for i in range(N_mols)
@@ -265,7 +268,28 @@ def update_rigid_snapshot(snapshot, mb_compound):
 		    snapshot.particles.mass[inds],
 		    center=com,
 	    )		
-    return snapshot, mol_inds
+
+	rigid = hoomd.md.constrain.Rigid()
+	inds = mol_inds[0]
+	r_pos = snapshot.particles.position[0]
+	c_pos = snapshot.particles.position[inds]
+	c_pos -= r_pos
+	c_pos = [tuple(i) for i in c_pos]
+	c_types = [
+    	snapshot.particles.types[i] for i in snapshot.particles.typeid[inds]
+	]
+	c_orient = [tuple(i) for i in snapshot.particles.orientation[inds]]
+	c_charge = [i for i in snapshot.particles.charge[inds]]
+	c_diam = [i for i in snapshot.particles.diameter[inds]]
+
+	rigid.body["R"] = {
+    	"constituent_types": c_types,
+    	"positions": c_pos,
+    	"charges": c_charge,
+    	"orientations": c_orient,
+    	"diameters": c_diam,
+	} 
+    return snapshot, rigid
 
 
 def xml_to_gsd(xmlfile, gsdfile):
