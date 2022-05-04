@@ -4,10 +4,14 @@ import numpy as np
 import pytest
 
 from base_test import BaseTest
-from cmeutils.geometry import get_plane_normal, angle_between_vectors
+from cmeutils.geometry import get_plane_normal, angle_between_vectors, moit
 
 
 class TestGeometry(BaseTest):
+    def test_moit(self):
+        _moit = moit(points=[(-1, 0, 0), (1, 0, 0)], masses=[1, 1])
+        assert np.array_equal(_moit, np.array([0, 2., 2.]))
+
     def test_get_plane_normal(self):
         points = np.array(
             [[ 1, 0, 0],
