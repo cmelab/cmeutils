@@ -1,6 +1,26 @@
 import numpy as np
 from pymbar import timeseries
 
+
+def autocorr1D(array):
+    """Takes in a linear numpy array, performs autocorrelation
+    function and returns normalized array with half the length
+
+    Parameters
+    ----------
+    array : numpy.typing.Arraylike
+        1-D array of data to perform autocorrelation on
+    
+    Returns
+    -------
+    numpy.ndarray
+
+    """
+    ft = np.fft.rfft(array - np.average(array))
+    acorr = np.fft.irfft(ft*np.conjugate(ft))/len(array)*np.var(array)
+    return acorr[0:len(acorr)//2]
+
+
 def equil_sample(
         data, threshold_fraction=0.0, threshold_neff=1, conservative=True
     ):
