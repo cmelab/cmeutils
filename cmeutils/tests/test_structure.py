@@ -105,7 +105,7 @@ class TestStructure(BaseTest):
                 histogram=True,
                 normalize=True
         )
-        assert np.allclose(np.sum(bonds_hist[:,1]), 1, 1e3)
+        assert np.allclose(np.sum(bonds_hist[:,1]), 1, 1e-3)
 
     def test_bond_range_outside(self, p3ht_gsd):
         with pytest.warns(UserWarning):
@@ -141,7 +141,7 @@ class TestStructure(BaseTest):
                 histogram=True,
                 normalize=True,
         )
-        assert np.allclose(np.sum(angles_hist[:,1]), 1, 1e3)
+        assert np.allclose(np.sum(angles_hist[:,1]), 1, 1e-3)
     
     def test_angle_range_outside(self, p3ht_gsd):
         with pytest.warns(UserWarning):
