@@ -114,7 +114,10 @@ def angle_distribution(
                     "include all bond angles."
             )
         bin_centers, bin_heights = get_histogram(
-                np.array(angles), bins=bins, x_range=(theta_min, theta_max)
+                data=np.array(angles),
+                normalize=normalize,
+                bins=bins,
+                x_range=(theta_min, theta_max)
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
@@ -202,7 +205,10 @@ def bond_distribution(
                     "this range to include all bond lengths."
             )
         bin_centers, bin_heights = get_histogram(
-                np.array(bonds), bins=bins, x_range=(l_min, l_max)
+                data = np.array(bonds),
+                normalize=normalize,
+                bins=bins,
+                x_range=(l_min, l_max)
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
