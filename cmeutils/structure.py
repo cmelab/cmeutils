@@ -86,7 +86,7 @@ def angle_distribution(
                     " snap.angles.types. "
                     "A_name, B_name, C_name must match the order "
                     "as they appear in snap.angles.types."
-                )
+            )
         for idx, angle_id in enumerate(snap.angles.typeid):
             angle_name = snap.angles.types[angle_id]
             if angle_name == name or angle_name == name_rev:
@@ -107,7 +107,7 @@ def angle_distribution(
     trajectory.close()
 
     if histogram:
-        if angles[0] < theta_min or angles[-1] > theta_max:
+        if min(angles) < theta_min or max(angles) > theta_max:
             warnings.warn("There are bond angles that fall outside of "
                     "your set theta_min and theta_max range. "
                     "You may want to adjust this range to "
@@ -183,7 +183,7 @@ def bond_distribution(
         if name not in snap.bonds.types and name_rev not in snap.bonds.types:
             raise ValueError(f"Bond types {name} or {name_rev} not found "
                     "snap.bonds.types."
-                )
+            )
         for idx, bond in enumerate(snap.bonds.typeid):
             bond_name = snap.bonds.types[bond]
             if bond_name in [name, name_rev]:
@@ -195,11 +195,11 @@ def bond_distribution(
                 pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
                 bonds.append(
                         np.round(np.linalg.norm(pos2_unwrap - pos1_unwrap), 3)
-                    )
+                )
     trajectory.close()
 
     if histogram:
-        if bonds[0] < l_min or bonds[-1] > l_max:
+        if min(bonds) < l_min or max(bonds) > l_max:
             warnings.warn("There are bond lengths that fall outside of "
                     "your set l_min and l_max range. You may want to adjust "
                     "this range to include all bond lengths."
@@ -214,6 +214,124 @@ def bond_distribution(
     else:
         return np.array(bonds)
 
+
+def dihedral_distribution(
+        gsd_file,
+        A_name,
+        B_name,
+        C_name,
+        D_name,
+        start=0,
+        stop=-1,
+        degrees=False,
+        histogram=False,
+        phi_min=-180.0,
+        phi_max=None,
+        normalize=False,
+        bins="auto"
+):
+    """Returns the bond angle distribution for a given triplet of particles 
+    
+    Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory.
+    A_name, B_name, C_name, D_name: str
+        Name(s) of particles that form the angle triplet 
+        (found in gsd.hoomd.Snapshot.particles.types)
+        They must be given in the same order as they form the angle
+    start : int
+        Starting frame index for accumulating bond lengths.
+        Negative numbers index from the end. (default 0)
+    stop : int
+        Final frame index for accumulating bond lengths. (default -1)
+    degrees : bool, default=False
+        If True, the angle values are returned in degrees.
+        if False, the angle values are returned in radians.
+    histogram : bool, default=False
+        If set to True, places the resulting angles into a histogram
+        and retrums the histogram's bin centers and heights as 
+        opposed to the actual calcualted angles.
+    phi_min : float, default = -180.0 
+        Sets the minimum phi value to be included in the distribution
+    phi_max : float, default = None 
+        Sets the maximum phi value to be included in the distribution
+        If left as None, then phi_max will be either pi radians or
+        180 degrees depending on the value set for the degrees parameter
+    normalize : bool, default=False
+        If set to True, normalizes the dihedral distribution by the
+        sum of the bin heights, so that the distribution adds up to 1. 
+    bins : float, int, or str,  default="auto"
+        The number of bins to use when finding the distribution
+        of bond angles. Using "auto" will set the number of
+        bins based on the ideal bin size for the data. 
+        See the numpy.histogram docs for more details.
+
+    Returns
+    -------
+    1-D numpy.array  or 2-D numpy.array
+        If histogram is False, Array of actual dihedral angles
+        If histogram is True, returns a 2D array of bin centers and bin heights.
+
+    """
+    if not degrees and phi_max is None:
+        phi_max = np.pi
+    elif degrees and theta_max is None:
+        theta_max = 180
+
+    trajectory = gsd.hoomd.open(gsd_file, mode="rb")
+    name = "-".join([A_name, B_name, C_name, D_name])
+    name_rev = "-".join([D_name, C_name, B_name, A_name])
+
+    dihedrals = []
+    for snap in trajectory[start: stop]:
+        if (name not in snap.dihedrals.types and
+                name_rev not in snap.dihedrals.types):
+            raise ValueError(
+                    f"Dihedrals {name} or {name_rev} not found in "
+                    " snap.dihedrals.types. "
+                    "A_name, B_name, C_name, D_name must match the order "
+                    "as they appear in snap.dihedrals.types."
+            )
+        for idx, _id in enumerate(snap.dihedrals.typeid):
+            dih_name = snap.dihedrals.types[_id]
+            if dih_name == name or dih_name == name_rev:
+                pos1 = snap.particles.position[snap.dihedrals.group[idx][0]]
+                img1 = snap.particles.image[snap.dihedrals.group[idx][0]]
+                pos2 = snap.particles.position[snap.dihedrals.group[idx][1]]
+                img2 = snap.particles.image[snap.dihedrals.group[idx][1]]
+                pos3 = snap.particles.position[snap.dihedrals.group[idx][2]]
+                img3 = snap.particles.image[snap.dihedrals.group[idx][2]]
+                pos4 = snap.particles.position[snap.dihedrals.group[idx][3]]
+                img4 = snap.particles.image[snap.dihedrals.group[idx][3]]
+                pos1_unwrap = pos1 + (img1 * snap.configuration.box[:3])
+                pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
+                pos3_unwrap = pos3 + (img3 * snap.configuration.box[:3])
+                pos4_unwrap = pos4 + (img4 * snap.configuration.box[:3])
+                u = pos2_unwrap - pos1_unwrap
+                v = pos3_unwrap - pos2_unwrap
+                w = pos4_unwrap - pos3_unwrap
+                dihedrals.append(
+                        np.round(angle_between_vectors(u, v, False, degrees), 3)
+                )
+    trajectory.close()
+
+    if histogram:
+        if min(dihedrals) < phi_min or max(dihedrals) > phi_max:
+            warnings.warn("There are dihedral angles that fall outside of "
+                    "your set phi_min and phi_max range. "
+                    "You may want to adjust this range to "
+                    "include all dihedral angles."
+            )
+        bin_centers, bin_heights = get_histogram(
+                data=np.array(dihedrals),
+                normalize=normalize,
+                bins=bins,
+                x_range=(phi_min, phi_max)
+        )
+        return np.stack((bin_centers, bin_heights)).T
+    else:
+        return np.array(dihedrals)
 
 def get_quaternions(n_views = 20):
     """Get the quaternions for the specified number of views.
