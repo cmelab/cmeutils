@@ -311,6 +311,8 @@ def dihedral_distribution(
                 u = pos2_unwrap - pos1_unwrap
                 v = pos3_unwrap - pos2_unwrap
                 w = pos4_unwrap - pos3_unwrap
+
+
                 dihedrals.append(
                         np.round(angle_between_vectors(u, v, False, degrees), 3)
                 )
@@ -332,6 +334,7 @@ def dihedral_distribution(
         return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(dihedrals)
+
 
 def get_quaternions(n_views = 20):
     """Get the quaternions for the specified number of views.
