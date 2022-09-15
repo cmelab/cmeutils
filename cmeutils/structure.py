@@ -225,8 +225,6 @@ def dihedral_distribution(
         stop=-1,
         degrees=False,
         histogram=False,
-        phi_min=-180.0,
-        phi_max=None,
         normalize=False,
         bins="auto"
 ):
@@ -237,9 +235,9 @@ def dihedral_distribution(
     gsdfile : str
         Filename of the GSD trajectory.
     A_name, B_name, C_name, D_name: str
-        Name(s) of particles that form the angle triplet 
+        Name(s) of particles that form the dihedral quadruplett 
         (found in gsd.hoomd.Snapshot.particles.types)
-        They must be given in the same order as they form the angle
+        They must be given in the same order as they form the dihedral 
     start : int
         Starting frame index for accumulating bond lengths.
         Negative numbers index from the end. (default 0)
@@ -252,12 +250,6 @@ def dihedral_distribution(
         If set to True, places the resulting angles into a histogram
         and retrums the histogram's bin centers and heights as 
         opposed to the actual calcualted angles.
-    phi_min : float, default = -180.0 
-        Sets the minimum phi value to be included in the distribution
-    phi_max : float, default = None 
-        Sets the maximum phi value to be included in the distribution
-        If left as None, then phi_max will be either pi radians or
-        180 degrees depending on the value set for the degrees parameter
     normalize : bool, default=False
         If set to True, normalizes the dihedral distribution by the
         sum of the bin heights, so that the distribution adds up to 1. 
@@ -274,11 +266,6 @@ def dihedral_distribution(
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
-    if not degrees and phi_max is None:
-        phi_max = np.pi
-    elif degrees and theta_max is None:
-        theta_max = 180
-
     trajectory = gsd.hoomd.open(gsd_file, mode="rb")
     name = "-".join([A_name, B_name, C_name, D_name])
     name_rev = "-".join([D_name, C_name, B_name, A_name])
@@ -308,28 +295,28 @@ def dihedral_distribution(
                 pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
                 pos3_unwrap = pos3 + (img3 * snap.configuration.box[:3])
                 pos4_unwrap = pos4 + (img4 * snap.configuration.box[:3])
-                u = pos2_unwrap - pos1_unwrap
-                v = pos3_unwrap - pos2_unwrap
-                w = pos4_unwrap - pos3_unwrap
-
-
-                dihedrals.append(
-                        np.round(angle_between_vectors(u, v, False, degrees), 3)
-                )
+                a1 = pos2_unwrap - pos1_unwrap
+                a2 = pos3_unwrap - pos2_unwrap
+                a3 = pos4_unwrap - pos3_unwrap
+                v1 = np.cross(a1, a2)
+                v1 = v1 / (v1 * v1).sum(-1)**0.5
+                v2 = np.cross(a2, a3)
+                v2 = v2 / (v2 * v2).sum(-1)**0.5
+                porm = np.sign((v1 * a3).sum(-1))
+                phi = np.arccos((v1*v2).sum(-1) / ((v1**2).sum(-1) * (v2**2).sum(-1))**0.5)
+                if porm != 0:
+                    phi *= porm
+                if degrees:
+                    phi = np.rad2deg(phi)
+                dihedrals.append(phi)
     trajectory.close()
 
     if histogram:
-        if min(dihedrals) < phi_min or max(dihedrals) > phi_max:
-            warnings.warn("There are dihedral angles that fall outside of "
-                    "your set phi_min and phi_max range. "
-                    "You may want to adjust this range to "
-                    "include all dihedral angles."
-            )
         bin_centers, bin_heights = get_histogram(
-                data=np.array(dihedrals),
+                data = np.array(dihedrals),
                 normalize=normalize,
                 bins=bins,
-                x_range=(phi_min, phi_max)
+                x_range=(-np.pi, np.pi)
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
