@@ -95,6 +95,18 @@ class TestStructure(BaseTest):
         assert bonds_hist.ndim == 2
         assert bonds_no_hist.ndim == 1
 
+    def test_bond_dist_normalize(self, p3ht_gsd):
+        bonds_hist = bond_distribution(
+                p3ht_gsd,
+                "cc",
+                "ss",
+                start=0,
+                stop=1,
+                histogram=True,
+                normalize=True
+        )
+        assert np.allclose(np.sum(bonds_hist[:,1]), 1, 1e-3)
+
     def test_bond_range_outside(self, p3ht_gsd):
         with pytest.warns(UserWarning):
             bonds_hist = bond_distribution(
@@ -117,6 +129,19 @@ class TestStructure(BaseTest):
         )
         assert angles_hist.ndim == 2
         assert angles_no_hist.ndim == 1
+
+    def test_angle_dist_normalize(self, p3ht_gsd):
+        angles_hist = angle_distribution(
+                p3ht_gsd,
+                "cc",
+                "ss",
+                "cc",
+                start=0,
+                stop=1,
+                histogram=True,
+                normalize=True,
+        )
+        assert np.allclose(np.sum(angles_hist[:,1]), 1, 1e-3)
     
     def test_angle_range_outside(self, p3ht_gsd):
         with pytest.warns(UserWarning):
