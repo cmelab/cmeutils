@@ -3,6 +3,7 @@ from tempfile import NamedTemporaryFile
 import freud
 import gsd.hoomd
 import numpy as np
+import hoomd
 
 from cmeutils.geometry import moit
 
@@ -267,28 +268,28 @@ def update_rigid_snapshot(snapshot, mb_compound):
 		    snapshot.particles.position[inds],
 		    snapshot.particles.mass[inds],
 		    center=com,
-	    )		
+	    )
 
-	rigid = hoomd.md.constrain.Rigid()
-	inds = mol_inds[0]
-	r_pos = snapshot.particles.position[0]
-	c_pos = snapshot.particles.position[inds]
-	c_pos -= r_pos
-	c_pos = [tuple(i) for i in c_pos]
-	c_types = [
-    	snapshot.particles.types[i] for i in snapshot.particles.typeid[inds]
-	]
-	c_orient = [tuple(i) for i in snapshot.particles.orientation[inds]]
-	c_charge = [i for i in snapshot.particles.charge[inds]]
-	c_diam = [i for i in snapshot.particles.diameter[inds]]
+    rigid = hoomd.md.constrain.Rigid()
+    inds = mol_inds[0]
+    r_pos = snapshot.particles.position[0]
+    c_pos = snapshot.particles.position[inds]
+    c_pos -= r_pos
+    c_pos = [tuple(i) for i in c_pos]
+    c_types = [
+            snapshot.particles.types[i] for i in snapshot.particles.typeid[inds]
+    ]
+    c_orient = [tuple(i) for i in snapshot.particles.orientation[inds]]
+    c_charge = [i for i in snapshot.particles.charge[inds]]
+    c_diam = [i for i in snapshot.particles.diameter[inds]]
 
-	rigid.body["R"] = {
-    	"constituent_types": c_types,
-    	"positions": c_pos,
-    	"charges": c_charge,
-    	"orientations": c_orient,
-    	"diameters": c_diam,
-	} 
+    rigid.body["R"] = {
+            "constituent_types": c_types,
+            "positions": c_pos,
+            "charges": c_charge,
+            "orientations": c_orient,
+            "diameters": c_diam,
+    } 
     return snapshot, rigid
 
 
