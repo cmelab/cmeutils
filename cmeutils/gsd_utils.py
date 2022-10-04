@@ -293,6 +293,53 @@ def update_rigid_snapshot(snapshot, mb_compound):
     return snapshot, rigid
 
 
+def ellipsoid_gsd(gsdfile, new_file, lpar, lperp):
+    """Add needed information to GSD file to visualize ellipsoids.
+
+    Saves a new GSD file with lpar and lperp values populated
+    for each particle. Ovito can be used to visualize the new GSD file. 
+	
+    Parameters
+    ----------
+    gsd_file : str 
+        Path to the original GSD file containing trajectory information
+    new_file : str
+        Path and filename of the new GSD file
+    lpar : float
+        Value of lpar of the ellipsoids
+    lperp : float
+        Value of lperp of the ellipsoids
+	
+	"""
+    fname = file.split(".")[0]
+    new_file = f"{fname}-ellip.gsd"
+    with gsd.hoomd.open(new_file, "wb") as new_t:
+        with gsd.hoomd.open(file) as old_t:
+            for snap in old_t:
+                snap.particles.type_shapes = [
+                    {
+                        "type": "Ellipsoid",
+                        "a": lpar,
+                        "b": lperp,
+                        "c": lperp
+                    },
+                    {
+                        "type": "Sphere",
+                        "diameter": 0.01
+                    },
+                    {
+                        "type": "Sphere",
+                        "diameter": 0.01
+                    },
+                                  {
+                        "type": "Sphere",
+                        "diameter": 0.01
+                    }
+                ]
+                snap.validate()
+                new_t.append(snap)
+
+
 def xml_to_gsd(xmlfile, gsdfile):
     """Writes hoomdxml data to gsd file.
 
