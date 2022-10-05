@@ -7,7 +7,9 @@ import numpy as np
 from rowan import vector_vector_rotation
 
 from cmeutils import gsd_utils
-from cmeutils.geometry import get_plane_normal, angle_between_vectors
+from cmeutils.geometry import (
+        get_plane_normal, angle_between_vectors, dihedral_angle
+)
 from cmeutils.plotting import get_histogram
 
 
@@ -295,25 +297,15 @@ def dihedral_distribution(
                 pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
                 pos3_unwrap = pos3 + (img3 * snap.configuration.box[:3])
                 pos4_unwrap = pos4 + (img4 * snap.configuration.box[:3])
-                a1 = pos2_unwrap - pos1_unwrap
-                a2 = pos3_unwrap - pos2_unwrap
-                a3 = pos4_unwrap - pos3_unwrap
-                v1 = np.cross(a1, a2)
-                v1 = v1 / (v1 * v1).sum(-1)**0.5
-                v2 = np.cross(a2, a3)
-                v2 = v2 / (v2 * v2).sum(-1)**0.5
-                porm = np.sign((v1 * a3).sum(-1))
-                phi = np.arccos((v1*v2).sum(-1) / ((v1**2).sum(-1) * (v2**2).sum(-1))**0.5)
-                if porm != 0:
-                    phi *= porm
-                if degrees:
-                    phi = np.rad2deg(phi)
+                phi = dihedral_angle(
+                        pos1_unwrap, pos2_unwrap, pos3_unwrap, pos4_unwrap
+                )
                 dihedrals.append(phi)
     trajectory.close()
 
     if histogram:
         bin_centers, bin_heights = get_histogram(
-                data = np.array(dihedrals),
+                data=np.array(dihedrals),
                 normalize=normalize,
                 bins=bins,
                 x_range=(-np.pi, np.pi)
