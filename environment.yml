@@ -4,9 +4,10 @@ channels:
 dependencies:
   - freud
   - gsd
+  - hoomd
   - numpy
   - pip
-  - python=3.7
+  - python
   - matplotlib
   - pymbar
   - pytest
