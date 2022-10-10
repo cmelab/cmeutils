@@ -8,8 +8,15 @@ import packaging.version
 
 from base_test import BaseTest
 from cmeutils.gsd_utils import (
-    get_type_position, get_molecule_cluster, get_all_types, _validate_inputs,
-    snap_delete_types, xml_to_gsd, create_rigid_snapshot, update_rigid_snapshot
+    create_rigid_snapshot,
+    ellipsoid_gsd,
+    get_molecule_cluster,
+    get_all_types,
+    get_type_position,
+    snap_delete_types,
+    update_rigid_snapshot,
+    xml_to_gsd,
+    _validate_inputs,
 )
 
 try:
@@ -25,7 +32,7 @@ except ImportError:
 
 class TestGSD(BaseTest):
     def test_ellipsoid_gsd(self, butane_gsd):
-        new_gsd = ellipsoid(gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
+        new_gsd = ellipsoid_gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
 
     def test_create_rigid_snapshot(self):
         benzene = mb.load("c1ccccc1", smiles=True)
