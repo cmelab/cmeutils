@@ -1,3 +1,4 @@
+import math
 import pytest
 
 import gsd
@@ -10,6 +11,7 @@ from cmeutils.tests.base_test import BaseTest
 from cmeutils.structure import (
         angle_distribution,
         bond_distribution,
+        dihedral_distribution,
         gsd_rdf,
         get_quaternions, 
         order_parameter,
@@ -18,8 +20,35 @@ from cmeutils.structure import (
     )
 
 class TestStructure(BaseTest):
+    def test_dihedral_distribution_deg(self, butane_gsd):
+        dihedrals = dihedral_distribution(
+                butane_gsd, "c3", "c3", "c3", "c3", start=0, stop=1, degrees=True
+        )
+        for phi in dihedrals:
+            assert -180 <= phi <= 180
+
+    def test_dihedral_distribution_rad(self, butane_gsd):
+        dihedrals = dihedral_distribution(
+                butane_gsd, "c3", "c3", "c3", "c3", degrees=False
+        )
+        for phi in dihedrals:
+            assert -math.pi <= phi <= math.pi 
+
+    def test_dihedral_distribution_not_found(self, butane_gsd):
+        with pytest.raises(ValueError):
+            dihedrals = dihedral_distribution(
+                    butane_gsd, "c3", "c3", "c3", "c"
+            )
+
+    def test_dihedral_distribution_histogram(self, butane_gsd):
+        dihedrals = dihedral_distribution(
+                butane_gsd, "c3", "c3", "c3", "c3", histogram=True
+        )
+        for phi in dihedrals[:, 0]:
+            assert -math.pi <= phi <= math.pi 
+
     def test_angle_distribution_deg(self, p3ht_gsd):
-        angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", start=0, stop=1, degrees=True)
+        angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", degrees=True)
         for ang in angles:
             assert 80 < ang < 100
 

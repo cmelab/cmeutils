@@ -42,6 +42,10 @@ class BaseTest:
         return snap
 
     @pytest.fixture
+    def butane_gsd(self):
+        return path.join(asset_dir, "butanes.gsd")
+
+    @pytest.fixture
     def p3ht_gsd(self):
         return path.join(asset_dir, "p3ht.gsd")
 

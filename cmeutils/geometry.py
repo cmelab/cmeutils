@@ -93,6 +93,37 @@ def angle_between_vectors(u, v, min_angle=True, degrees=True):
     return angle
 
 
+def dihedral_angle(pos1, pos2, pos3, pos4, degrees=False):
+    """Given 4 sequential sets of xyz coordinates, calculates the dihedral.
+
+    pos1, pos2, pos3, pos4 : np.ndarray, shape (3,)
+        The 4 sequential xyz coordinates that form the dihedral
+    degrees : bool, default False
+        If False, the dihedral angle is in radians
+        If True, the dihedral angle is in degrees
+
+    Returns
+    --------
+    phi: float
+        The dihedral angle
+
+    """
+    v1 = pos2 - pos1
+    v2 = pos3 - pos2
+    v3 = pos4 - pos3
+    a1 = np.cross(v1, v2)
+    a1 = a1 / (a1*a1).sum(-1)**0.5
+    a2 = np.cross(v2, v3)
+    a2 = a2 / (a2*a2).sum(-1)**0.5
+    porm = np.sign((a1*v3).sum(-1))
+    phi = np.arccos((a1*a2).sum(-1) / ((a1**2).sum(-1) * (a2**2).sum(-1))**0.5)
+    if porm != 0:
+        phi = phi * porm
+    if degrees:
+        phi = np.rad2deg(phi)
+    return phi 
+
+
 def moit(points, masses, center=np.zeros(3)):
     """Calculates moment of inertia tensor (moit) for rigid bodies. 
     

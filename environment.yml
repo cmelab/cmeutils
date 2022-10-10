@@ -6,9 +6,9 @@ dependencies:
   - gsd
   - numpy
   - pip
-  - python=3.7
+  - python
   - matplotlib
-  - pymbar
+  - pymbar < 4.0
   - pytest
   - pytest-cov
   - rowan
