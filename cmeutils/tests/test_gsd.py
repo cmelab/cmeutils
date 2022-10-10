@@ -24,6 +24,9 @@ except ImportError:
 
 
 class TestGSD(BaseTest):
+    def test_ellipsoid_gsd(self, butane_gsd):
+        new_gsd = ellipsoid(gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
+
     def test_create_rigid_snapshot(self):
         benzene = mb.load("c1ccccc1", smiles=True)
         benzene.name = "Benzene"
