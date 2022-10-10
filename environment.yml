@@ -5,6 +5,7 @@ dependencies:
   - freud
   - gsd
   - hoomd
+  - mbuild
   - numpy
   - pip
   - python
