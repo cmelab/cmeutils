@@ -129,7 +129,7 @@ def moit(points, masses, center=np.zeros(3)):
     
     Assumes rigid body center is at origin unless center is provided.
     Only calculates diagonal elements.
-    
+
     Parameters
     ----------
     points : numpy.ndarray (N,3)
@@ -143,6 +143,7 @@ def moit(points, masses, center=np.zeros(3)):
     -------
     numpy.ndarray (3,)
         moment of inertia tensor for the rigid body center
+
     """
     points -= center
     x = points[:, 0]
