@@ -4,6 +4,7 @@ channels:
 dependencies:
   - freud
   - gsd
+  - hoomd>3.0=*cpu*
   - mbuild
   - numpy
   - pip
