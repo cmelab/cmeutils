@@ -10,7 +10,7 @@ dependencies:
   - pip
   - python
   - matplotlib
-  - pymbar < 4.0
+  - pymbar >= 4.0
   - pytest
   - pytest-cov
   - rowan
