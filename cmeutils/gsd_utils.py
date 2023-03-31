@@ -3,7 +3,6 @@ from tempfile import NamedTemporaryFile
 import freud
 import gsd.hoomd
 import numpy as np
-import hoomd
 
 from cmeutils.geometry import moit
 
