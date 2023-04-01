@@ -2,6 +2,7 @@ from tempfile import NamedTemporaryFile
 
 import freud
 import gsd.hoomd
+import hoomd
 import numpy as np
 
 from cmeutils.geometry import moit
