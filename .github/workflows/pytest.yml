@@ -44,7 +44,7 @@ jobs:
       shell: bash -l {0}
       run: |
         mamba remove hoomd python -y
-        mamba install -c conda-forge python=3.9, "hoomd<3=*cpu*"
+        mamba install -c conda-forge python=3.9 "hoomd<3=*cpu*"
         python -m pytest -v -rs -k test_xml_to_gsd --cov=./ --cov-report=xml --cov-append
 
     - name: Upload coverage to Codecov
