@@ -102,10 +102,7 @@ class TestGSD(BaseTest):
         new_snap = snap_delete_types(snap_bond, "A")
         assert "A" not in new_snap.particles.types
 
-    @pytest.mark.skipif(
-        not has_hoomd or hoomd_version.major != 2,
-        reason="HOOMD is not installed or is wrong version"
-    )
+    @pytest.mark.skip(reason="HOOMD2 required for testing")
     def test_xml_to_gsd(self, tmp_path, p3ht_gsd, p3ht_xml):
         new_gsd = tmp_path / "new.gsd"
         xml_to_gsd(p3ht_xml, new_gsd)

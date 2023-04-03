@@ -28,12 +28,12 @@ def equil_sample(
     """
     is_equil, prod_start, ineff, Neff = is_equilibrated(
             data, threshold_fraction, threshold_neff
-            )
+    )
 
     if is_equil:
-        uncorr_indices = timeseries.subsampleCorrelatedData(
+        uncorr_indices = timeseries.subsample_correlated_data(
                 data[prod_start:], g=ineff, conservative=conservative
-            )
+        )
         uncorr_sample = data[prod_start:][uncorr_indices]
         return(uncorr_sample, uncorr_indices, prod_start, Neff)
 
@@ -71,7 +71,7 @@ def is_equilibrated(data, threshold_fraction=0.50, threshold_neff=50, nskip=1):
         'equilibrated'.
     nskip : int, optional, default=1
         Since the statistical inefficiency is computed for every time origin
-        in a call to timeseries.detectEquilibration, for larger datasets
+        in a call to timeseries.detect_equilibration, for larger datasets
         (> few hundred), increasing nskip might speed this up, while
         discarding more data.
 
@@ -94,7 +94,7 @@ def is_equilibrated(data, threshold_fraction=0.50, threshold_neff=50, nskip=1):
             f"Passed 'threshold_neff' value: {threshold_neff}, expected value "
             "1 or greater."
         )
-    [t0, g, Neff] = timeseries.detectEquilibration(data, nskip=nskip)
+    [t0, g, Neff] = timeseries.detect_equilibration(data, nskip=nskip)
     frac_equilibrated = 1.0 - (t0 / np.shape(data)[0])
 
     if (frac_equilibrated >= threshold_fraction) and (Neff >= threshold_neff):
