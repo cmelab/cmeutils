@@ -85,7 +85,7 @@ def angle_between_vectors(u, v, min_angle=True, degrees=True):
     """
     # Angle in radians
     angle = np.arccos(u.dot(v) / (np.linalg.norm(u) * np.linalg.norm(v)))
-    if angle > np.pi/2 and min_angle:
+    if angle > np.pi / 2 and min_angle:
         angle = np.pi - angle
 
     if degrees:
@@ -112,16 +112,16 @@ def dihedral_angle(pos1, pos2, pos3, pos4, degrees=False):
     v2 = pos3 - pos2
     v3 = pos4 - pos3
     a1 = np.cross(v1, v2)
-    a1 = a1 / (a1*a1).sum(-1)**0.5
+    a1 = a1 / (a1 * a1).sum(-1) ** 0.5
     a2 = np.cross(v2, v3)
-    a2 = a2 / (a2*a2).sum(-1)**0.5
-    porm = np.sign((a1*v3).sum(-1))
-    phi = np.arccos((a1*a2).sum(-1) / ((a1**2).sum(-1) * (a2**2).sum(-1))**0.5)
+    a2 = a2 / (a2 * a2).sum(-1) ** 0.5
+    porm = np.sign((a1 * v3).sum(-1))
+    phi = np.arccos((a1 * a2).sum(-1) / ((a1 ** 2).sum(-1) * (a2 ** 2).sum(-1)) ** 0.5)
     if porm != 0:
         phi = phi * porm
     if degrees:
         phi = np.rad2deg(phi)
-    return phi 
+    return phi
 
 
 def moit(points, masses, center=np.zeros(3)):
@@ -153,3 +153,66 @@ def moit(points, masses, center=np.zeros(3)):
     I_yy = np.sum((x ** 2 + z ** 2) * masses)
     I_zz = np.sum((x ** 2 + y ** 2) * masses)
     return np.array((I_xx, I_yy, I_zz))
+
+
+def radial_grid_positions(init_radius, final_radius, init_position=np.zeros(2), n_circles=10, circle_slice=1,
+                          circle_coverage=2 * np.pi):
+    """
+    Generate a 2D grid of positions in a radial pattern.
+    Parameters
+    ----------
+    init_radius: initial radius of the grid (first circle).
+    final_radius: final radius of the grid (last circle).
+    init_position: initial position of the grid (center of the first circle).
+    n_circles: number of circles in the grid.
+    circle_slice: number of points in each circle.
+    circle_coverage: coverage of each circle in radians (range: 0 to 2*pi).
+
+    Returns
+    -------
+    grid_positions: numpy.ndarray, shape (n_circles * circle_slice, 2)
+        xy coordinates of the grid positions.
+    """
+
+    grid_positions = []
+    for radius in np.linspace(init_radius, final_radius, n_circles):
+        for d_theta in np.linspace(0, circle_coverage, circle_slice):
+            grid_positions.append((init_position[0] + np.round(radius * np.cos(d_theta), decimals=3),
+                                   init_position[1] + np.round(radius * np.sin(d_theta), decimals=3)))
+
+    return np.asarray(grid_positions)
+
+
+def spherical_grid_positions(init_radius, final_radius, init_position=np.zeros(3), n_circles=10, circle_slice=1,
+                             circle_coverage=2 * np.pi, z_coverage=np.pi):
+    """
+    Generate a 3D grid of positions in a spherical pattern.
+    Parameters
+    ----------
+    init_radius: initial radius of the grid (first circle).
+    final_radius: final radius of the grid (last circle).
+    init_position: initial position of the grid (center of the first circle).
+    n_circles: number of circles in the grid.
+    circle_slice: number of points in each circle.
+    circle_coverage: coverage of each circle in radians (range: 0 to 2*pi).
+    z_coverage: coverage of the z axis in radians (range: 0 to pi).
+
+    Returns
+    -------
+    grid_positions: numpy.ndarray
+        xyz coordinates of the grid positions.
+    """
+
+    z_slice = circle_slice * 2
+    grid_positions = []
+    for radius in np.linspace(init_radius, final_radius, n_circles):
+        for d_theta in np.linspace(0, circle_coverage, circle_slice):
+            for d_phi in np.linspace(0, z_coverage, z_slice):
+                x = init_position[0] + np.round(radius * np.cos(d_theta) * np.sin(d_phi), decimals=3)
+                y = init_position[1] + np.round(radius * np.sin(d_theta) * np.sin(d_phi), decimals=3)
+                z = init_position[2] + np.round(radius * np.cos(d_phi), decimals=3)
+                if not (x, y, z) in grid_positions:
+                    grid_positions.append((x, y, z))
+
+    return np.asarray(grid_positions)
+
