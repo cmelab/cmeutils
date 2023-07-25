@@ -1,9 +1,10 @@
 import numpy as np
 from pymbar import timeseries
 
+
 def equil_sample(
         data, threshold_fraction=0.0, threshold_neff=1, conservative=True
-    ):
+):
     """Returns a statistically independent subset of an array of data.
 
     Parameters
@@ -27,15 +28,15 @@ def equil_sample(
 
     """
     is_equil, prod_start, ineff, Neff = is_equilibrated(
-            data, threshold_fraction, threshold_neff
+        data, threshold_fraction, threshold_neff
     )
 
     if is_equil:
         uncorr_indices = timeseries.subsample_correlated_data(
-                data[prod_start:], g=ineff, conservative=conservative
+            data[prod_start:], g=ineff, conservative=conservative
         )
         uncorr_sample = data[prod_start:][uncorr_indices]
-        return(uncorr_sample, uncorr_indices, prod_start, Neff)
+        return (uncorr_sample, uncorr_indices, prod_start, Neff)
 
     else:
         raise ValueError(
@@ -43,6 +44,7 @@ def equil_sample(
             "expected. More production data is needed, or the threshold needs "
             "to be lowered. See is_equilibrated for more information."
         )
+
 
 def is_equilibrated(data, threshold_fraction=0.50, threshold_neff=50, nskip=1):
     """Check if a dataset is equilibrated based on a fraction of equil data.

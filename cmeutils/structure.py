@@ -8,7 +8,7 @@ from rowan import vector_vector_rotation
 
 from cmeutils import gsd_utils
 from cmeutils.geometry import (
-        get_plane_normal, angle_between_vectors, dihedral_angle
+    get_plane_normal, angle_between_vectors, dihedral_angle
 )
 from cmeutils.plotting import get_histogram
 
@@ -84,10 +84,10 @@ def angle_distribution(
     for snap in trajectory[start: stop]:
         if name not in snap.angles.types and name_rev not in snap.angles.types:
             raise ValueError(
-                    f"Angles {name} or {name_rev} not found in "
-                    " snap.angles.types. "
-                    "A_name, B_name, C_name must match the order "
-                    "as they appear in snap.angles.types."
+                f"Angles {name} or {name_rev} not found in "
+                " snap.angles.types. "
+                "A_name, B_name, C_name must match the order "
+                "as they appear in snap.angles.types."
             )
         for idx, angle_id in enumerate(snap.angles.typeid):
             angle_name = snap.angles.types[angle_id]
@@ -104,22 +104,22 @@ def angle_distribution(
                 u = pos1_unwrap - pos2_unwrap
                 v = pos3_unwrap - pos2_unwrap
                 angles.append(
-                        np.round(angle_between_vectors(u, v, False, degrees), 3)
+                    np.round(angle_between_vectors(u, v, False, degrees), 3)
                 )
     trajectory.close()
 
     if histogram:
         if min(angles) < theta_min or max(angles) > theta_max:
             warnings.warn("There are bond angles that fall outside of "
-                    "your set theta_min and theta_max range. "
-                    "You may want to adjust this range to "
-                    "include all bond angles."
-            )
+                          "your set theta_min and theta_max range. "
+                          "You may want to adjust this range to "
+                          "include all bond angles."
+                          )
         bin_centers, bin_heights = get_histogram(
-                data=np.array(angles),
-                normalize=normalize,
-                bins=bins,
-                x_range=(theta_min, theta_max)
+            data=np.array(angles),
+            normalize=normalize,
+            bins=bins,
+            x_range=(theta_min, theta_max)
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
@@ -127,16 +127,16 @@ def angle_distribution(
 
 
 def bond_distribution(
-    gsd_file,
-    A_name,
-    B_name,
-    start=0,
-    stop=-1,
-    histogram=False,
-    l_min=0.0,
-    l_max=4.0,
-    normalize=True,
-    bins=100
+        gsd_file,
+        A_name,
+        B_name,
+        start=0,
+        stop=-1,
+        histogram=False,
+        l_min=0.0,
+        l_max=4.0,
+        normalize=True,
+        bins=100
 ):
     """Returns the bond length distribution for a given bond pair 
     
@@ -184,8 +184,8 @@ def bond_distribution(
     for snap in trajectory[start:stop]:
         if name not in snap.bonds.types and name_rev not in snap.bonds.types:
             raise ValueError(f"Bond types {name} or {name_rev} not found "
-                    "snap.bonds.types."
-            )
+                             "snap.bonds.types."
+                             )
         for idx, bond in enumerate(snap.bonds.typeid):
             bond_name = snap.bonds.types[bond]
             if bond_name in [name, name_rev]:
@@ -196,21 +196,21 @@ def bond_distribution(
                 pos1_unwrap = pos1 + (img1 * snap.configuration.box[:3])
                 pos2_unwrap = pos2 + (img2 * snap.configuration.box[:3])
                 bonds.append(
-                        np.round(np.linalg.norm(pos2_unwrap - pos1_unwrap), 3)
+                    np.round(np.linalg.norm(pos2_unwrap - pos1_unwrap), 3)
                 )
     trajectory.close()
 
     if histogram:
         if min(bonds) < l_min or max(bonds) > l_max:
             warnings.warn("There are bond lengths that fall outside of "
-                    "your set l_min and l_max range. You may want to adjust "
-                    "this range to include all bond lengths."
-            )
+                          "your set l_min and l_max range. You may want to adjust "
+                          "this range to include all bond lengths."
+                          )
         bin_centers, bin_heights = get_histogram(
-                data = np.array(bonds),
-                normalize=normalize,
-                bins=bins,
-                x_range=(l_min, l_max)
+            data=np.array(bonds),
+            normalize=normalize,
+            bins=bins,
+            x_range=(l_min, l_max)
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
@@ -277,10 +277,10 @@ def dihedral_distribution(
         if (name not in snap.dihedrals.types and
                 name_rev not in snap.dihedrals.types):
             raise ValueError(
-                    f"Dihedrals {name} or {name_rev} not found in "
-                    " snap.dihedrals.types. "
-                    "A_name, B_name, C_name, D_name must match the order "
-                    "as they appear in snap.dihedrals.types."
+                f"Dihedrals {name} or {name_rev} not found in "
+                " snap.dihedrals.types. "
+                "A_name, B_name, C_name, D_name must match the order "
+                "as they appear in snap.dihedrals.types."
             )
         for idx, _id in enumerate(snap.dihedrals.typeid):
             dih_name = snap.dihedrals.types[_id]
@@ -298,24 +298,24 @@ def dihedral_distribution(
                 pos3_unwrap = pos3 + (img3 * snap.configuration.box[:3])
                 pos4_unwrap = pos4 + (img4 * snap.configuration.box[:3])
                 phi = dihedral_angle(
-                        pos1_unwrap, pos2_unwrap, pos3_unwrap, pos4_unwrap
+                    pos1_unwrap, pos2_unwrap, pos3_unwrap, pos4_unwrap
                 )
                 dihedrals.append(phi)
     trajectory.close()
 
     if histogram:
         bin_centers, bin_heights = get_histogram(
-                data=np.array(dihedrals),
-                normalize=normalize,
-                bins=bins,
-                x_range=(-np.pi, np.pi)
+            data=np.array(dihedrals),
+            normalize=normalize,
+            bins=bins,
+            x_range=(-np.pi, np.pi)
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
         return np.array(dihedrals)
 
 
-def get_quaternions(n_views = 20):
+def get_quaternions(n_views=20):
     """Get the quaternions for the specified number of views.
 
     The first (n_view - 3) views will be the views even distributed on a sphere,
@@ -335,17 +335,17 @@ def get_quaternions(n_views = 20):
     list of numpy.ndarray
         Quaternions as (4,) arrays.
     """
-    if n_views <=3 or not isinstance(n_views, int):
+    if n_views <= 3 or not isinstance(n_views, int):
         raise ValueError("Please set n_views to an integer greater than 3.")
     # Calculate points for even distribution on a sphere
-    ga = np.pi * (3 - 5**0.5)
-    theta = ga * np.arange(n_views-3)
-    z = np.linspace(1 - 1/(n_views-3), 1/(n_views-3), n_views-3)
+    ga = np.pi * (3 - 5 ** 0.5)
+    theta = ga * np.arange(n_views - 3)
+    z = np.linspace(1 - 1 / (n_views - 3), 1 / (n_views - 3), n_views - 3)
     radius = np.sqrt(1 - z * z)
     points = np.zeros((n_views, 3))
-    points[:-3,0] = radius * np.cos(theta)
-    points[:-3,1] = radius * np.sin(theta)
-    points[:-3,2] = z
+    points[:-3, 0] = radius * np.cos(theta)
+    points[:-3, 1] = radius * np.sin(theta)
+    points[:-3, 2] = z
 
     # face on
     points[-3] = np.array([0, 0, 1])
@@ -359,15 +359,15 @@ def get_quaternions(n_views = 20):
 
 
 def gsd_rdf(
-    gsdfile,
-    A_name,
-    B_name,
-    start=0,
-    stop=-1,
-    r_max=None,
-    r_min=0,
-    bins=100,
-    exclude_bonded=True,
+        gsdfile,
+        A_name,
+        B_name,
+        start=0,
+        stop=-1,
+        r_max=None,
+        r_min=0,
+        bins=100,
+        exclude_bonded=True,
 ):
     """Compute intermolecular RDF from a GSD file.
 
@@ -473,7 +473,8 @@ def get_centers(gsdfile, new_gsdfile):
     new_gsdfile : str
         Filename of new GSD for centers.
     """
-    with gsd.hoomd.open(new_gsdfile, 'wb') as new_traj, gsd.hoomd.open(gsdfile, 'rb') as traj:
+    with gsd.hoomd.open(new_gsdfile, 'wb') as new_traj, gsd.hoomd.open(gsdfile,
+                                                                       'rb') as traj:
         snap = traj[0]
         cluster_idx = gsd_utils.get_molecule_cluster(snap=snap)
         for snap in traj:
@@ -481,11 +482,12 @@ def get_centers(gsdfile, new_gsdfile):
             new_snap.configuration.box = snap.configuration.box
             f_box = freud.box.Box.from_box(snap.configuration.box)
             # Use the freud box to unwrap the particle positions
-            unwrapped_positions = f_box.unwrap(snap.particles.position, snap.particles.image)
+            unwrapped_positions = f_box.unwrap(snap.particles.position,
+                                               snap.particles.image)
             uw_centers = []
-            for i in range(max(cluster_idx)+1):
+            for i in range(max(cluster_idx) + 1):
                 cluster_uw_pos = unwrapped_positions[np.where(cluster_idx == i)]
-                uw_centers.append(np.mean(cluster_uw_pos, axis = 0))
+                uw_centers.append(np.mean(cluster_uw_pos, axis=0))
             uw_centers = np.stack(uw_centers)
             new_snap.particles.position = f_box.wrap(uw_centers)
             new_snap.particles.N = len(uw_centers)
@@ -564,7 +566,7 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
             aq = freud.locality.AABBQuery.from_system(cg_snap)
             n_list = aq.query(
                 cg_snap.particles.position,
-                query_args={"exclude_ii":True, "r_max": r_max}
+                query_args={"exclude_ii": True, "r_max": r_max}
             ).toNeighborList()
 
             vec_point = [
@@ -576,8 +578,8 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
                 for i in n_list.query_point_indices
             ]
             n_list.filter([
-                angle_between_vectors(i,j) < a_max
-                for i,j in zip(vec_point, vec_querypoint)
+                angle_between_vectors(i, j) < a_max
+                for i, j in zip(vec_point, vec_querypoint)
             ])
             cl = freud.cluster.Cluster()
             cl.compute(cg_snap, neighbors=n_list)
@@ -627,7 +629,7 @@ def all_atom_rdf(gsdfile,
     with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
         snap = trajectory[start]
         if r_max is None:
-            #Use a value just less than half the maximum box length.
+            # Use a value just less than half the maximum box length.
             r_max = np.nextafter(
                 np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
             )

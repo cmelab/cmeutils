@@ -9,11 +9,11 @@ from cmeutils.geometry import moit
 
 
 def get_type_position(
-    typename,
-    gsd_file=None,
-    snap=None,
-    gsd_frame=-1,
-    images=False
+        typename,
+        gsd_file=None,
+        snap=None,
+        gsd_frame=-1,
+        images=False
 ):
     """Get the positions of a particle type.
 
@@ -51,15 +51,15 @@ def get_type_position(
     type_images = []
     for _type in typename:
         type_pos.extend(
-                snap.particles.position[
+            snap.particles.position[
                 snap.particles.typeid == snap.particles.types.index(_type)
-            ]
+                ]
         )
         if images:
             type_images.extend(
                 snap.particles.image[
                     snap.particles.typeid == snap.particles.types.index(_type)
-                ]
+                    ]
             )
     if images:
         return np.array(type_pos), np.array(type_images)
@@ -168,7 +168,7 @@ def snap_delete_types(snap, delete_types):
         i for i in snap.particles.types if i not in delete_types
     ]
     typeid_map = {
-        i:new_snap.particles.types.index(e)
+        i: new_snap.particles.types.index(e)
         for i, e in enumerate(snap.particles.types)
         if e in new_snap.particles.types
     }
@@ -181,7 +181,7 @@ def snap_delete_types(snap, delete_types):
     if snap.bonds.N > 0:
         bonds = np.isin(snap.bonds.group, selection).all(axis=1)
         if bonds.any():
-            inds = {e:i for i, e in enumerate(selection)}
+            inds = {e: i for i, e in enumerate(selection)}
             new_snap.bonds.group = np.vectorize(inds.get)(
                 snap.bonds.group[bonds]
             )
@@ -241,34 +241,34 @@ def update_rigid_snapshot(snapshot, mb_compound):
     rigid_bodies = set(rigid_ids)
     # Total number of rigid body particles
     N_mols = len(rigid_bodies)
-    N_p =  [rigid_ids.count(i) for i in rigid_bodies]
-	# Right now, we're assuming each molecule has the same num of particles
+    N_p = [rigid_ids.count(i) for i in rigid_bodies]
+    # Right now, we're assuming each molecule has the same num of particles
     assert len(set(N_p)) == 1
-    N_p = N_p[0] # Number of particles per molecule
+    N_p = N_p[0]  # Number of particles per molecule
     mol_inds = [
         np.arange(N_mols + i * N_p, N_mols + i * N_p + N_p)
         for i in range(N_mols)
     ]
 
     for i, inds in enumerate(mol_inds):
-	    total_mass = np.sum(snapshot.particles.mass[inds])
-	    com = (
-		    np.sum(
-			    snapshot.particles.position[inds]
-			    * snapshot.particles.mass[inds, np.newaxis],
-                axis=0,
-		    )
-		    / total_mass
-	    )
-	    snapshot.particles.position[i] = com
-	    snapshot.particles.body[i] = i
-	    snapshot.particles.body[inds] = i * np.ones_like(inds)
-	    snapshot.particles.mass[i] = np.sum(snapshot.particles.mass[inds])
-	    snapshot.particles.moment_inertia[i] = moit(
-		    snapshot.particles.position[inds],
-		    snapshot.particles.mass[inds],
-		    center=com,
-	    )
+        total_mass = np.sum(snapshot.particles.mass[inds])
+        com = (
+                np.sum(
+                    snapshot.particles.position[inds]
+                    * snapshot.particles.mass[inds, np.newaxis],
+                    axis=0,
+                )
+                / total_mass
+        )
+        snapshot.particles.position[i] = com
+        snapshot.particles.body[i] = i
+        snapshot.particles.body[inds] = i * np.ones_like(inds)
+        snapshot.particles.mass[i] = np.sum(snapshot.particles.mass[inds])
+        snapshot.particles.moment_inertia[i] = moit(
+            snapshot.particles.position[inds],
+            snapshot.particles.mass[inds],
+            center=com,
+        )
 
     rigid = hoomd.md.constrain.Rigid()
     inds = mol_inds[0]
@@ -277,19 +277,19 @@ def update_rigid_snapshot(snapshot, mb_compound):
     c_pos -= r_pos
     c_pos = [tuple(i) for i in c_pos]
     c_types = [
-            snapshot.particles.types[i] for i in snapshot.particles.typeid[inds]
+        snapshot.particles.types[i] for i in snapshot.particles.typeid[inds]
     ]
     c_orient = [tuple(i) for i in snapshot.particles.orientation[inds]]
     c_charge = [i for i in snapshot.particles.charge[inds]]
     c_diam = [i for i in snapshot.particles.diameter[inds]]
 
     rigid.body["R"] = {
-            "constituent_types": c_types,
-            "positions": c_pos,
-            "charges": c_charge,
-            "orientations": c_orient,
-            "diameters": c_diam,
-    } 
+        "constituent_types": c_types,
+        "positions": c_pos,
+        "charges": c_charge,
+        "orientations": c_orient,
+        "diameters": c_diam,
+    }
     return snapshot, rigid
 
 
@@ -325,7 +325,7 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
                         "type": "Sphere",
                         "diameter": 0.01
                     },
-                                  {
+                    {
                         "type": "Sphere",
                         "diameter": 0.01
                     }
@@ -352,7 +352,7 @@ def xml_to_gsd(xmlfile, gsdfile):
         import hoomd.deprecated
     except ImportError:
         raise ImportError(
-                "You must have hoomd version 2 installed to use xml_to_gsd()"
+            "You must have hoomd version 2 installed to use xml_to_gsd()"
         )
 
     hoomd.util.quiet_status()
@@ -370,7 +370,7 @@ def xml_to_gsd(xmlfile, gsdfile):
         with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "wb") as newt:
             snap = t[0]
             bonds = snap.bonds.group
-            bonds = bonds[np.lexsort((bonds[:,1], bonds[:,0]))]
+            bonds = bonds[np.lexsort((bonds[:, 1], bonds[:, 0]))]
             snap.bonds.group = bonds
             newt.append(snap)
     print(f"XML data written to {gsdfile}")
