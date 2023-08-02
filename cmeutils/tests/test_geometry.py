@@ -52,23 +52,26 @@ class TestGeometry(BaseTest):
 
     def test_radial_grid_positions(self):
         grid = radial_grid_positions(
-            init_radius=1, final_radius=2, init_position=np.zeros(2),
-            n_circles=2, circle_slice=2, circle_coverage=np.pi
+            init_radius=1,
+            final_radius=2,
+            init_position=np.zeros(2),
+            n_circles=2,
+            circle_slice=2,
+            circle_coverage=np.pi
         )
         assert np.array_equal(
             grid,
-            np.array([
-                [1., 0.],
-                [-1., 0.],
-                [2., 0],
-                [-2, 0]
-            ])
+            np.array([[1., 0.], [-1., 0.], [2., 0], [-2, 0]])
         )
 
     def test_radial_grid_positions_quarter_circle(self):
         grid = radial_grid_positions(
-            init_radius=1, final_radius=2, init_position=np.zeros(2),
-            n_circles=2, circle_slice=4, circle_coverage=np.pi / 2
+            init_radius=1,
+            final_radius=2,
+            init_position=np.zeros(2),
+            n_circles=2,
+            circle_slice=4,
+            circle_coverage=np.pi / 2
         )
         assert np.array_equal(
             grid,
@@ -86,21 +89,27 @@ class TestGeometry(BaseTest):
 
     def test_radial_grid_positions_along_x(self):
         grid = radial_grid_positions(
-            init_radius=1, final_radius=3, init_position=np.zeros(2),
-            n_circles=3, circle_slice=1, circle_coverage=np.pi * 2)
+            init_radius=1,
+            final_radius=3,
+            init_position=np.zeros(2),
+            n_circles=3,
+            circle_slice=1,
+            circle_coverage=np.pi * 2
+        )
         assert np.array_equal(
             grid,
-            np.array([
-                [1., 0.],
-                [2., 0.],
-                [3., 0.]
-            ])
+            np.array([[1., 0.], [2., 0.], [3., 0.]])
         )
 
     def test_radial_grid_positions_init_position(self):
         grid = radial_grid_positions(
-            init_radius=1, final_radius=2, init_position=np.array([1, 1]),
-            n_circles=2, circle_slice=2, circle_coverage=np.pi)
+            init_radius=1,
+            final_radius=2,
+            init_position=np.array([1, 1]),
+            n_circles=2,
+            circle_slice=2,
+            circle_coverage=np.pi
+        )
         assert np.array_equal(
             grid,
             np.array([
@@ -113,8 +122,13 @@ class TestGeometry(BaseTest):
 
     def test_spherical_grid_positions(self):
         grid = spherical_grid_positions(
-            init_radius=1, final_radius=2, init_position=np.zeros(3),
-            n_circles=2, circle_slice=2, circle_coverage=np.pi, z_coverage=np.pi
+            init_radius=1,
+            final_radius=2,
+            init_position=np.zeros(3),
+            n_circles=2,
+            circle_slice=2,
+            circle_coverage=np.pi,
+            z_coverage=np.pi
         )
         assert np.array_equal(
             grid,
@@ -136,8 +150,12 @@ class TestGeometry(BaseTest):
 
     def test_spherical_grid_positions_half_circle(self):
         grid = spherical_grid_positions(
-            init_radius=1, final_radius=1, init_position=np.zeros(3),
-            n_circles=2, circle_slice=2, circle_coverage=np.pi,
+            init_radius=1,
+            final_radius=1,
+            init_position=np.zeros(3),
+            n_circles=2,
+            circle_slice=2,
+            circle_coverage=np.pi,
             z_coverage=np.pi / 2
         )
         assert np.array_equal(

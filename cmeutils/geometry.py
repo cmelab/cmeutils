@@ -156,11 +156,17 @@ def moit(points, masses, center=np.zeros(3)):
     return np.array((I_xx, I_yy, I_zz))
 
 
-def radial_grid_positions(init_radius, final_radius, init_position=np.zeros(2),
-                          n_circles=10, circle_slice=1,
-                          circle_coverage=2 * np.pi):
+def radial_grid_positions(
+        init_radius,
+        final_radius,
+        init_position=np.zeros(2),
+        n_circles=10,
+        circle_slice=1,
+        circle_coverage=2 * np.pi
+):
     """
     Generate a 2D grid of positions in a radial pattern.
+
     Parameters
     ----------
     init_radius: float
@@ -175,6 +181,7 @@ def radial_grid_positions(init_radius, final_radius, init_position=np.zeros(2),
         number of points in each circle
     circle_coverage: float, default 2*pi
         coverage of each circle in radians (range: 0 to 2*pi)
+
     Returns
     -------
     grid_positions: numpy.ndarray(n_circles * circle_slice, 2)
@@ -192,10 +199,15 @@ def radial_grid_positions(init_radius, final_radius, init_position=np.zeros(2),
     return np.asarray(grid_positions)
 
 
-def spherical_grid_positions(init_radius, final_radius,
-                             init_position=np.zeros(3), n_circles=10,
-                             circle_slice=1,
-                             circle_coverage=2 * np.pi, z_coverage=np.pi):
+def spherical_grid_positions(
+        init_radius,
+        final_radius,
+        init_position=np.zeros(3),
+        n_circles=10,
+        circle_slice=1,
+        circle_coverage=2 * np.pi,
+        z_coverage=np.pi
+):
     """
     Generate a 3D grid of positions in a spherical pattern.
     Parameters
