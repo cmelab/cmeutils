@@ -2,18 +2,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def test_ci_func(parameter1,parameter2,parameter3,parameter4,parameter5,parameter6,parameter7):
+def test_ci_func(
+    parameter1,
+    parameter2,
+    parameter3,
+    parameter4,
+    parameter5,
+    parameter6,
+    parameter7,
+):
     """
 
-    THESE ARE MY DOC STRINGS           """
+    THESE ARE MY DOC STRINGS"""
 
-
-    for i in range( 10 ):
+    for i in range(10):
         print(i)
 
-
-
-    return [1,2,3,4]
+    return [1, 2, 3, 4]
 
 
 def get_histogram(data, normalize=False, bins="auto", x_range=None):
