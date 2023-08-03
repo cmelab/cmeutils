@@ -1,10 +1,9 @@
 import numpy as np
 import pytest
-from pymbar import testsystems
-from pymbar.testsystems.timeseries import correlated_timeseries_example
 
-from cmeutils.tests.base_test import BaseTest
 from cmeutils.sampling import equil_sample, is_equilibrated
+from cmeutils.tests.base_test import BaseTest
+
 
 class TestSampler(BaseTest):
     def test_is_equilibrated(self, correlated_data_tau100_n10000):
@@ -70,7 +69,9 @@ class TestSampler(BaseTest):
 
     def test_trim_high_threshold(self, correlated_data_tau100_n10000):
         data = correlated_data_tau100_n10000
-        with pytest.raises(ValueError, match=r"Property does not have requisite threshold"):
+        with pytest.raises(
+            ValueError, match=r"Property does not have requisite threshold"
+        ):
             [equil_data, uncorr_indices, prod_start, Neff] = equil_sample(
                 data, threshold_fraction=0.98
             )

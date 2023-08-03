@@ -8,33 +8,35 @@ from rowan import vector_vector_rotation
 
 from cmeutils import gsd_utils
 from cmeutils.geometry import (
-    get_plane_normal, angle_between_vectors, dihedral_angle
+    angle_between_vectors,
+    dihedral_angle,
+    get_plane_normal,
 )
 from cmeutils.plotting import get_histogram
 
 
 def angle_distribution(
-        gsd_file,
-        A_name,
-        B_name,
-        C_name,
-        start=0,
-        stop=-1,
-        degrees=False,
-        histogram=False,
-        theta_min=0.0,
-        theta_max=None,
-        normalize=False,
-        bins="auto"
+    gsd_file,
+    A_name,
+    B_name,
+    C_name,
+    start=0,
+    stop=-1,
+    degrees=False,
+    histogram=False,
+    theta_min=0.0,
+    theta_max=None,
+    normalize=False,
+    bins="auto",
 ):
-    """Returns the bond angle distribution for a given triplet of particles 
-    
+    """Returns the bond angle distribution for a given triplet of particles
+
     Parameters
     ----------
     gsdfile : str
         Filename of the GSD trajectory.
     A_name, B_name, C_name : str
-        Name(s) of particles that form the angle triplet 
+        Name(s) of particles that form the angle triplet
         (found in gsd.hoomd.Snapshot.particles.types)
         They must be given in the same order as they form the angle
     start : int
@@ -47,21 +49,21 @@ def angle_distribution(
         if False, the angle values are returned in radians.
     histogram : bool, default=False
         If set to True, places the resulting angles into a histogram
-        and retrums the histogram's bin centers and heights as 
+        and retrums the histogram's bin centers and heights as
         opposed to the actual calcualted angles.
     theta_min : float, default = 0.0
         Sets the minimum theta value to be included in the distribution
-    theta_max : float, default = None 
+    theta_max : float, default = None
         Sets the maximum theta value to be included in the distribution
         If left as None, then theta_max will be either pi radians or
         180 degrees depending on the value set for the degrees parameter
     normalize : bool, default=False
         If set to True, normalizes the angle distribution by the
-        sum of the bin heights, so that the distribution adds up to 1. 
+        sum of the bin heights, so that the distribution adds up to 1.
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
-        bins based on the ideal bin size for the data. 
+        bins based on the ideal bin size for the data.
         See the numpy.histogram docs for more details.
 
     Returns
@@ -81,7 +83,7 @@ def angle_distribution(
     name_rev = "-".join([C_name, B_name, A_name])
 
     angles = []
-    for snap in trajectory[start: stop]:
+    for snap in trajectory[start:stop]:
         if name not in snap.angles.types and name_rev not in snap.angles.types:
             raise ValueError(
                 f"Angles {name} or {name_rev} not found in "
@@ -110,16 +112,17 @@ def angle_distribution(
 
     if histogram:
         if min(angles) < theta_min or max(angles) > theta_max:
-            warnings.warn("There are bond angles that fall outside of "
-                          "your set theta_min and theta_max range. "
-                          "You may want to adjust this range to "
-                          "include all bond angles."
-                          )
+            warnings.warn(
+                "There are bond angles that fall outside of "
+                "your set theta_min and theta_max range. "
+                "You may want to adjust this range to "
+                "include all bond angles."
+            )
         bin_centers, bin_heights = get_histogram(
             data=np.array(angles),
             normalize=normalize,
             bins=bins,
-            x_range=(theta_min, theta_max)
+            x_range=(theta_min, theta_max),
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
@@ -127,19 +130,19 @@ def angle_distribution(
 
 
 def bond_distribution(
-        gsd_file,
-        A_name,
-        B_name,
-        start=0,
-        stop=-1,
-        histogram=False,
-        l_min=0.0,
-        l_max=4.0,
-        normalize=True,
-        bins=100
+    gsd_file,
+    A_name,
+    B_name,
+    start=0,
+    stop=-1,
+    histogram=False,
+    l_min=0.0,
+    l_max=4.0,
+    normalize=True,
+    bins=100,
 ):
-    """Returns the bond length distribution for a given bond pair 
-    
+    """Returns the bond length distribution for a given bond pair
+
     Parameters
     ----------
     gsdfile : str
@@ -154,19 +157,19 @@ def bond_distribution(
         Final frame index for accumulating bond lengths. (default -1)
     histogram : bool, default=False
         If set to True, places the resulting bonds into a histogram
-        and retrums the histogram's bin centers and heights as 
+        and retrums the histogram's bin centers and heights as
         opposed to the actual calcualted bonds.
     l_min : float, default = 0.0
         Sets the minimum bond length to be included in the distribution
-    l_max : float, default = 5.0 
+    l_max : float, default = 5.0
         Sets the maximum bond length value to be included in the distribution
     normalize : bool, default=False
         If set to True, normalizes the angle distribution by the
-        sum of the bin heights, so that the distribution adds up to 1. 
+        sum of the bin heights, so that the distribution adds up to 1.
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
-        bins based on the ideal bin size for the data. 
+        bins based on the ideal bin size for the data.
         See the numpy.histogram docs for more details.
 
     Returns
@@ -183,9 +186,10 @@ def bond_distribution(
     bonds = []
     for snap in trajectory[start:stop]:
         if name not in snap.bonds.types and name_rev not in snap.bonds.types:
-            raise ValueError(f"Bond types {name} or {name_rev} not found "
-                             "snap.bonds.types."
-                             )
+            raise ValueError(
+                f"Bond types {name} or {name_rev} not found "
+                "snap.bonds.types."
+            )
         for idx, bond in enumerate(snap.bonds.typeid):
             bond_name = snap.bonds.types[bond]
             if bond_name in [name, name_rev]:
@@ -202,15 +206,16 @@ def bond_distribution(
 
     if histogram:
         if min(bonds) < l_min or max(bonds) > l_max:
-            warnings.warn("There are bond lengths that fall outside of "
-                          "your set l_min and l_max range. You may want to adjust "
-                          "this range to include all bond lengths."
-                          )
+            warnings.warn(
+                "There are bond lengths that fall outside of "
+                "your set l_min and l_max range. You may want to adjust "
+                "this range to include all bond lengths."
+            )
         bin_centers, bin_heights = get_histogram(
             data=np.array(bonds),
             normalize=normalize,
             bins=bins,
-            x_range=(l_min, l_max)
+            x_range=(l_min, l_max),
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
@@ -218,28 +223,28 @@ def bond_distribution(
 
 
 def dihedral_distribution(
-        gsd_file,
-        A_name,
-        B_name,
-        C_name,
-        D_name,
-        start=0,
-        stop=-1,
-        degrees=False,
-        histogram=False,
-        normalize=False,
-        bins="auto"
+    gsd_file,
+    A_name,
+    B_name,
+    C_name,
+    D_name,
+    start=0,
+    stop=-1,
+    degrees=False,
+    histogram=False,
+    normalize=False,
+    bins="auto",
 ):
-    """Returns the bond angle distribution for a given triplet of particles 
-    
+    """Returns the bond angle distribution for a given triplet of particles
+
     Parameters
     ----------
     gsdfile : str
         Filename of the GSD trajectory.
     A_name, B_name, C_name, D_name: str
-        Name(s) of particles that form the dihedral quadruplett 
+        Name(s) of particles that form the dihedral quadruplett
         (found in gsd.hoomd.Snapshot.particles.types)
-        They must be given in the same order as they form the dihedral 
+        They must be given in the same order as they form the dihedral
     start : int
         Starting frame index for accumulating bond lengths.
         Negative numbers index from the end. (default 0)
@@ -250,15 +255,15 @@ def dihedral_distribution(
         if False, the angle values are returned in radians.
     histogram : bool, default=False
         If set to True, places the resulting angles into a histogram
-        and retrums the histogram's bin centers and heights as 
+        and retrums the histogram's bin centers and heights as
         opposed to the actual calcualted angles.
     normalize : bool, default=False
         If set to True, normalizes the dihedral distribution by the
-        sum of the bin heights, so that the distribution adds up to 1. 
+        sum of the bin heights, so that the distribution adds up to 1.
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
-        bins based on the ideal bin size for the data. 
+        bins based on the ideal bin size for the data.
         See the numpy.histogram docs for more details.
 
     Returns
@@ -273,9 +278,11 @@ def dihedral_distribution(
     name_rev = "-".join([D_name, C_name, B_name, A_name])
 
     dihedrals = []
-    for snap in trajectory[start: stop]:
-        if (name not in snap.dihedrals.types and
-                name_rev not in snap.dihedrals.types):
+    for snap in trajectory[start:stop]:
+        if (
+            name not in snap.dihedrals.types
+            and name_rev not in snap.dihedrals.types
+        ):
             raise ValueError(
                 f"Dihedrals {name} or {name_rev} not found in "
                 " snap.dihedrals.types. "
@@ -308,7 +315,7 @@ def dihedral_distribution(
             data=np.array(dihedrals),
             normalize=normalize,
             bins=bins,
-            x_range=(-np.pi, np.pi)
+            x_range=(-np.pi, np.pi),
         )
         return np.stack((bin_centers, bin_heights)).T
     else:
@@ -338,7 +345,7 @@ def get_quaternions(n_views=20):
     if n_views <= 3 or not isinstance(n_views, int):
         raise ValueError("Please set n_views to an integer greater than 3.")
     # Calculate points for even distribution on a sphere
-    ga = np.pi * (3 - 5 ** 0.5)
+    ga = np.pi * (3 - 5**0.5)
     theta = ga * np.arange(n_views - 3)
     z = np.linspace(1 - 1 / (n_views - 3), 1 / (n_views - 3), n_views - 3)
     radius = np.sqrt(1 - z * z)
@@ -359,15 +366,15 @@ def get_quaternions(n_views=20):
 
 
 def gsd_rdf(
-        gsdfile,
-        A_name,
-        B_name,
-        start=0,
-        stop=-1,
-        r_max=None,
-        r_min=0,
-        bins=100,
-        exclude_bonded=True,
+    gsdfile,
+    A_name,
+    B_name,
+    start=0,
+    stop=-1,
+    r_max=None,
+    r_min=0,
+    bins=100,
+    exclude_bonded=True,
 ):
     """Compute intermolecular RDF from a GSD file.
 
@@ -460,11 +467,13 @@ def gsd_rdf(
 
 
 def get_centers(gsdfile, new_gsdfile):
-    """Create a gsd file containing the molecule centers from an existing gsd file.
+    """Create a gsd file containing the molecule centers from an existing gsd
+     file.
 
 
     This function calculates the centers of a trajectory given a GSD file
-    and stores them into a new GSD file just for centers. By default it will calculate the centers of an entire trajectory.
+    and stores them into a new GSD file just for centers. By default it will
+    calculate the centers of an entire trajectory.
 
     Parameters
     ----------
@@ -473,8 +482,9 @@ def get_centers(gsdfile, new_gsdfile):
     new_gsdfile : str
         Filename of new GSD for centers.
     """
-    with gsd.hoomd.open(new_gsdfile, 'wb') as new_traj, gsd.hoomd.open(gsdfile,
-                                                                       'rb') as traj:
+    with gsd.hoomd.open(new_gsdfile, "wb") as new_traj, gsd.hoomd.open(
+        gsdfile, "rb"
+    ) as traj:
         snap = traj[0]
         cluster_idx = gsd_utils.get_molecule_cluster(snap=snap)
         for snap in traj:
@@ -482,8 +492,9 @@ def get_centers(gsdfile, new_gsdfile):
             new_snap.configuration.box = snap.configuration.box
             f_box = freud.box.Box.from_box(snap.configuration.box)
             # Use the freud box to unwrap the particle positions
-            unwrapped_positions = f_box.unwrap(snap.particles.position,
-                                               snap.particles.image)
+            unwrapped_positions = f_box.unwrap(
+                snap.particles.position, snap.particles.image
+            )
             uw_centers = []
             for i in range(max(cluster_idx) + 1):
                 cluster_uw_pos = unwrapped_positions[np.where(cluster_idx == i)]
@@ -566,7 +577,7 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
             aq = freud.locality.AABBQuery.from_system(cg_snap)
             n_list = aq.query(
                 cg_snap.particles.position,
-                query_args={"exclude_ii": True, "r_max": r_max}
+                query_args={"exclude_ii": True, "r_max": r_max},
             ).toNeighborList()
 
             vec_point = [
@@ -577,10 +588,12 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
                 get_plane_normal(unwrap_xyz[mapping[i]])[1]
                 for i in n_list.query_point_indices
             ]
-            n_list.filter([
-                angle_between_vectors(i, j) < a_max
-                for i, j in zip(vec_point, vec_querypoint)
-            ])
+            n_list.filter(
+                [
+                    angle_between_vectors(i, j) < a_max
+                    for i, j in zip(vec_point, vec_querypoint)
+                ]
+            )
             cl = freud.cluster.Cluster()
             cl.compute(cg_snap, neighbors=n_list)
             n_large = sum([len(i) for i in cl.cluster_keys if len(i) >= large])
@@ -590,13 +603,14 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
     return order, cl_idx
 
 
-def all_atom_rdf(gsdfile,
-                 start=0,
-                 stop=-1,
-                 r_max=None,
-                 r_min=0,
-                 bins=100,
-                 ):
+def all_atom_rdf(
+    gsdfile,
+    start=0,
+    stop=-1,
+    r_max=None,
+    r_min=0,
+    bins=100,
+):
     """Compute intermolecular RDF from a GSD file.
 
     This function calculates the radial distribution function given a GSD file

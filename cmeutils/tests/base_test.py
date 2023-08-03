@@ -1,11 +1,9 @@
 from os import path
-import pytest
-import tempfile
 
 import gsd.hoomd
 import numpy as np
+import pytest
 from pymbar.testsystems import correlated_timeseries_example
-
 
 asset_dir = path.join(path.dirname(__file__), "assets")
 
@@ -81,9 +79,9 @@ def create_frame(i, add_bonds, images, seed=42):
         s.bonds.typeid = [0, 0, 1]
         s.bonds.group = [[0, 2], [1, 3], [3, 4]]
     if images:
-        s.particles.image = np.full(shape=(5,3), fill_value=i)
+        s.particles.image = np.full(shape=(5, 3), fill_value=i)
     else:
-        s.particles.image = np.zeros(shape=(5,3))
+        s.particles.image = np.zeros(shape=(5, 3))
     s.validate()
     return s
 

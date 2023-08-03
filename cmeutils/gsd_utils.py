@@ -9,11 +9,7 @@ from cmeutils.geometry import moit
 
 
 def get_type_position(
-        typename,
-        gsd_file=None,
-        snap=None,
-        gsd_frame=-1,
-        images=False
+    typename, gsd_file=None, snap=None, gsd_frame=-1, images=False
 ):
     """Get the positions of a particle type.
 
@@ -53,13 +49,13 @@ def get_type_position(
         type_pos.extend(
             snap.particles.position[
                 snap.particles.typeid == snap.particles.types.index(_type)
-                ]
+            ]
         )
         if images:
             type_images.extend(
                 snap.particles.image[
                     snap.particles.typeid == snap.particles.types.index(_type)
-                    ]
+                ]
             )
     if images:
         return np.array(type_pos), np.array(type_images)
@@ -195,7 +191,7 @@ def create_rigid_snapshot(mb_compound):
 
     This method relies on using built-in mBuild methods to
     create the rigid body information.
-    
+
     Parameters
     ----------
     mb_compound : mbuild.Compound, required
@@ -253,12 +249,12 @@ def update_rigid_snapshot(snapshot, mb_compound):
     for i, inds in enumerate(mol_inds):
         total_mass = np.sum(snapshot.particles.mass[inds])
         com = (
-                np.sum(
-                    snapshot.particles.position[inds]
-                    * snapshot.particles.mass[inds, np.newaxis],
-                    axis=0,
-                )
-                / total_mass
+            np.sum(
+                snapshot.particles.position[inds]
+                * snapshot.particles.mass[inds, np.newaxis],
+                axis=0,
+            )
+            / total_mass
         )
         snapshot.particles.position[i] = com
         snapshot.particles.body[i] = i
@@ -297,11 +293,11 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
     """Add needed information to GSD file to visualize ellipsoids.
 
     Saves a new GSD file with lpar and lperp values populated
-    for each particle. Ovito can be used to visualize the new GSD file. 
-	
+    for each particle. Ovito can be used to visualize the new GSD file.
+
     Parameters
     ----------
-    gsd_file : str 
+    gsd_file : str
         Path to the original GSD file containing trajectory information
     new_file : str
         Path and filename of the new GSD file
@@ -309,26 +305,15 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
         Value of lpar of the ellipsoids
     lperp : float
         Value of lperp of the ellipsoids
-	
-	"""
+
+    """
     with gsd.hoomd.open(new_file, "wb") as new_t:
         with gsd.hoomd.open(gsd_file) as old_t:
             for snap in old_t:
                 snap.particles.type_shapes = [
-                    {
-                        "type": "Ellipsoid",
-                        "a": lpar,
-                        "b": lperp,
-                        "c": lperp
-                    },
-                    {
-                        "type": "Sphere",
-                        "diameter": 0.01
-                    },
-                    {
-                        "type": "Sphere",
-                        "diameter": 0.01
-                    }
+                    {"type": "Ellipsoid", "a": lpar, "b": lperp, "c": lperp},
+                    {"type": "Sphere", "diameter": 0.01},
+                    {"type": "Sphere", "diameter": 0.01},
                 ]
                 snap.validate()
                 new_t.append(snap)
@@ -364,7 +349,7 @@ def xml_to_gsd(xmlfile, gsdfile):
             period=None,
             group=hoomd.group.all(),
             dynamic=["momentum"],
-            overwrite=True
+            overwrite=True,
         )
         hoomd.util.unquiet_status()
         with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "wb") as newt:

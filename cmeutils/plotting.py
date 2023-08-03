@@ -38,16 +38,17 @@ def get_histogram(data, normalize=False, bins="auto", x_range=None):
 
 
 def threedplot(
-        x,
-        y,
-        z,
-        xlabel="xlabel",
-        ylabel="ylabel",
-        zlabel="zlabel",
-        plot_name="plot_name"
+    x,
+    y,
+    z,
+    xlabel="xlabel",
+    ylabel="ylabel",
+    zlabel="zlabel",
+    plot_name="plot_name",
 ):
-    '''Plot a 3d heat map from 3 lists of numbers. This function is useful
-    for plotting a dependent variable as a function of two independent variables.
+    """Plot a 3d heat map from 3 lists of numbers. This function is useful
+    for plotting a dependent variable as a function of two independent
+    variables.
     In the example below we use f(x,y)= -x^2 - y^2 +6 because it looks cool.
 
     Example
@@ -85,13 +86,13 @@ def threedplot(
     plot_name : str
 
 
-    '''
-    fig = plt.figure(figsize=(10, 10), facecolor='white')
-    ax = plt.axes(projection='3d')
-    ax.set_xlabel(xlabel, fontdict=dict(weight='bold'), fontsize=12)
-    ax.set_ylabel(ylabel, fontdict=dict(weight='bold'), fontsize=12)
-    ax.set_zlabel(zlabel, fontdict=dict(weight='bold'), fontsize=12)
-    p = ax.scatter(x, y, z, c=z, cmap='rainbow', linewidth=7);
-    plt.colorbar(p, pad=.1, aspect=2.3)
+    """
+    fig = plt.figure(figsize=(10, 10), facecolor="white")
+    ax = plt.axes(projection="3d")
+    ax.set_xlabel(xlabel, fontdict=dict(weight="bold"), fontsize=12)
+    ax.set_ylabel(ylabel, fontdict=dict(weight="bold"), fontsize=12)
+    ax.set_zlabel(zlabel, fontdict=dict(weight="bold"), fontsize=12)
+    p = ax.scatter(x, y, z, c=z, cmap="rainbow", linewidth=7)
+    plt.colorbar(p, pad=0.1, aspect=2.3)
 
     return fig

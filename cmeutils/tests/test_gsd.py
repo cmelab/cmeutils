@@ -1,26 +1,26 @@
-import pytest
-
 import gsd.hoomd
 import mbuild as mb
-from mbuild.formats.hoomd_forcefield import to_hoomdsnapshot
 import numpy as np
 import packaging.version
-
+import pytest
 from base_test import BaseTest
+from mbuild.formats.hoomd_forcefield import to_hoomdsnapshot
+
 from cmeutils.gsd_utils import (
+    _validate_inputs,
     create_rigid_snapshot,
     ellipsoid_gsd,
-    get_molecule_cluster,
     get_all_types,
+    get_molecule_cluster,
     get_type_position,
     snap_delete_types,
     update_rigid_snapshot,
     xml_to_gsd,
-    _validate_inputs,
 )
 
 try:
     import hoomd
+
     if "version" in dir(hoomd):
         hoomd_version = packaging.version.parse(hoomd.version.version)
     else:
@@ -32,12 +32,15 @@ except ImportError:
 
 class TestGSD(BaseTest):
     def test_ellipsoid_gsd(self, butane_gsd):
-        new_gsd = ellipsoid_gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
+        ellipsoid_gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
+        with gsd.hoomd.open(name="ellipsoid.gsd", mode="rb") as f:
+            snap = f[-1]
+        assert snap.particles.type_shapes[0]["type"] == "Ellipsoid"
 
     def test_create_rigid_snapshot(self):
         benzene = mb.load("c1ccccc1", smiles=True)
         benzene.name = "Benzene"
-        box = mb.fill_box(benzene, 5, box=[1,1,1])
+        box = mb.fill_box(benzene, 5, box=[1, 1, 1])
         box.label_rigid_bodies(discrete_bodies="Benzene")
 
         rigid_init_snap = create_rigid_snapshot(box)
@@ -47,7 +50,7 @@ class TestGSD(BaseTest):
     def test_update_rigid_snapshot(self):
         benzene = mb.load("c1ccccc1", smiles=True)
         benzene.name = "Benzene"
-        box = mb.fill_box(benzene, 5, box=[1,1,1])
+        box = mb.fill_box(benzene, 5, box=[1, 1, 1])
         box.label_rigid_bodies(discrete_bodies="Benzene")
 
         rigid_init_snap = create_rigid_snapshot(box)
@@ -64,14 +67,12 @@ class TestGSD(BaseTest):
     def test_get_multiple_types(self, gsdfile):
         pos_array = get_type_position(gsd_file=gsdfile, typename=["A", "B"])
         assert type(pos_array) is type(np.array([]))
-        assert pos_array.shape == (5,3)
+        assert pos_array.shape == (5, 3)
 
     def test_get_position_and_images(self, gsdfile_images):
         pos, imgs = get_type_position(
-                gsd_file=gsdfile_images,
-                typename="A",
-                images=True
-                )
+            gsd_file=gsdfile_images, typename="A", images=True
+        )
         assert type(pos) is type(imgs) is type(np.array([]))
         assert pos.shape == imgs.shape
 
@@ -113,4 +114,3 @@ class TestGSD(BaseTest):
             old_snap.particles.position == new_snap.particles.position
         )
         assert np.all(old_snap.particles.image == new_snap.particles.image)
-
