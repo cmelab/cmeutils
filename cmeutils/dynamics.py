@@ -1,18 +1,15 @@
+from warnings import warn
+
 import freud
 import gsd
 import gsd.hoomd
 import numpy as np
-from warnings import warn
 
 from cmeutils import gsd_utils
 
 
 def msd_from_gsd(
-        gsdfile,
-        atom_types="all",
-        start=0,
-        stop=-1,
-        msd_mode="window"
+    gsdfile, atom_types="all", start=0, stop=-1, msd_mode="window"
 ):
     """Calculate the mean-square displacement (MSD) of the particles in a
     trajectory using Freud.
@@ -48,9 +45,7 @@ def msd_from_gsd(
                 atom_img = frame.particles.image[:]
             else:
                 atom_pos, atom_img = gsd_utils.get_type_position(
-                    atom_types,
-                    snap=frame,
-                    images=True
+                    atom_types, snap=frame, images=True
                 )
             positions.append(atom_pos)
             images.append(atom_img)

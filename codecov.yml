@@ -10,4 +10,3 @@ ignore:
     - "cmeutils/tests"
     - "cmeutils/__version__.py"
     - "setup.py"
-

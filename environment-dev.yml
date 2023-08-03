@@ -1,4 +1,4 @@
-name: cmeutils
+name: cmeutils-dev
 channels:
   - conda-forge
 dependencies:
@@ -10,5 +10,8 @@ dependencies:
   - pip
   - python
   - matplotlib
+  - pre-commit
   - pymbar >= 4.0
+  - pytest
+  - pytest-cov
   - rowan

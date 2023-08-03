@@ -6,7 +6,7 @@ on:
     # Run when container or environment is changed
     paths:
         - 'containers/dockerfile'
-        - 'environment.yml'
+        - 'environment-dev.yml'
   # Allows workflow to be manually triggered
   workflow_dispatch:
 

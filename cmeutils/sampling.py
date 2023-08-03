@@ -3,7 +3,7 @@ from pymbar import timeseries
 
 
 def equil_sample(
-        data, threshold_fraction=0.0, threshold_neff=1, conservative=True
+    data, threshold_fraction=0.0, threshold_neff=1, conservative=True
 ):
     """Returns a statistically independent subset of an array of data.
 
@@ -18,7 +18,7 @@ def equil_sample(
         'equilibrated'.
     conservative : bool, default=True
         if set to True, uniformly-spaced indices are chosen with interval
-        ceil(g), where g is the statistical inefficiency.  
+        ceil(g), where g is the statistical inefficiency.
         Otherwise, indices are chosen non-uniformly with interval of
         approximately g in order to end up with approximately T/g total indices
 
