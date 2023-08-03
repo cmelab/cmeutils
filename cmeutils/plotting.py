@@ -11,7 +11,6 @@ def test_ci_func(
     parameter6,
     parameter7,
     parameter8,
-    parameter9,
 ):
     """
 
