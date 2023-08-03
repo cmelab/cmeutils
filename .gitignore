@@ -116,3 +116,6 @@ dmypy.json
 
 # Other stuff
 *.gsd
+
+# IDE files
+.idea/
