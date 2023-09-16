@@ -16,7 +16,8 @@ class FresnelGSD:
             specular_trans=0,
             metal=0,
             view_axis=(1, 0, 0),
-            height=10
+            height=10,
+            device=fresnel.Device()
         ):
         self.scene = fresnel.Scene()
         self.gsd_file = gsd_file
@@ -26,6 +27,7 @@ class FresnelGSD:
         self._height = height 
         self.color_dict = color_dict
         self._diameter_scale = diameter_scale
+        self._device = device
         # Set fresnel.material.Material attrs
         self.solid = solid
         self._roughness = roughness
@@ -36,6 +38,7 @@ class FresnelGSD:
         self._view_axis = np.asarray(view_axis)
         self._up = np.array([0, 0, 1])
         self.build_view()
+        self._unwrap_positions = False
 
     @property
     def frame(self):
@@ -70,6 +73,14 @@ class FresnelGSD:
 
     def set_type_color(self, particle_type, color):
         self._color_dict[particle_type] = color
+
+    @property
+    def unwrap_positions(self):
+        return self._unwrap_positions
+
+    @unwrap_positions.setter
+    def unwrap_positions(self, value):
+        self._unwrap_positions = value
 
     @property
     def solid(self):
@@ -179,7 +190,13 @@ class FresnelGSD:
 
     @property
     def positions(self):
-        return self.snapshot.particles.position
+        if self.unwrap_positions:
+           pos = self.snapshot.particles.position
+           imgs = self.snapshot.particles.image
+           box_lengths = self.snapshot.configuration.box[:3]
+           return pos + (imgs * box_lengths)
+        else:
+            return self.snapshot.particles.position
 
     @property
     def radius(self):
