@@ -20,6 +20,7 @@ class FresnelGSD:
             device=fresnel.Device()
         ):
         self.scene = fresnel.Scene()
+        self._unwrap_positions = False
         self.gsd_file = gsd_file
         self._snapshot = None
         self._frame = 0 
@@ -37,8 +38,6 @@ class FresnelGSD:
         # Set fresnel.camera attrs
         self._view_axis = np.asarray(view_axis)
         self._up = np.array([0, 0, 1])
-        self.build_view()
-        self._unwrap_positions = False
 
     @property
     def frame(self):
@@ -187,7 +186,6 @@ class FresnelGSD:
     def look_at(self):
         return self.snapshot.configuration.box[:3] * -self.view_axis 
 
-
     @property
     def positions(self):
         if self.unwrap_positions:
@@ -220,6 +218,24 @@ class FresnelGSD:
         else:
             return np.array([0.5, 0.25, 0.5])
 
-    def build_view(self):
+    def view(self, width=300, height=300):
         self.scene.camera = self.camera
         self.scene.geometry = [self.geometry]
+        return fresnel.preview(scene=self.scene, w=width, h=height)
+    
+    def path_trace(self, width=300, height=300, samples=64, light_samples=1):
+        self.scene.camera = self.camera
+        self.scene.geometry = [self.geometry]
+        return fresnel.pathtrace(
+                scene=self.scene,
+                w=width,
+                h=height,
+                samples=samples,
+                light_samples=light_samples
+        )
+
+    def trace(self, width=300, height=300, n_samples=1):
+        self.scene.camera = self.camera
+        self.scene.geometry = [self.geometry]
+        tracer = fresnel.tracer.Preview(device=self.scene.device, w=width, h=height)
+        return tracer.render(self.scene)
