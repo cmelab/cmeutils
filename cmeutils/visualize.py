@@ -5,37 +5,35 @@ import numpy as np
 
 class FresnelGSD:
     def __init__(
-            self,
-            gsd_file,
-            frame=0,
-            color_dict=None,
-            diameter_scale=0.30,
-            solid=0.1,
-            roughness=0.3,
-            specular=0.5,
-            specular_trans=0,
-            metal=0,
-            view_axis=(1, 0, 0),
-            height=10,
-            device=fresnel.Device()
-        ):
+        self,
+        gsd_file,
+        frame=0,
+        color_dict=None,
+        diameter_scale=0.30,
+        solid=0.1,
+        roughness=0.3,
+        specular=0.5,
+        specular_trans=0,
+        metal=0,
+        view_axis=(1, 0, 0),
+        height=10,
+        device=fresnel.Device()
+    ):
         self.scene = fresnel.Scene()
-        self._unwrap_positions = False
         self.gsd_file = gsd_file
+        self._unwrap_positions = False
         self._snapshot = None
         self._frame = 0 
         self.frame = frame
         self._height = height 
-        self.color_dict = color_dict
+        self._color_dict = color_dict
         self._diameter_scale = diameter_scale
         self._device = device
-        # Set fresnel.material.Material attrs
-        self.solid = solid
+        self._solid = solid
         self._roughness = roughness
         self._specular = specular
         self._specular_trans = specular_trans
         self._metal = metal
-        # Set fresnel.camera attrs
         self._view_axis = np.asarray(view_axis)
         self._up = np.array([0, 0, 1])
 
@@ -79,6 +77,7 @@ class FresnelGSD:
 
     @unwrap_positions.setter
     def unwrap_positions(self, value):
+        #TODO assert is bool
         self._unwrap_positions = value
 
     @property
@@ -127,6 +126,7 @@ class FresnelGSD:
 
     @view_axis.setter
     def view_axis(self, value):
+        #TODO Assert is 1,3  array
         self._view_axis = np.asarray(value)
 
     @property
@@ -144,39 +144,6 @@ class FresnelGSD:
     @height.setter
     def height(self, value):
         self._height = value
-
-    @property
-    def geometry(self):
-        geometry = fresnel.geometry.Sphere(
-            scene=self.scene,
-            position=self.positions,
-            radius=self.radius,
-            color=fresnel.color.linear(self.colors),
-        )
-        geometry.material = self.material
-        return geometry
-
-    @property
-    def material(self):
-        material = fresnel.material.Material(
-                primitive_color_mix=1,
-                solid=self.solid,
-                roughness=self.roughness,
-                specular=self.specular,
-                spec_trans=self.specular_trans,
-                metal=self.metal
-        )
-        return material
-
-    @property
-    def camera(self):
-        camera=fresnel.camera.Orthographic(
-                position=self.camera_position,
-                look_at=self.look_at,
-                up=self.up,
-                height=self.height
-        )
-        return camera
 
     @property
     def camera_position(self):
@@ -218,14 +185,45 @@ class FresnelGSD:
         else:
             return np.array([0.5, 0.25, 0.5])
 
+    def geometry(self):
+        geometry = fresnel.geometry.Sphere(
+            scene=self.scene,
+            position=self.positions,
+            radius=self.radius,
+            color=fresnel.color.linear(self.colors),
+        )
+        geometry.material = self.material()
+        return geometry
+
+    def material(self):
+        material = fresnel.material.Material(
+                primitive_color_mix=1,
+                solid=self.solid,
+                roughness=self.roughness,
+                specular=self.specular,
+                spec_trans=self.specular_trans,
+                metal=self.metal
+        )
+        return material
+
+    def camera(self):
+        camera=fresnel.camera.Orthographic(
+                position=self.camera_position,
+                look_at=self.look_at,
+                up=self.up,
+                height=self.height
+        )
+        return camera
+
+
     def view(self, width=300, height=300):
-        self.scene.camera = self.camera
-        self.scene.geometry = [self.geometry]
+        self.scene.camera = self.camera()
+        self.scene.geometry = [self.geometry()]
         return fresnel.preview(scene=self.scene, w=width, h=height)
     
     def path_trace(self, width=300, height=300, samples=64, light_samples=1):
-        self.scene.camera = self.camera
-        self.scene.geometry = [self.geometry]
+        self.scene.camera = self.camera()
+        self.scene.geometry = [self.geometry()]
         return fresnel.pathtrace(
                 scene=self.scene,
                 w=width,
@@ -235,7 +233,7 @@ class FresnelGSD:
         )
 
     def trace(self, width=300, height=300, n_samples=1):
-        self.scene.camera = self.camera
-        self.scene.geometry = [self.geometry]
+        self.scene.camera = self.camera()
+        self.scene.geometry = [self.geometry()]
         tracer = fresnel.tracer.Preview(device=self.scene.device, w=width, h=height)
         return tracer.render(self.scene)
