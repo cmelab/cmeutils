@@ -226,7 +226,7 @@ class FresnelGSD:
     def view_axis(self, value):
         # TODO Assert is 1,3  array
         new_view_axis = np.asarray(value)
-        if len(new_view_axis) != 0:
+        if new_view_axis.shape != (3,):
             raise ValueError("View axis must be a 3x1 array")
         self._view_axis = np.asarray(new_view_axis)
 

@@ -51,6 +51,10 @@ class TestFresnelGSD(BaseTest):
         with pytest.raises(ValueError):
             p3ht_fresnel.frame = 10
 
+    def test_set_bad_view(self, p3ht_fresnel):
+        with pytest.raises(ValueError):
+            p3ht_fresnel.view_axis = 10
+
     def test_bad_color_dict(self, p3ht_fresnel):
         with pytest.raises(ValueError):
             p3ht_fresnel.color_dict = np.array([0.1, 0.1, 0.1])
