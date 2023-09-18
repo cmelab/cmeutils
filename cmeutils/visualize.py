@@ -79,7 +79,7 @@ class FresnelGSD:
         self._color_dict = value
 
     def set_type_color(self, particle_type, color):
-        if not particle_type in set(self.particle_types):
+        if particle_type not in set(self.particle_types):
             raise ValueError(
                 f"Particle type of {particle_type} is not in the Snapshot"
             )
