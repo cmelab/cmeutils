@@ -264,7 +264,7 @@ class FresnelGSD:
     def camera_position(self):
         """The camera position.
         Determined from box dimensions are FresnelGSD.view_axis"""
-        return (self.snapshot.configuration.box[:3] * self.view_axis) - 0.5
+        return (self.snapshot.configuration.box[:3] * self.view_axis) * 0.95
 
     @property
     def look_at(self):
