@@ -11,7 +11,7 @@ class FresnelGSD:
         view_axis=(1, 0, 0),
         color_dict=None,
         diameter_scale=0.30,
-        height=10,
+        height=None,
         solid=0,
         roughness=0.3,
         specular=0.5,
@@ -20,6 +20,8 @@ class FresnelGSD:
         up=(0, 0, 1),
         unwrap_positions=False,
         device=fresnel.Device(),
+        show_box=True,
+        box_radius=0.05,
     ):
         """A wrapper class that automatically creates the Fresnel objects
         needed to view snapshots from a GSD file.
@@ -63,6 +65,10 @@ class FresnelGSD:
             gsd.hoomd.Snapshot.particles.image
         device, fresnel.Device(), optional
             Set the device to be used by the scene and in rendering.
+        show_box: bool, optional, default True
+            If True, the box is shown in the visualization.
+        box_radius: float, optional, default 0.02
+            The radius of the box lines.
 
         """
         self.scene = fresnel.Scene()
@@ -71,19 +77,22 @@ class FresnelGSD:
             self._n_frames = len(traj)
         self._unwrap_positions = unwrap_positions
         self._snapshot = None
+        self._view_axis = np.asarray(view_axis)
         self._frame = 0
         self.frame = frame
-        self._height = height
         self._color_dict = color_dict
         self._diameter_scale = diameter_scale
+        self._height = height
         self._device = device
         self._solid = solid
         self._roughness = roughness
         self._specular = specular
         self._specular_trans = specular_trans
         self._metal = metal
-        self._view_axis = np.asarray(view_axis)
+        # self._view_axis = np.asarray(view_axis)
         self._up = np.asarray(up)
+        self._show_box = show_box
+        self._box_radius = box_radius
 
     @property
     def frame(self):
@@ -99,6 +108,7 @@ class FresnelGSD:
         self._frame = frame
         with gsd.hoomd.open(self.gsd_file) as f:
             self._snapshot = f[frame]
+        self.height = self._default_height()
 
     @property
     def snapshot(self):
@@ -242,6 +252,8 @@ class FresnelGSD:
     @property
     def height(self):
         """Acts like a zoom. Larger values zoom out, smaller vaues zoom in"""
+        if self._height is None:
+            return self._default_height()
         return self._height
 
     @height.setter
@@ -302,6 +314,42 @@ class FresnelGSD:
         else:
             return np.array([0.5, 0.25, 0.5])
 
+    @property
+    def box_length(self):
+        """The box length of the snapshot"""
+        return self.snapshot.configuration.box[:]
+
+    def _default_height(self):
+        """Set the height based on box dimensions and view axis"""
+        return np.linalg.norm(self.view_axis * self.box_length[:3])
+
+    def reset_height(self):
+        """Reset the height of the camera to the default."""
+        self.height = self._default_height()
+
+    @property
+    def show_box(self):
+        """If True, the box is shown in the visualization."""
+        return self._show_box
+
+    @show_box.setter
+    def show_box(self, value):
+        self._show_box = value
+
+    @property
+    def box_radius(self):
+        """The radius of the box lines."""
+        return self._box_radius
+
+    @box_radius.setter
+    def box_radius(self, value):
+        self._box_radius = value
+
+    def box_geometry(self):
+        return fresnel.geometry.Box(
+            self.scene, self.box_length, box_radius=self.box_radius
+        )
+
     def geometry(self):
         """Creates and returns a fresnel.geometry.Sphere object"""
         geometry = fresnel.geometry.Sphere(
@@ -347,7 +395,10 @@ class FresnelGSD:
 
         """
         self.scene.camera = self.camera()
-        self.scene.geometry = [self.geometry()]
+        if self.show_box:
+            self.scene.geometry = [self.geometry(), self.box_geometry()]
+        else:
+            self.scene.geometry = [self.geometry()]
         return fresnel.preview(scene=self.scene, w=width, h=height)
 
     def path_trace(self, width=300, height=300, samples=64, light_samples=1):
@@ -366,7 +417,10 @@ class FresnelGSD:
 
         """
         self.scene.camera = self.camera()
-        self.scene.geometry = [self.geometry()]
+        if self.show_box:
+            self.scene.geometry = [self.geometry(), self.box_geometry()]
+        else:
+            self.scene.geometry = [self.geometry()]
         return fresnel.pathtrace(
             scene=self.scene,
             w=width,
