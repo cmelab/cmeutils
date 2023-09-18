@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from cmeutils.visualize import FresnelGSD 
 from cmeutils.tests.base_test import BaseTest
+from cmeutils.visualize import FresnelGSD
 
 
 class TestFresnelGSD(BaseTest):
@@ -18,7 +18,9 @@ class TestFresnelGSD(BaseTest):
     def test_scale_diameter(self, p3ht_fresnel):
         p3ht_fresnel.diameter_scale = 0.6
         assert p3ht_fresnel.diameter_scale == 0.6
-        assert np.array_equal(p3ht_fresnel.radius, np.ones_like(p3ht_fresnel.radius)*0.60)
+        assert np.array_equal(
+            p3ht_fresnel.radius, np.ones_like(p3ht_fresnel.radius) * 0.60
+        )
 
     def test_update_snapshot(self, gsdfile):
         test_fresnel = FresnelGSD(gsd_file=gsdfile)
@@ -32,16 +34,18 @@ class TestFresnelGSD(BaseTest):
 
     def test_color_dict(self, p3ht_fresnel):
         p3ht_fresnel.color_dict = {
-                "c3": np.array([0.5, 0.5, 0.5]),
-                "cc": np.array([0.5, 0.5, 0.5]),
-                "cd": np.array([0.5, 0.5, 0.5]),
-                "h4": np.array([0.5, 0.5, 0.5]),
-                "ha": np.array([0.5, 0.5, 0.5]),
-                "hc": np.array([0.5, 0.5, 0.5]),
-                "ss": np.array([0.5, 0.5, 0.5]),
+            "c3": np.array([0.5, 0.5, 0.5]),
+            "cc": np.array([0.5, 0.5, 0.5]),
+            "cd": np.array([0.5, 0.5, 0.5]),
+            "h4": np.array([0.5, 0.5, 0.5]),
+            "ha": np.array([0.5, 0.5, 0.5]),
+            "hc": np.array([0.5, 0.5, 0.5]),
+            "ss": np.array([0.5, 0.5, 0.5]),
         }
         p3ht_fresnel.set_type_color(particle_type="c3", color=(0.1, 0.1, 0.1))
-        assert np.array_equal(p3ht_fresnel.color_dict["c3"], np.array([0.1, 0.1, 0.1])) 
+        assert np.array_equal(
+            p3ht_fresnel.color_dict["c3"], np.array([0.1, 0.1, 0.1])
+        )
 
     def test_set_color_no_type(self, p3ht_fresnel):
         with pytest.raises(ValueError):
@@ -68,19 +72,19 @@ class TestFresnelGSD(BaseTest):
         assert p3ht_fresnel.specular == 0.5
         material = p3ht_fresnel.material()
         assert material.specular == 0.5
-        
+
     def test_specular_trans(self, p3ht_fresnel):
         p3ht_fresnel.specular_trans = 0.5
         assert p3ht_fresnel.specular_trans == 0.5
         material = p3ht_fresnel.material()
         assert material.spec_trans == 0.5
-        
+
     def test_metal(self, p3ht_fresnel):
         p3ht_fresnel.metal = 0.5
         assert p3ht_fresnel.metal == 0.5
         material = p3ht_fresnel.material()
         assert material.metal == 0.5
-    
+
     def test_geometry(self, p3ht_fresnel):
         geometry = p3ht_fresnel.geometry()
         for i, j in zip(p3ht_fresnel.positions, geometry.position):
