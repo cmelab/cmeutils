@@ -21,6 +21,8 @@ class FresnelGSD:
     ):
         self.scene = fresnel.Scene()
         self.gsd_file = gsd_file
+        with gsd.hoomd.open(gsd_file) as traj:
+            self._n_frames = len(traj)
         self._unwrap_positions = False
         self._snapshot = None
         self._frame = 0 
@@ -42,8 +44,11 @@ class FresnelGSD:
         return self._frame
 
     @frame.setter
-    #TODO: Assert num frames
     def frame(self, frame):
+        if frame > self._n_frames - 1:
+            raise ValueError(
+                    f"The GSD file only has {self._n_frames} frames."
+            )
         self._frame = frame
         with gsd.hoomd.open(self.gsd_file) as f:
             self._snapshot = f[frame]
@@ -66,9 +71,18 @@ class FresnelGSD:
 
     @color_dict.setter
     def color_dict(self, value):
+        if not isinstance(value, dict):
+            raise ValueError(
+                    "Pass in a dicitonary with "
+                    "keys of particle type, values of color"
+            )
         self._color_dict = value
 
     def set_type_color(self, particle_type, color):
+        if not particle_type in set(self.particle_types):
+            raise ValueError(
+                    f"Particle type of {particle_type} is not in the Snapshot"
+            )
         self._color_dict[particle_type] = color
 
     @property
@@ -77,7 +91,11 @@ class FresnelGSD:
 
     @unwrap_positions.setter
     def unwrap_positions(self, value):
-        #TODO assert is bool
+        if not isinstance(value, bool):
+            raise ValueError(
+                "Set to True or False where "
+                "True uses unwrapped particle positions"
+        )
         self._unwrap_positions = value
 
     @property
