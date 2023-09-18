@@ -17,13 +17,15 @@ class FresnelGSD:
         metal=0,
         view_axis=(1, 0, 0),
         height=10,
+        up=(0, 0, 1),
+        unwrap_positions=False,
         device=fresnel.Device()
     ):
         self.scene = fresnel.Scene()
         self.gsd_file = gsd_file
         with gsd.hoomd.open(gsd_file) as traj:
             self._n_frames = len(traj)
-        self._unwrap_positions = False
+        self._unwrap_positions = unwrap_positions 
         self._snapshot = None
         self._frame = 0 
         self.frame = frame
@@ -37,7 +39,7 @@ class FresnelGSD:
         self._specular_trans = specular_trans
         self._metal = metal
         self._view_axis = np.asarray(view_axis)
-        self._up = np.array([0, 0, 1])
+        self._up = np.asarray(up) 
 
     @property
     def frame(self):
