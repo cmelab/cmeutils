@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 import pytest
 
@@ -121,3 +123,26 @@ class TestFresnelGSD(BaseTest):
         p3ht_fresnel.up = np.array([1, 0, 0])
         camera = p3ht_fresnel.camera()
         assert np.array_equal(camera.up, np.array([1, 0, 0]))
+
+    def test_box_length(self, p3ht_fresnel):
+        assert np.allclose(
+            p3ht_fresnel.box_length, p3ht_fresnel.snapshot.configuration.box
+        )
+
+    def test_default_height(self, p3ht_fresnel):
+        assert p3ht_fresnel.height == np.linalg.norm(
+            p3ht_fresnel.box_length[:3] * p3ht_fresnel.view_axis
+        )
+
+    def test_reset_height(self, p3ht_fresnel):
+        default_height = copy.deepcopy(p3ht_fresnel.height)
+        p3ht_fresnel.height = 5
+        p3ht_fresnel.reset_height()
+        assert p3ht_fresnel.height == default_height
+
+    def test_show_box(self, p3ht_fresnel):
+        p3ht_fresnel.view()
+        assert len(p3ht_fresnel.scene.geometry) == 2
+        p3ht_fresnel.show_box = False
+        p3ht_fresnel.view()
+        assert len(p3ht_fresnel.scene.geometry) == 1
