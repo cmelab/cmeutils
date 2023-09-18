@@ -75,6 +75,7 @@ class FresnelGSD:
         self.gsd_file = gsd_file
         with gsd.hoomd.open(gsd_file) as traj:
             self._n_frames = len(traj)
+        self._height_factor = 1.25
         self._unwrap_positions = unwrap_positions
         self._snapshot = None
         self._view_axis = np.asarray(view_axis)
@@ -92,7 +93,6 @@ class FresnelGSD:
         self._up = np.asarray(up)
         self._show_box = show_box
         self._box_radius = box_radius
-        self._height_factor = 1.25
 
     @property
     def frame(self):
@@ -321,7 +321,8 @@ class FresnelGSD:
 
     def _default_height(self):
         """Set the height based on box dimensions and view axis"""
-        return np.linalg.norm(self.view_axis * self.box_length[:3])
+        height = np.linalg.norm(self.view_axis * self.box_length[:3])
+        return height * self._height_factor
 
     def reset_height(self):
         """Reset the height of the camera to the default."""
@@ -379,7 +380,7 @@ class FresnelGSD:
             position=self.camera_position,
             look_at=self.look_at,
             up=self.up,
-            height=self.height * self._height_factor,
+            height=self.height,
         )
         return camera
 
