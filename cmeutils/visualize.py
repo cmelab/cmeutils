@@ -10,7 +10,7 @@ class FresnelGSD:
         frame=0,
         color_dict=None,
         diameter_scale=0.30,
-        solid=0.1,
+        solid=0,
         roughness=0.3,
         specular=0.5,
         specular_trans=0,
@@ -43,6 +43,9 @@ class FresnelGSD:
 
     @property
     def frame(self):
+        """The frame of the GSD trajectory to use.
+        The frame determines the particle positions usedin the image.
+        """
         return self._frame
 
     @frame.setter
@@ -55,10 +58,14 @@ class FresnelGSD:
 
     @property
     def snapshot(self):
+        """gsd.hoomd.Snapshot loaded from the GSD file.
+        The snapshot loaded depends on FresnelGSD.frame
+        """
         return self._snapshot
 
     @property
     def diameter_scale(self):
+        """Scales the snapshot diameter values to set FresnelGSD.radius"""
         return self._diameter_scale
 
     @diameter_scale.setter
@@ -67,6 +74,7 @@ class FresnelGSD:
 
     @property
     def color_dict(self):
+        """Dictionary of key: particle type value: color"""
         return self._color_dict
 
     @color_dict.setter
@@ -79,6 +87,16 @@ class FresnelGSD:
         self._color_dict = value
 
     def set_type_color(self, particle_type, color):
+        """Set colors for particle types one at a time
+
+        Parameters
+        ----------
+        particle_type : str; required
+            The particle type found in FresnelGSD.particle_types
+            or FresnelGSD.snapshot.particles.types
+        color : np.ndarray, shape=(3,), required
+            sRGB color of (red, green, blue) values
+        """
         if particle_type not in set(self.particle_types):
             raise ValueError(
                 f"Particle type of {particle_type} is not in the Snapshot"
@@ -87,6 +105,12 @@ class FresnelGSD:
 
     @property
     def unwrap_positions(self):
+        """If set to True, then positions of the particles are
+        unwrapped before creating the image.
+        This requires that the GSD file snapshots contain accurate
+        image values (gsd.hoomd.Snapshot.particles.image
+
+        """
         return self._unwrap_positions
 
     @unwrap_positions.setter
@@ -100,6 +124,7 @@ class FresnelGSD:
 
     @property
     def solid(self):
+        """Set to 1 to use solid colors regardless of light and angle"""
         return self._solid
 
     @solid.setter
@@ -108,6 +133,7 @@ class FresnelGSD:
 
     @property
     def roughness(self):
+        """Sets the material roughness (ranges from 0.1 to 1)"""
         return self._roughness
 
     @roughness.setter
@@ -116,6 +142,9 @@ class FresnelGSD:
 
     @property
     def specular(self):
+        """Determines the strength of the specular highlights
+        (ranges from 0 to 1)
+        """
         return self._specular
 
     @specular.setter
@@ -124,6 +153,9 @@ class FresnelGSD:
 
     @property
     def specular_trans(self):
+        """Determines the magnitude of specular light transmission
+        (ranges from 0 to 1)
+        """
         return self._specular_trans
 
     @specular_trans.setter
@@ -132,6 +164,9 @@ class FresnelGSD:
 
     @property
     def metal(self):
+        """Set to 0 for dielectric material or 1 for metal
+        (ranges from 0 to 1)
+        """
         return self._metal
 
     @metal.setter
@@ -140,6 +175,7 @@ class FresnelGSD:
 
     @property
     def view_axis(self):
+        """Sets the direction and position of the camera"""
         return self._view_axis
 
     @view_axis.setter
@@ -149,6 +185,7 @@ class FresnelGSD:
 
     @property
     def up(self):
+        """Determines which direction is up"""
         return self._up
 
     @up.setter
@@ -157,6 +194,7 @@ class FresnelGSD:
 
     @property
     def height(self):
+        """Acts like a zoom. Larger values zoom out, smaller vaues zoom in"""
         return self._height
 
     @height.setter
@@ -165,14 +203,22 @@ class FresnelGSD:
 
     @property
     def camera_position(self):
+        """The camera position.
+        Determined from box dimensions are FresnelGSD.view_axis"""
         return (self.snapshot.configuration.box[:3] * self.view_axis) - 0.5
 
     @property
     def look_at(self):
+        """The direction the camera is facing.
+        By default, uses position directly opposite of camera position
+        """
         return self.snapshot.configuration.box[:3] * -self.view_axis
 
     @property
     def positions(self):
+        """Particle positions used in the image.
+        Determined by FresnelGSD.frame
+        """
         if self.unwrap_positions:
             pos = self.snapshot.particles.position
             imgs = self.snapshot.particles.image
@@ -183,10 +229,15 @@ class FresnelGSD:
 
     @property
     def radius(self):
+        """Sets the size of the particles.
+        Determined by the gsd.hoomd.Snapshot.particles.diameter
+        values and FresnelGSD.diameter_scale
+        """
         return self.snapshot.particles.diameter * self.diameter_scale
 
     @property
     def particle_types(self):
+        """Array of particle types of length number of particles"""
         return np.array(
             [
                 self.snapshot.particles.types[i]
@@ -196,12 +247,16 @@ class FresnelGSD:
 
     @property
     def colors(self):
+        """Generates the colors by particle type,
+        or sets a default of (0.5, 0.25, 0.5)
+        """
         if self.color_dict:
             return np.array([self.color_dict[i] for i in self.particle_types])
         else:
             return np.array([0.5, 0.25, 0.5])
 
     def geometry(self):
+        """Creates and returns a fresnel.geometry.Sphere object"""
         geometry = fresnel.geometry.Sphere(
             scene=self.scene,
             position=self.positions,
@@ -212,6 +267,7 @@ class FresnelGSD:
         return geometry
 
     def material(self):
+        """Creates and returns a fresnel.material.Material object"""
         material = fresnel.material.Material(
             primitive_color_mix=1,
             solid=self.solid,
@@ -223,6 +279,7 @@ class FresnelGSD:
         return material
 
     def camera(self):
+        """Creates and returns a fresnel.camera.Orthographic object"""
         camera = fresnel.camera.Orthographic(
             position=self.camera_position,
             look_at=self.look_at,
@@ -232,11 +289,35 @@ class FresnelGSD:
         return camera
 
     def view(self, width=300, height=300):
+        """Creates an image using fresnel.preview
+
+        Parameters
+        ----------
+        width : int, optional, default 300
+            Image width size in pixels
+        height : int, optional, default 300
+            Image height size in pixels
+
+        """
         self.scene.camera = self.camera()
         self.scene.geometry = [self.geometry()]
         return fresnel.preview(scene=self.scene, w=width, h=height)
 
     def path_trace(self, width=300, height=300, samples=64, light_samples=1):
+        """Creates an image using fresnel.pathtrace
+
+        Parameters
+        ----------
+        width : int, optional, default 300
+            Image width size in pixels
+        height : int, optional, default 300
+            Image height size in pixels
+        samples : int, optional, default 64
+            The number of times to sample pixels in the scene
+        light_samples : int, optional, default=1
+            The number of light samples for each pixel sample
+
+        """
         self.scene.camera = self.camera()
         self.scene.geometry = [self.geometry()]
         return fresnel.pathtrace(
@@ -246,11 +327,3 @@ class FresnelGSD:
             samples=samples,
             light_samples=light_samples,
         )
-
-    def trace(self, width=300, height=300, n_samples=1):
-        self.scene.camera = self.camera()
-        self.scene.geometry = [self.geometry()]
-        tracer = fresnel.tracer.Preview(
-            device=self.scene.device, w=width, h=height
-        )
-        return tracer.render(self.scene)

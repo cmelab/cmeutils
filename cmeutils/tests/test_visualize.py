@@ -9,11 +9,8 @@ class TestFresnelGSD(BaseTest):
     def test_view(self, p3ht_fresnel):
         p3ht_fresnel.view()
 
-    def test_path_frace(self, p3ht_fresnel):
+    def test_path_trace(self, p3ht_fresnel):
         p3ht_fresnel.path_trace(samples=10, light_samples=1)
-
-    def test_frace(self, p3ht_fresnel):
-        p3ht_fresnel.trace()
 
     def test_scale_diameter(self, p3ht_fresnel):
         p3ht_fresnel.diameter_scale = 0.6
