@@ -134,8 +134,12 @@ class TestFresnelGSD(BaseTest):
         assert p3ht_fresnel.box_radius == 0.1
 
     def test_default_height(self, p3ht_fresnel):
-        assert p3ht_fresnel.height == np.linalg.norm(
-            p3ht_fresnel.box_length[:3] * p3ht_fresnel.view_axis
+        assert (
+            p3ht_fresnel.height
+            == np.linalg.norm(
+                p3ht_fresnel.box_length[:3] * p3ht_fresnel.view_axis
+            )
+            * p3ht_fresnel._height_factor
         )
 
     def test_reset_height(self, p3ht_fresnel):
