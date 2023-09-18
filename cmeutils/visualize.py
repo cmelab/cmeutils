@@ -8,19 +8,63 @@ class FresnelGSD:
         self,
         gsd_file,
         frame=0,
+        view_axis=(1, 0, 0),
         color_dict=None,
         diameter_scale=0.30,
+        height=10,
         solid=0,
         roughness=0.3,
         specular=0.5,
         specular_trans=0,
         metal=0,
-        view_axis=(1, 0, 0),
-        height=10,
         up=(0, 0, 1),
         unwrap_positions=False,
         device=fresnel.Device(),
     ):
+        """A wrapper class that automatically creates the Fresnel objects
+        needed to view snapshots from a GSD file.
+
+        Parameters
+        ----------
+        gsd_file : str, required
+            Path to a GSD file to load
+        frame : int, optional, default 0
+            The frame of the GSD file to load the gsd.hoomd.Snapshot
+        view_axis : np.ndarray (3,), optional, default (1, 0, 0)
+            Sets the fresnel.camera attributes of camrea position and direction
+        color_dict : dict, optional, default None
+            Set colors for particle types
+        diameter_scale : float, optional default 0.30
+            Scale the diameter values stored in gsd.hoomd.Snapshot
+        height : float, optional default 10
+            Sets the fresnel.camera height attriubute
+            Acts like a zoom where larger values zooms out
+        solid : float, optional default 0
+            fresnel.material.Material attribute.
+            Sets solid colors regardless of light and angle
+        roughness : float, optional default 0.3
+            fresnel.material.Material attribute.
+            Sets the material roughness
+        specular : float, optional, default 0.5
+            fresnel.material.Material attribute.
+            Sets the strength of specular highlights
+        specular_trans : float, optional, default 0
+            fresnel.material.Material attribute.
+            Sets magnitude of specular light transmission
+        metal : float, optional, default 0
+            fresnel.material.Material attribute.
+            Sets the dielectric or metal property value of the particles.
+        up : np.ndarray (3,), optional, default (0, 0, 1)
+            fresnel.camera attriubute
+            Determines which direction is considered up
+        upwrap_positions: bool, optional, default False
+            If True, the particle positions are unwrapped in the image
+            This requires the GSD file snapshot contain accurate values for
+            gsd.hoomd.Snapshot.particles.image
+        device, fresnel.Device(), optional
+            Set the device to be used by the scene and in rendering.
+
+        """
         self.scene = fresnel.Scene()
         self.gsd_file = gsd_file
         with gsd.hoomd.open(gsd_file) as traj:
@@ -181,7 +225,10 @@ class FresnelGSD:
     @view_axis.setter
     def view_axis(self, value):
         # TODO Assert is 1,3  array
-        self._view_axis = np.asarray(value)
+        new_view_axis = np.asarray(value)
+        if len(new_view_axis) != 0:
+            raise ValueError("View axis must be a 3x1 array")
+        self._view_axis = np.asarray(new_view_axis)
 
     @property
     def up(self):
