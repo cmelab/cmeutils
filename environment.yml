@@ -2,6 +2,7 @@ name: cmeutils
 channels:
   - conda-forge
 dependencies:
+  - fresnel
   - freud
   - gsd=2.9
   - hoomd<4.0=*cpu*
