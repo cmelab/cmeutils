@@ -89,10 +89,10 @@ class FresnelGSD:
         self._specular = specular
         self._specular_trans = specular_trans
         self._metal = metal
-        # self._view_axis = np.asarray(view_axis)
         self._up = np.asarray(up)
         self._show_box = show_box
         self._box_radius = box_radius
+        self._height_factor = 1.25
 
     @property
     def frame(self):
@@ -379,7 +379,7 @@ class FresnelGSD:
             position=self.camera_position,
             look_at=self.look_at,
             up=self.up,
-            height=self.height,
+            height=self.height * self._height_factor,
         )
         return camera
 
