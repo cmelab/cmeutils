@@ -82,6 +82,7 @@ class FresnelGSD:
         self._frame = 0
         self.frame = frame
         self._color_dict = color_dict
+        self._colors = None
         self._diameter_scale = diameter_scale
         self._height = height
         self._device = device
@@ -311,8 +312,14 @@ class FresnelGSD:
         """
         if self.color_dict:
             return np.array([self.color_dict[i] for i in self.particle_types])
-        else:
+        elif self._colors is None:
             return np.array([0.5, 0.25, 0.5])
+        else:
+            return self._colors
+
+    @colors.setter
+    def colors(self, value):
+        self._colors = value
 
     @property
     def box_length(self):
