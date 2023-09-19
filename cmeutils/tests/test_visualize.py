@@ -80,6 +80,7 @@ class TestFresnelGSD(BaseTest):
         colors = np.zeros_like(p3ht_fresnel.positions)
         colors[:] = np.array([0.5, 0.5, 0.5])
         p3ht_fresnel.colors = colors
+        assert all(np.array_equal(colors, p3ht_fresnel.colors))
 
     def test_unwrap_positions(self, p3ht_fresnel):
         assert p3ht_fresnel.unwrap_positions is False
