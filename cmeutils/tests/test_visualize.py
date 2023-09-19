@@ -76,6 +76,11 @@ class TestFresnelGSD(BaseTest):
         with pytest.raises(ValueError):
             p3ht_fresnel.unwrap_positions = "true"
 
+    def set_set_colors(self, p3ht_fresnel):
+        colors = np.zeros_like(p3ht_fresnel.positions)
+        colors[:] = np.array([0.5, 0.5, 0.5])
+        p3ht_fresnel.colors = colors
+
     def test_unwrap_positions(self, p3ht_fresnel):
         assert p3ht_fresnel.unwrap_positions is False
         p3ht_fresnel.unwrap_positions = True
