@@ -72,7 +72,7 @@ class BaseTest:
 
 def create_frame(i, add_bonds, images, seed=42):
     np.random.seed(seed)
-    s = gsd.hoomd.Snapshot()
+    s = gsd.hoomd.Frame()
     s.configuration.step = i
     s.particles.N = 5
     s.particles.types = ["A", "B"]

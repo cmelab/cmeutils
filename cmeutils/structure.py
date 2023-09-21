@@ -37,7 +37,7 @@ def angle_distribution(
         Filename of the GSD trajectory.
     A_name, B_name, C_name : str
         Name(s) of particles that form the angle triplet
-        (found in gsd.hoomd.Snapshot.particles.types)
+        (found in gsd.hoomd.Frame.particles.types)
         They must be given in the same order as they form the angle
     start : int
         Starting frame index for accumulating bond lengths.
@@ -149,7 +149,7 @@ def bond_distribution(
         Filename of the GSD trajectory.
     A_name, B_name : str
         Name(s) of particles that form the bond pair
-        (found in gsd.hoomd.Snapshot.particles.types)
+        (found in gsd.hoomd.Frame.particles.types)
     start : int
         Starting frame index for accumulating bond lengths.
         Negative numbers index from the end. (default 0)
@@ -243,7 +243,7 @@ def dihedral_distribution(
         Filename of the GSD trajectory.
     A_name, B_name, C_name, D_name: str
         Name(s) of particles that form the dihedral quadruplett
-        (found in gsd.hoomd.Snapshot.particles.types)
+        (found in gsd.hoomd.Frame.particles.types)
         They must be given in the same order as they form the dihedral
     start : int
         Starting frame index for accumulating bond lengths.
@@ -391,7 +391,7 @@ def gsd_rdf(
         Filename of the GSD trajectory.
     A_name, B_name : str
         Name(s) of particles between which to calculate the RDF (found in
-        gsd.hoomd.Snapshot.particles.types)
+        gsd.hoomd.Frame.particles.types)
     start : int
         Starting frame index for accumulating the RDF. Negative numbers index
         from the end. (default 0)
@@ -488,7 +488,7 @@ def get_centers(gsdfile, new_gsdfile):
         snap = traj[0]
         cluster_idx = gsd_utils.get_molecule_cluster(snap=snap)
         for snap in traj:
-            new_snap = gsd.hoomd.Snapshot()
+            new_snap = gsd.hoomd.Frame()
             new_snap.configuration.box = snap.configuration.box
             f_box = freud.box.Box.from_box(snap.configuration.box)
             # Use the freud box to unwrap the particle positions
