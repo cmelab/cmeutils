@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - fresnel
-  - freud
+  - freud>=2.13.1
   - gsd>=3.0
   - hoomd<4.0=*cpu*
   - mbuild
