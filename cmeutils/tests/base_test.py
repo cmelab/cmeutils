@@ -31,13 +31,13 @@ class BaseTest:
 
     @pytest.fixture
     def snap(self, gsdfile):
-        with gsd.hoomd.open(name=gsdfile, mode="rb") as f:
+        with gsd.hoomd.open(name=gsdfile, mode="r") as f:
             snap = f[-1]
         return snap
 
     @pytest.fixture
     def snap_bond(self, gsdfile_bond):
-        with gsd.hoomd.open(name=gsdfile_bond, mode="rb") as f:
+        with gsd.hoomd.open(name=gsdfile_bond, mode="r") as f:
             snap = f[-1]
         return snap
 
@@ -72,7 +72,7 @@ class BaseTest:
 
 def create_frame(i, add_bonds, images, seed=42):
     np.random.seed(seed)
-    s = gsd.hoomd.Snapshot()
+    s = gsd.hoomd.Frame()
     s.configuration.step = i
     s.particles.N = 5
     s.particles.types = ["A", "B"]
@@ -93,7 +93,7 @@ def create_frame(i, add_bonds, images, seed=42):
 
 
 def create_gsd(filename, add_bonds=False, images=False):
-    with gsd.hoomd.open(name=filename, mode="wb") as f:
+    with gsd.hoomd.open(name=filename, mode="w") as f:
         f.extend(
             [
                 create_frame(i, add_bonds=add_bonds, images=images)

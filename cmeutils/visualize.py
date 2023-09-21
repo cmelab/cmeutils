@@ -31,13 +31,13 @@ class FresnelGSD:
         gsd_file : str, required
             Path to a GSD file to load
         frame : int, optional, default 0
-            The frame of the GSD file to load the gsd.hoomd.Snapshot
+            The frame of the GSD file to load the gsd.hoomd.Frame
         view_axis : np.ndarray (3,), optional, default (1, 0, 0)
             Sets the fresnel.camera attributes of camrea position and direction
         color_dict : dict, optional, default None
             Set colors for particle types
         diameter_scale : float, optional default 0.30
-            Scale the diameter values stored in gsd.hoomd.Snapshot
+            Scale the diameter values stored in gsd.hoomd.Frame
         height : float, optional default 10
             Sets the fresnel.camera height attriubute
             Acts like a zoom where larger values zooms out
@@ -62,7 +62,7 @@ class FresnelGSD:
         upwrap_positions: bool, optional, default False
             If True, the particle positions are unwrapped in the image
             This requires the GSD file snapshot contain accurate values for
-            gsd.hoomd.Snapshot.particles.image
+            gsd.hoomd.Frame.particles.image
         device, fresnel.Device(), optional
             Set the device to be used by the scene and in rendering.
         show_box: bool, optional, default True
@@ -113,7 +113,7 @@ class FresnelGSD:
 
     @property
     def snapshot(self):
-        """gsd.hoomd.Snapshot loaded from the GSD file.
+        """gsd.hoomd.Frame loaded from the GSD file.
         The snapshot loaded depends on FresnelGSD.frame
         """
         return self._snapshot
@@ -154,7 +154,7 @@ class FresnelGSD:
         """
         if particle_type not in set(self.particle_types):
             raise ValueError(
-                f"Particle type of {particle_type} is not in the Snapshot"
+                f"Particle type of {particle_type} is not in the Frame"
             )
         self._color_dict[particle_type] = color
 
@@ -163,7 +163,7 @@ class FresnelGSD:
         """If set to True, then positions of the particles are
         unwrapped before creating the image.
         This requires that the GSD file snapshots contain accurate
-        image values (gsd.hoomd.Snapshot.particles.image
+        image values (gsd.hoomd.Frame.particles.image
 
         """
         return self._unwrap_positions
@@ -290,7 +290,7 @@ class FresnelGSD:
     @property
     def radius(self):
         """Sets the size of the particles.
-        Determined by the gsd.hoomd.Snapshot.particles.diameter
+        Determined by the gsd.hoomd.Frame.particles.diameter
         values and FresnelGSD.diameter_scale
         """
         return self.snapshot.particles.diameter * self.diameter_scale

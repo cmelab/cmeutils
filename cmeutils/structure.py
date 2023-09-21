@@ -37,7 +37,7 @@ def angle_distribution(
         Filename of the GSD trajectory.
     A_name, B_name, C_name : str
         Name(s) of particles that form the angle triplet
-        (found in gsd.hoomd.Snapshot.particles.types)
+        (found in gsd.hoomd.Frame.particles.types)
         They must be given in the same order as they form the angle
     start : int
         Starting frame index for accumulating bond lengths.
@@ -78,7 +78,7 @@ def angle_distribution(
     elif degrees and theta_max is None:
         theta_max = 180
 
-    trajectory = gsd.hoomd.open(gsd_file, mode="rb")
+    trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name, C_name])
     name_rev = "-".join([C_name, B_name, A_name])
 
@@ -149,7 +149,7 @@ def bond_distribution(
         Filename of the GSD trajectory.
     A_name, B_name : str
         Name(s) of particles that form the bond pair
-        (found in gsd.hoomd.Snapshot.particles.types)
+        (found in gsd.hoomd.Frame.particles.types)
     start : int
         Starting frame index for accumulating bond lengths.
         Negative numbers index from the end. (default 0)
@@ -179,7 +179,7 @@ def bond_distribution(
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
-    trajectory = gsd.hoomd.open(gsd_file, mode="rb")
+    trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name])
     name_rev = "-".join([B_name, A_name])
 
@@ -243,7 +243,7 @@ def dihedral_distribution(
         Filename of the GSD trajectory.
     A_name, B_name, C_name, D_name: str
         Name(s) of particles that form the dihedral quadruplett
-        (found in gsd.hoomd.Snapshot.particles.types)
+        (found in gsd.hoomd.Frame.particles.types)
         They must be given in the same order as they form the dihedral
     start : int
         Starting frame index for accumulating bond lengths.
@@ -273,7 +273,7 @@ def dihedral_distribution(
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
     """
-    trajectory = gsd.hoomd.open(gsd_file, mode="rb")
+    trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name, C_name, D_name])
     name_rev = "-".join([D_name, C_name, B_name, A_name])
 
@@ -391,7 +391,7 @@ def gsd_rdf(
         Filename of the GSD trajectory.
     A_name, B_name : str
         Name(s) of particles between which to calculate the RDF (found in
-        gsd.hoomd.Snapshot.particles.types)
+        gsd.hoomd.Frame.particles.types)
     start : int
         Starting frame index for accumulating the RDF. Negative numbers index
         from the end. (default 0)
@@ -413,7 +413,7 @@ def gsd_rdf(
     -------
     (freud.density.RDF, float)
     """
-    with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
+    with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
         snap = trajectory[0]
 
         if r_max is None:
@@ -482,13 +482,13 @@ def get_centers(gsdfile, new_gsdfile):
     new_gsdfile : str
         Filename of new GSD for centers.
     """
-    with gsd.hoomd.open(new_gsdfile, "wb") as new_traj, gsd.hoomd.open(
-        gsdfile, "rb"
+    with gsd.hoomd.open(new_gsdfile, "w") as new_traj, gsd.hoomd.open(
+        gsdfile, "r"
     ) as traj:
         snap = traj[0]
         cluster_idx = gsd_utils.get_molecule_cluster(snap=snap)
         for snap in traj:
-            new_snap = gsd.hoomd.Snapshot()
+            new_snap = gsd.hoomd.Frame()
             new_snap.configuration.box = snap.configuration.box
             f_box = freud.box.Box.from_box(snap.configuration.box)
             # Use the freud box to unwrap the particle positions
@@ -640,7 +640,7 @@ def all_atom_rdf(
     -------
     freud.density.RDF
     """
-    with gsd.hoomd.open(gsdfile, mode="rb") as trajectory:
+    with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
         snap = trajectory[start]
         if r_max is None:
             # Use a value just less than half the maximum box length.

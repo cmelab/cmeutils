@@ -30,7 +30,7 @@ def msd_from_gsd(
         Choose from "window" or "direct". See Freud for the differences
         https://freud.readthedocs.io/en/latest/modules/msd.html#freud.msd.MSD
     """
-    with gsd.hoomd.open(gsdfile, "rb") as trajectory:
+    with gsd.hoomd.open(gsdfile, "r") as trajectory:
         init_box = trajectory[start].configuration.box
         final_box = trajectory[stop].configuration.box
         assert all(

@@ -21,12 +21,12 @@ def get_type_position(
     ----------
     typename : str or list of str
         Name of particles of which to get the positions (found in
-        gsd.hoomd.Snapshot.particles.types)
+        gsd.hoomd.Frame.particles.types)
         If you want the positions of multiple types, pass in a list
         e.g., ['ca', 'c3']
     gsd_file : str, default None
         Filename of the gsd trajectory
-    snap : gsd.hoomd.Snapshot, default None
+    snap : gsd.hoomd.Frame, default None
         Trajectory snapshot
     gsd_frame : int, default -1
         Frame number to get positions from. Supports negative indexing.
@@ -70,7 +70,7 @@ def get_all_types(gsd_file=None, snap=None, gsd_frame=-1):
     ----------
     gsd_file : str, default None
         Filename of the gsd trajectory
-    snap : gsd.hoomd.Snapshot, default None
+    snap : gsd.hoomd.Frame, default None
         Trajectory snapshot
     gsd_frame : int, default -1
         Frame number to get positions from. Supports negative indexing.
@@ -94,7 +94,7 @@ def get_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
     ----------
     gsd_file : str, default None
         Filename of the gsd trajectory
-    snap : gsd.hoomd.Snapshot, default None
+    snap : gsd.hoomd.Frame, default None
         Trajectory snapshot.
     gsd_frame : int, default -1
         Frame number of gsd_file to use to compute clusters.
@@ -125,13 +125,13 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
     if gsd_file:
         assert isinstance(gsd_frame, int)
         try:
-            with gsd.hoomd.open(name=gsd_file, mode="rb") as f:
+            with gsd.hoomd.open(name=gsd_file, mode="r") as f:
                 snap = f[gsd_frame]
         except Exception as e:
             print("Unable to open the gsd_file")
             raise e
     elif snap:
-        assert isinstance(snap, gsd.hoomd.Snapshot)
+        assert isinstance(snap, gsd.hoomd.Frame)
     return snap
 
 
@@ -148,15 +148,15 @@ def snap_delete_types(snap, delete_types):
 
     Parameters
     ----------
-    snap : gsd.hoomd.Snapshot
+    snap : gsd.hoomd.Frame
         The snapshot to read in
 
     Returns
     -------
-    gsd.hoomd.Snapshot
+    gsd.hoomd.Frame
         The new snapshot with particles deleted.
     """
-    new_snap = gsd.hoomd.Snapshot()
+    new_snap = gsd.hoomd.Frame()
     delete_ids = [snap.particles.types.index(i) for i in delete_types]
     selection = np.where(~np.isin(snap.particles.typeid, delete_ids))[0]
     new_snap.particles.N = len(selection)
@@ -225,7 +225,7 @@ def update_rigid_snapshot(snapshot, mb_compound):
 
     Parameters
     ----------
-    snapshot : gsd.hoomd.Snapshot
+    snapshot : gsd.hoomd.Frame
         The snapshot returned from create_hoomd_forcefield
         or create_hoomd_simulation in mBuild
     mb_compound : mbuild.Compound, required
@@ -307,7 +307,7 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
         Value of lperp of the ellipsoids
 
     """
-    with gsd.hoomd.open(new_file, "wb") as new_t:
+    with gsd.hoomd.open(new_file, "w") as new_t:
         with gsd.hoomd.open(gsd_file) as old_t:
             for snap in old_t:
                 snap.particles.type_shapes = [
@@ -352,7 +352,7 @@ def xml_to_gsd(xmlfile, gsdfile):
             overwrite=True,
         )
         hoomd.util.unquiet_status()
-        with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "wb") as newt:
+        with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "w") as newt:
             snap = t[0]
             bonds = snap.bonds.group
             bonds = bonds[np.lexsort((bonds[:, 1], bonds[:, 0]))]

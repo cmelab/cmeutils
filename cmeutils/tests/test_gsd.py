@@ -33,7 +33,7 @@ except ImportError:
 class TestGSD(BaseTest):
     def test_ellipsoid_gsd(self, butane_gsd):
         ellipsoid_gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
-        with gsd.hoomd.open(name="ellipsoid.gsd", mode="rb") as f:
+        with gsd.hoomd.open(name="ellipsoid.gsd", mode="r") as f:
             snap = f[-1]
         assert snap.particles.type_shapes[0]["type"] == "Ellipsoid"
 
