@@ -125,7 +125,7 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
     if gsd_file:
         assert isinstance(gsd_frame, int)
         try:
-            with gsd.hoomd.open(name=gsd_file, mode="rb") as f:
+            with gsd.hoomd.open(name=gsd_file, mode="r") as f:
                 snap = f[gsd_frame]
         except Exception as e:
             print("Unable to open the gsd_file")
@@ -307,7 +307,7 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
         Value of lperp of the ellipsoids
 
     """
-    with gsd.hoomd.open(new_file, "wb") as new_t:
+    with gsd.hoomd.open(new_file, "w") as new_t:
         with gsd.hoomd.open(gsd_file) as old_t:
             for snap in old_t:
                 snap.particles.type_shapes = [
@@ -352,7 +352,7 @@ def xml_to_gsd(xmlfile, gsdfile):
             overwrite=True,
         )
         hoomd.util.unquiet_status()
-        with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "wb") as newt:
+        with gsd.hoomd.open(f.name) as t, gsd.hoomd.open(gsdfile, "w") as newt:
             snap = t[0]
             bonds = snap.bonds.group
             bonds = bonds[np.lexsort((bonds[:, 1], bonds[:, 0]))]
