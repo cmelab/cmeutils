@@ -8,10 +8,11 @@ import numpy as np
 from cmeutils.geometry import moit
 
 
-def snapshot_to_freud_system(snapshot, ref_distance):
-    box = snapshot.configuration.box
+def frame_to_freud_system(frame, ref_distance):
+    """Creates a freud system given a gsd.hoomd.Frame."""
+    box = frame.configuration.box
     box[0:3] *= ref_distance
-    xyz = snapshot.particles.position * ref_distance
+    xyz = frame.particles.position * ref_distance
     return freud.locality.NeighborQuery.from_system(system=(box, xyz))
 
 

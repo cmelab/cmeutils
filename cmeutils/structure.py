@@ -10,8 +10,8 @@ from cmeutils import gsd_utils
 from cmeutils.geometry import (
     angle_between_vectors,
     dihedral_angle,
+    frame_to_freud_system,
     get_plane_normal,
-    snapshot_to_freud_system,
 )
 from cmeutils.plotting import get_histogram
 
@@ -521,9 +521,9 @@ def structure_factor(
     if not ref_distance:
         ref_distance = 1
     with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
-        for snap in trajectory[start:stop]:
-            system = snapshot_to_freud_system(
-                snapshot=snap, ref_distance=ref_distance
+        for frame in trajectory[start:stop]:
+            system = frame_to_freud_system(
+                frame=frame, ref_distance=ref_distance
             )
             sf.compute(system=system, reset=False)
     return sf
