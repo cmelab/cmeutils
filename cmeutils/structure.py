@@ -11,6 +11,7 @@ from cmeutils.geometry import (
     angle_between_vectors,
     dihedral_angle,
     get_plane_normal,
+    snapshot_to_freud_system,
 )
 from cmeutils.plotting import get_histogram
 
@@ -419,7 +420,7 @@ def gsd_rdf(
         if r_max is None:
             # Use a value just less than half the maximum box length.
             r_max = np.nextafter(
-                np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
+                np.max(snap.configuration.box[:3]) * 0.49, 0, dtype=np.float32
             )
 
         rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
@@ -464,6 +465,68 @@ def gsd_rdf(
         normalization *= ab_ratio
 
         return rdf, normalization
+
+
+def structure_factor(
+    gsdfile,
+    k_min,
+    k_max,
+    start=0,
+    stop=-1,
+    bins=100,
+    method="direct",
+    ref_distance=None,
+):
+    """
+
+    Parameters
+    ----------
+    gsdfile : str, required
+        File path to the GSD trajectory.
+    k_max : float, required
+        Maximum value to include in the calculation.
+    k_min : float, required
+        Minimum value included in the calculation
+    start : int, default 0
+        Starting frame index for accumulating the Sq. Negative numbers index
+        from the end.
+    stop : int, optional default None
+        Final frame index for accumulating the Sq. If None, the last frame
+        will be used.
+    bins : int, optional default 100
+        Number of bins to use when calculating the Sq.
+    method : str optional default "direct"
+        Choose the method used by freud.
+        Options are "direct" or "debye"
+        See: https://freud.readthedocs.io/en/latest/modules/diffraction.html#freud.diffraction.StaticStructureFactorDirect # noqa: E501
+
+    Returns
+    -------
+    freud.diffraction.StatisStructureFactorDirect or
+    freud.diffraction.StaticStructureFactorDebye
+    """
+
+    if method.lower() == "direct":
+        sf = freud.diffraction.StaticStructureFactorDirect(
+            bins=bins, k_max=k_max, k_min=k_min
+        )
+    elif method.lower() == "debye":
+        sf = freud.diffraction.StaticStructureFactorDebye(
+            num_k_values=bins, k_max=k_max, k_min=k_min
+        )
+    else:
+        raise ValueError(
+            f"Optional methods are `debye` or `direct`, you chose {method}"
+        )
+    if not ref_distance:
+        ref_distance = 1
+    with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
+        for snap in trajectory[start:stop]:
+            system = snapshot_to_freud_system(
+                snapshot=snap, ref_distance=ref_distance
+            )
+            sf.compute(system=system, reset=False)
+    return sf
 
 
 def get_centers(gsdfile, new_gsdfile):

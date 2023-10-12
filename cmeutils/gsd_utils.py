@@ -8,6 +8,13 @@ import numpy as np
 from cmeutils.geometry import moit
 
 
+def snapshot_to_freud_system(snapshot, ref_distance):
+    box = snapshot.configuration.box
+    box[0:3] *= ref_distance
+    xyz = snapshot.particles.position * ref_distance
+    return freud.locality.NeighborQuery.from_system(system=(box, xyz))
+
+
 def get_type_position(
     typename, gsd_file=None, snap=None, gsd_frame=-1, images=False
 ):
