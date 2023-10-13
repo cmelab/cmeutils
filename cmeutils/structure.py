@@ -6,12 +6,12 @@ import gsd.hoomd
 import numpy as np
 from rowan import vector_vector_rotation
 
-from cmeutils import gsd_utils
 from cmeutils.geometry import (
     angle_between_vectors,
     dihedral_angle,
     get_plane_normal,
 )
+from cmeutils.gsd_utils import frame_to_freud_system, get_molecule_cluster
 from cmeutils.plotting import get_histogram
 
 
@@ -419,7 +419,7 @@ def gsd_rdf(
         if r_max is None:
             # Use a value just less than half the maximum box length.
             r_max = np.nextafter(
-                np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
+                np.max(snap.configuration.box[:3]) * 0.49, 0, dtype=np.float32
             )
 
         rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
@@ -428,7 +428,7 @@ def gsd_rdf(
         type_B = snap.particles.typeid == snap.particles.types.index(B_name)
 
         if exclude_bonded:
-            molecules = gsd_utils.get_molecule_cluster(snap=snap)
+            molecules = get_molecule_cluster(snap=snap)
             molecules_A = molecules[type_A]
             molecules_B = molecules[type_B]
 
@@ -466,6 +466,129 @@ def gsd_rdf(
         return rdf, normalization
 
 
+def structure_factor(
+    gsdfile,
+    k_min,
+    k_max,
+    start=0,
+    stop=-1,
+    bins=100,
+    method="direct",
+    ref_length=None,
+):
+    """Uses freud's diffraction module to find 1D structure factors.
+
+    Parameters
+    ----------
+    gsdfile : str, required
+        File path to the GSD trajectory.
+    k_max : float, required
+        Maximum value to include in the calculation.
+    k_min : float, required
+        Minimum value included in the calculation
+    start : int, default 0
+        Starting frame index for accumulating the Sq. Negative numbers index
+        from the end.
+    stop : int, optional default None
+        Final frame index for accumulating the Sq. If None, the last frame
+        will be used.
+    bins : int, optional default 100
+        Number of bins to use when calculating the Sq.
+        Used as the `bins` parameter in `StaticStructureFactorDirect` or
+        the `num_k_values` parameter in `StaticStructureFactorDebye`.
+    method : str optional default "direct"
+        Choose the method used by freud.
+        Options are "direct" or "debye"
+        See: https://freud.readthedocs.io/en/latest/modules/diffraction.html#freud.diffraction.StaticStructureFactorDirect # noqa: E501
+    ref_length : float, optional, default None
+        Set a reference length to convert from reduced units to real units.
+        If None, uses 1 by default.
+
+    Returns
+    -------
+    freud.diffraction.StaticStructureFactorDirect or
+    freud.diffraction.StaticStructureFactorDebye
+    """
+
+    if not ref_length:
+        ref_length = 1
+
+    if method.lower() == "direct":
+        sf = freud.diffraction.StaticStructureFactorDirect(
+            bins=bins, k_max=k_max / ref_length, k_min=k_min / ref_length
+        )
+    elif method.lower() == "debye":
+        sf = freud.diffraction.StaticStructureFactorDebye(
+            num_k_values=bins,
+            k_max=k_max / ref_length,
+            k_min=k_min / ref_length,
+        )
+    else:
+        raise ValueError(
+            f"Optional methods are `debye` or `direct`, you chose {method}"
+        )
+    with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
+        for frame in trajectory[start:stop]:
+            system = frame_to_freud_system(frame=frame, ref_length=ref_length)
+            sf.compute(system=system, reset=False)
+    return sf
+
+
+def diffraction_pattern(
+    gsdfile,
+    views,
+    start=0,
+    stop=-1,
+    ref_length=None,
+    grid_size=1024,
+    output_size=None,
+):
+    """Uses freud's diffraction module to find 2D diffraction patterns.
+
+    Notes
+    -----
+    The diffraction pattern is averaged over both views and frames
+    set by the length of views and the range start - stop.
+
+    Parameters
+    ----------
+    gsdfile : str, required
+        File path to the GSD trajectory.
+    views : list, required
+        List of orientations (quarternions) to average over.
+        See cmeutils.structure.get_quarternions
+    start : int, default 0
+        Starting frame index for accumulating the Sq. Negative numbers index
+        from the end.
+    stop : int, optional default None
+        Final frame index for accumulating the Sq. If None, the last frame
+        will be used.
+    ref_length : float, optional, default None
+        Set a reference length to convert from reduced units to real units.
+        If None, uses 1 by default.
+    grid_size : unsigned int, optional, default 1024
+        Resolution of the diffraction grid.
+    output_size : unsigned int, optional, default None
+        Resolution of the output diffraction image.
+
+    Returns
+    -------
+    freud.diffraction.DiffractionPattern
+    """
+
+    if not ref_length:
+        ref_length = 1
+    dp = freud.diffraction.DiffractionPattern(
+        grid_size=grid_size, output_size=output_size
+    )
+    with gsd.hoomd.open(gsdfile) as trajectory:
+        for frame in trajectory[start:stop]:
+            system = frame_to_freud_system(frame=frame, ref_length=ref_length)
+            for view in views:
+                dp.compute(system=system, view_orientation=view, reset=False)
+    return dp
+
+
 def get_centers(gsdfile, new_gsdfile):
     """Create a gsd file containing the molecule centers from an existing gsd
      file.
@@ -486,7 +609,7 @@ def get_centers(gsdfile, new_gsdfile):
         gsdfile, "r"
     ) as traj:
         snap = traj[0]
-        cluster_idx = gsd_utils.get_molecule_cluster(snap=snap)
+        cluster_idx = get_molecule_cluster(snap=snap)
         for snap in traj:
             new_snap = gsd.hoomd.Frame()
             new_snap.configuration.box = snap.configuration.box

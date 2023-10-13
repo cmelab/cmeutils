@@ -8,11 +8,13 @@ from cmeutils.structure import (
     all_atom_rdf,
     angle_distribution,
     bond_distribution,
+    diffraction_pattern,
     dihedral_distribution,
     get_centers,
     get_quaternions,
     gsd_rdf,
     order_parameter,
+    structure_factor,
 )
 from cmeutils.tests.base_test import BaseTest
 
@@ -185,6 +187,23 @@ class TestStructure(BaseTest):
                 theta_min=120,
                 theta_max=180,
             )
+
+    def test_diffraction_pattern(self, gsdfile_bond):
+        views = get_quaternions(n_views=5)
+        dp = diffraction_pattern(gsdfile_bond, views=views)
+        assert isinstance(dp, freud.diffraction.DiffractionPattern)
+
+    def test_structure_factor_direct(self, gsdfile_bond):
+        sf = structure_factor(gsdfile_bond, k_min=0.2, k_max=5)
+        assert isinstance(sf, freud.diffraction.StaticStructureFactorDirect)
+
+    def test_structure_factor_debye(self, gsdfile_bond):
+        sf = structure_factor(gsdfile_bond, k_min=0.2, k_max=5, method="debye")
+        assert isinstance(sf, freud.diffraction.StaticStructureFactorDebye)
+
+    def test_structure_factor_bad_method(self, gsdfile_bond):
+        with pytest.raises(ValueError):
+            structure_factor(gsdfile_bond, k_min=0.2, k_max=5, method="a")
 
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")

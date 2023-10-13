@@ -8,6 +8,25 @@ import numpy as np
 from cmeutils.geometry import moit
 
 
+def frame_to_freud_system(frame, ref_length=None):
+    """Creates a freud system given a gsd.hoomd.Frame.
+
+    Parameters
+    ----------
+    frame : gsd.hoomd.Frame, required
+        Frame used to get box and particle positions.
+    ref_length : float, optional, default None
+        Set a reference length to convert from reduced units to real units.
+        If None, uses 1 by default.
+    """
+    if ref_length is None:
+        ref_length = 1
+    box = frame.configuration.box
+    box[0:3] *= ref_length
+    xyz = frame.particles.position * ref_length
+    return freud.locality.NeighborQuery.from_system(system=(box, xyz))
+
+
 def get_type_position(
     typename, gsd_file=None, snap=None, gsd_frame=-1, images=False
 ):

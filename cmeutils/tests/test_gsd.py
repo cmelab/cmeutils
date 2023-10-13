@@ -1,3 +1,4 @@
+import freud
 import gsd.hoomd
 import mbuild as mb
 import numpy as np
@@ -10,6 +11,7 @@ from cmeutils.gsd_utils import (
     _validate_inputs,
     create_rigid_snapshot,
     ellipsoid_gsd,
+    frame_to_freud_system,
     get_all_types,
     get_molecule_cluster,
     get_type_position,
@@ -31,6 +33,12 @@ except ImportError:
 
 
 class TestGSD(BaseTest):
+    def test_frame_to_freud_system(self, butane_gsd):
+        with gsd.hoomd.open(butane_gsd) as traj:
+            frame = traj[0]
+        freud_sys = frame_to_freud_system(frame)
+        assert isinstance(freud_sys, freud.locality.NeighborQuery)
+
     def test_ellipsoid_gsd(self, butane_gsd):
         ellipsoid_gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
         with gsd.hoomd.open(name="ellipsoid.gsd", mode="r") as f:
