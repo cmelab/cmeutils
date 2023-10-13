@@ -197,7 +197,7 @@ class TestStructure(BaseTest):
 
     def test_structure_factor_bad_method(self, gsdfile_bond):
         with pytest.raises(ValueError):
-            sf = structure_factor(gsdfile_bond, k_min=0.2, k_max=5, method="a")
+            structure_factor(gsdfile_bond, k_min=0.2, k_max=5, method="a")
 
     def test_gsd_rdf(self, gsdfile_bond):
         rdf_ex, norm = gsd_rdf(gsdfile_bond, "A", "B")
