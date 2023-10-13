@@ -548,7 +548,7 @@ def diffraction_pattern(
     Notes
     -----
     The diffraction pattern is averaged over both views and frames
-    set by the lenght of views and the range start - stop.
+    set by the length of views and the range start - stop.
 
     Parameters
     ----------
