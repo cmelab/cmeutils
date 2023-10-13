@@ -541,6 +541,11 @@ def diffraction_pattern(
 ):
     """Uses freud's diffraction module to find 2D diffraction patterns.
 
+    Notes
+    -----
+    The diffraction pattern is averaged over both views and frames
+    set by the lenght of views and the range start - stop.
+
     Parameters
     ----------
     gsdfile : str, required
@@ -557,6 +562,10 @@ def diffraction_pattern(
     ref_length : float, optional, default None
         Set a reference length to convert from reduced units to real units.
         If None, uses 1 by default.
+    grid_size : unsigned int, optional, default 1024
+        Resolution of the diffraction grid.
+    output_size : unsigned int, optional, default None
+        Resolution of the output diffraction image.
 
     Returns
     -------
