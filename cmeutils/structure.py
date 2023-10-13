@@ -6,11 +6,10 @@ import gsd.hoomd
 import numpy as np
 from rowan import vector_vector_rotation
 
-from cmeutils import gsd_utils
+from cmeutils.gsd_utils import frame_to_freud_system, get_molecule_cluster
 from cmeutils.geometry import (
     angle_between_vectors,
     dihedral_angle,
-    frame_to_freud_system,
     get_plane_normal,
 )
 from cmeutils.plotting import get_histogram
@@ -429,7 +428,7 @@ def gsd_rdf(
         type_B = snap.particles.typeid == snap.particles.types.index(B_name)
 
         if exclude_bonded:
-            molecules = gsd_utils.get_molecule_cluster(snap=snap)
+            molecules = get_molecule_cluster(snap=snap)
             molecules_A = molecules[type_A]
             molecules_B = molecules[type_B]
 
@@ -549,7 +548,7 @@ def get_centers(gsdfile, new_gsdfile):
         gsdfile, "r"
     ) as traj:
         snap = traj[0]
-        cluster_idx = gsd_utils.get_molecule_cluster(snap=snap)
+        cluster_idx = get_molecule_cluster(snap=snap)
         for snap in traj:
             new_snap = gsd.hoomd.Frame()
             new_snap.configuration.box = snap.configuration.box
