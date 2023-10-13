@@ -494,6 +494,8 @@ def structure_factor(
         will be used.
     bins : int, optional default 100
         Number of bins to use when calculating the Sq.
+        Used as the `bins` parameter in `StaticStructureFactorDirect` or
+        the `num_k_values` parameter in `StaticStructureFactorDebye`.
     method : str optional default "direct"
         Choose the method used by freud.
         Options are "direct" or "debye"
@@ -513,11 +515,13 @@ def structure_factor(
 
     if method.lower() == "direct":
         sf = freud.diffraction.StaticStructureFactorDirect(
-            bins=bins, k_max=k_max, k_min=k_min
+            bins=bins, k_max=k_max / ref_length, k_min=k_min / ref_length
         )
     elif method.lower() == "debye":
         sf = freud.diffraction.StaticStructureFactorDebye(
-            num_k_values=bins, k_max=k_max, k_min=k_min
+            num_k_values=bins,
+            k_max=k_max / ref_length,
+            k_min=k_min / ref_length,
         )
     else:
         raise ValueError(
