@@ -474,7 +474,7 @@ def structure_factor(
     stop=-1,
     bins=100,
     method="direct",
-    ref_distance=None,
+    ref_length=None,
 ):
     """
 
@@ -498,10 +498,13 @@ def structure_factor(
         Choose the method used by freud.
         Options are "direct" or "debye"
         See: https://freud.readthedocs.io/en/latest/modules/diffraction.html#freud.diffraction.StaticStructureFactorDirect # noqa: E501
+    ref_length : float, optional, default None
+        Set a reference length to convert from reduced units to real units.
+        If None, uses 1 by default.
 
     Returns
     -------
-    freud.diffraction.StatisStructureFactorDirect or
+    freud.diffraction.StaticStructureFactorDirect or
     freud.diffraction.StaticStructureFactorDebye
     """
 
@@ -517,13 +520,11 @@ def structure_factor(
         raise ValueError(
             f"Optional methods are `debye` or `direct`, you chose {method}"
         )
-    if not ref_distance:
-        ref_distance = 1
+    if not ref_length:
+        ref_length = 1
     with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
         for frame in trajectory[start:stop]:
-            system = frame_to_freud_system(
-                frame=frame, ref_distance=ref_distance
-            )
+            system = frame_to_freud_system(frame=frame, ref_length=ref_length)
             sf.compute(system=system, reset=False)
     return sf
 
