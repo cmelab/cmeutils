@@ -8,6 +8,7 @@ from cmeutils.structure import (
     all_atom_rdf,
     angle_distribution,
     bond_distribution,
+    diffraction_pattern,
     dihedral_distribution,
     get_centers,
     get_quaternions,
@@ -186,6 +187,11 @@ class TestStructure(BaseTest):
                 theta_min=120,
                 theta_max=180,
             )
+
+    def test_diffraction_pattern(self, gsdfile_bond):
+        views = get_quaternions(n_views=5)
+        dp = diffraction_pattern(gsdfile_bond, views=views)
+        assert isinstance(dp, freud.diffraction.DiffractionPattern)
 
     def test_structure_factor_direct(self, gsdfile_bond):
         sf = structure_factor(gsdfile_bond, k_min=0.2, k_max=5)

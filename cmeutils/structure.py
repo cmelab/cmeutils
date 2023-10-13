@@ -476,7 +476,7 @@ def structure_factor(
     method="direct",
     ref_length=None,
 ):
-    """
+    """Uses freud's diffraction module to find 1D structure factors.
 
     Parameters
     ----------
@@ -508,6 +508,9 @@ def structure_factor(
     freud.diffraction.StaticStructureFactorDebye
     """
 
+    if not ref_length:
+        ref_length = 1
+
     if method.lower() == "direct":
         sf = freud.diffraction.StaticStructureFactorDirect(
             bins=bins, k_max=k_max, k_min=k_min
@@ -520,13 +523,57 @@ def structure_factor(
         raise ValueError(
             f"Optional methods are `debye` or `direct`, you chose {method}"
         )
-    if not ref_length:
-        ref_length = 1
     with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
         for frame in trajectory[start:stop]:
             system = frame_to_freud_system(frame=frame, ref_length=ref_length)
             sf.compute(system=system, reset=False)
     return sf
+
+
+def diffraction_pattern(
+    gsdfile,
+    views,
+    start=0,
+    stop=-1,
+    ref_length=None,
+    grid_size=1024,
+    output_size=None,
+):
+    """Uses freud's diffraction module to find 2D diffraction patterns.
+
+    Parameters
+    ----------
+    gsdfile : str, required
+        File path to the GSD trajectory.
+    views : list, required
+        List of orientations (quarternions) to average over.
+        See cmeutils.structure.get_quarternions
+    start : int, default 0
+        Starting frame index for accumulating the Sq. Negative numbers index
+        from the end.
+    stop : int, optional default None
+        Final frame index for accumulating the Sq. If None, the last frame
+        will be used.
+    ref_length : float, optional, default None
+        Set a reference length to convert from reduced units to real units.
+        If None, uses 1 by default.
+
+    Returns
+    -------
+    freud.diffraction.DiffractionPattern
+    """
+
+    if not ref_length:
+        ref_length = 1
+    dp = freud.diffraction.DiffractionPattern(
+        grid_size=grid_size, output_size=output_size
+    )
+    with gsd.hoomd.open(gsdfile) as trajectory:
+        for frame in trajectory[start:stop]:
+            system = frame_to_freud_system(frame=frame, ref_length=ref_length)
+            for view in views:
+                dp.compute(system=system, view_orientation=view, reset=False)
+    return dp
 
 
 def get_centers(gsdfile, new_gsdfile):
