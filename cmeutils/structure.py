@@ -6,12 +6,12 @@ import gsd.hoomd
 import numpy as np
 from rowan import vector_vector_rotation
 
-from cmeutils.gsd_utils import frame_to_freud_system, get_molecule_cluster
 from cmeutils.geometry import (
     angle_between_vectors,
     dihedral_angle,
     get_plane_normal,
 )
+from cmeutils.gsd_utils import frame_to_freud_system, get_molecule_cluster
 from cmeutils.plotting import get_histogram
 
 

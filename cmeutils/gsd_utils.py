@@ -10,7 +10,7 @@ from cmeutils.geometry import moit
 
 def frame_to_freud_system(frame, ref_length=None):
     """Creates a freud system given a gsd.hoomd.Frame.
-    
+
     Parameters
     ----------
     frame : gsd.hoomd.Frame, required

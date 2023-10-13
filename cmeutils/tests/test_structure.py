@@ -12,8 +12,8 @@ from cmeutils.structure import (
     get_centers,
     get_quaternions,
     gsd_rdf,
-    structure_factor,
     order_parameter,
+    structure_factor,
 )
 from cmeutils.tests.base_test import BaseTest
 

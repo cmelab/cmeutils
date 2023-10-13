@@ -11,13 +11,13 @@ from cmeutils.gsd_utils import (
     _validate_inputs,
     create_rigid_snapshot,
     ellipsoid_gsd,
+    frame_to_freud_system,
     get_all_types,
     get_molecule_cluster,
     get_type_position,
     snap_delete_types,
     update_rigid_snapshot,
     xml_to_gsd,
-    frame_to_freud_system
 )
 
 try:
@@ -37,7 +37,7 @@ class TestGSD(BaseTest):
         with gsd.hoomd.open(butane_gsd) as traj:
             frame = traj[0]
         freud_sys = frame_to_freud_system(frame)
-        assert isinstance(freud_sys, freud.locality.NeighborQuery) 
+        assert isinstance(freud_sys, freud.locality.NeighborQuery)
 
     def test_ellipsoid_gsd(self, butane_gsd):
         ellipsoid_gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
