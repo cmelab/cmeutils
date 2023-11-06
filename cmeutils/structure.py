@@ -582,7 +582,16 @@ def diffraction_pattern(
         grid_size=grid_size, output_size=output_size
     )
     with gsd.hoomd.open(gsdfile) as trajectory:
-        for frame in trajectory[start:stop]:
+        if start != stop:
+            for frame in trajectory[start:stop]:
+                system = frame_to_freud_system(
+                    frame=frame, ref_length=ref_length
+                )
+                for view in views:
+                    dp.compute(
+                        system=system, view_orientation=view, reset=False
+                    )
+        else:
             system = frame_to_freud_system(frame=frame, ref_length=ref_length)
             for view in views:
                 dp.compute(system=system, view_orientation=view, reset=False)

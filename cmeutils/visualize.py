@@ -1,7 +1,12 @@
+import os
+
 import ffmpeg
 import fresnel
 import gsd.hoomd
 import numpy as np
+from PIL import Image
+
+from cmeutils.structure import diffraction_pattern
 
 
 class FresnelGSD:
@@ -435,6 +440,43 @@ class FresnelGSD:
             samples=samples,
             light_samples=light_samples,
         )
+
+
+def diffraction_pattern_movie(
+    gsdfile,
+    start,
+    stop,
+    stride,
+    views,
+    ref_length,
+    grid_size,
+    output_size,
+    mov_file_name,
+    framerate,
+    clean_up=True,
+):
+    """"""
+    img_path = os.path.join(os.getcwd(), "images")
+    os.mkdir(img_path)
+    for i in range(start, stop, stride):
+        dp = diffraction_pattern(
+            gsdfile=gsdfile,
+            views=views,
+            start=i,
+            stop=i,
+            ref_length=ref_length,
+            grid_size=grid_size,
+            output_size=output_size,
+        )
+        img = Image.fromarray(dp.to_img(), "RGBA")
+        img.save(os.path.join(img_path, f"{i}.png"))
+
+    movie_maker(
+        file_dir=img_path,
+        img_file_type="png",
+        mov_file_name=mov_file_name,
+        framerate=framerate,
+    )
 
 
 def movie_maker(
