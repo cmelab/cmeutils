@@ -592,6 +592,7 @@ def diffraction_pattern(
                         system=system, view_orientation=view, reset=False
                     )
         else:
+            frame = trajectory[start]
             system = frame_to_freud_system(frame=frame, ref_length=ref_length)
             for view in views:
                 dp.compute(system=system, view_orientation=view, reset=False)

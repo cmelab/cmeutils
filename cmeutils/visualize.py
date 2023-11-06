@@ -456,7 +456,7 @@ def diffraction_pattern_movie(
     clean_up=True,
 ):
     """"""
-    img_path = os.path.join(os.getcwd(), "images")
+    img_path = os.path.join(os.getcwd(), "images/")
     os.mkdir(img_path)
     for i in range(start, stop, stride):
         dp = diffraction_pattern(
@@ -468,7 +468,7 @@ def diffraction_pattern_movie(
             grid_size=grid_size,
             output_size=output_size,
         )
-        img = Image.fromarray(dp.to_img(), "RGBA")
+        img = Image.fromarray(dp.to_image(), "RGBA")
         img.save(os.path.join(img_path, f"{i}.png"))
 
     movie_maker(
