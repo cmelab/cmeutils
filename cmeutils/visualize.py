@@ -1,3 +1,4 @@
+import ffmpeg
 import fresnel
 import gsd.hoomd
 import numpy as np
@@ -434,3 +435,15 @@ class FresnelGSD:
             samples=samples,
             light_samples=light_samples,
         )
+
+
+def movie_maker(
+    file_dir, img_file_type, mov_file_name, pattern_type="glob", framerate=25
+):
+    """"""
+    input_arg = f"{file_dir}*.{img_file_type}"
+    (
+        ffmpeg.input(input_arg, pattern_type=pattern_type, framerate=framerate)
+        .output(mov_file_name)
+        .run()
+    )
