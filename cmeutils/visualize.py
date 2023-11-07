@@ -1,10 +1,11 @@
 import os
+import shutil
 
 import ffmpeg
 import fresnel
 import gsd.hoomd
+import matplotlib
 import numpy as np
-from PIL import Image
 
 from cmeutils.structure import diffraction_pattern
 
@@ -456,20 +457,20 @@ def diffraction_pattern_movie(
     clean_up=True,
 ):
     """"""
+    matplotlib.use("Agg")
     img_path = os.path.join(os.getcwd(), "images/")
     os.mkdir(img_path)
-    for i in range(start, stop, stride):
+    for idx, frame in enumerate(range(start, stop, stride)):
         dp = diffraction_pattern(
             gsdfile=gsdfile,
             views=views,
-            start=i,
-            stop=i,
+            start=frame,
+            stop=frame,
             ref_length=ref_length,
             grid_size=grid_size,
             output_size=output_size,
         )
-        img = Image.fromarray(dp.to_image(), "RGBA")
-        img.save(os.path.join(img_path, f"{i}.png"))
+        dp.plot().figure.savefig(os.path.join(img_path, f"{idx}.png"))
 
     movie_maker(
         file_dir=img_path,
@@ -477,6 +478,9 @@ def diffraction_pattern_movie(
         mov_file_name=mov_file_name,
         framerate=framerate,
     )
+    # Remove dir and images
+    if clean_up:
+        shutil.rmtree(img_path)
 
 
 def movie_maker(
