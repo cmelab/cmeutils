@@ -4,7 +4,7 @@ channels:
 dependencies:
   - freud >=2.13.1
   - fresnel >=0.13.5
-  - gsd >=2.9
+  - gsd >=3.0
   - hoomd >=4.0
   - mbuild >=0.16.4
   - numpy
