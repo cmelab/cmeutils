@@ -10,8 +10,8 @@ Helpful functions used by the [CME Lab](https://www.boisestate.edu/coen-cmelab/)
 Installation of CME Lab Utilities requires a conda package manager. We recommend [Miniconda](https://docs.conda.io/en/latest/miniconda.html).
 
 ### Installing from conda-forge:
-1. Create a new conda environment and install `cmeutils`
-	````
+1. Create a new conda environment and install cmeutils.
+	```
 	conda create -n cmeutils -c conda-forge cmeutils
 	conda activate cmeutils
 	```
