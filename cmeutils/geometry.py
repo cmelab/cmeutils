@@ -2,6 +2,33 @@ import numpy as np
 from numpy.linalg import svd
 
 
+def get_backbone_vector(coordinates):
+    """Calculates the line of bets fit through a set of 3D coordinates.
+
+    Best fit is calculated using numpy's Singular Value Decomposition.
+
+    Parameters
+    ----------
+    coordinates : numpy.ndarray, shape (N,3)
+        Coordinates (x,y,z) through which to fit a plane. Must be at least 3
+        points.
+
+    Returns
+    -------
+    direction_vector : numpy.ndarray, shape (3,)
+        The vector of the best fit line.
+    """
+    if coordinates.shape[0] < 2:
+        raise ValueError("Coordinates must contain at least 2 points.")
+    # Center the coordinates (subtract the mean)
+    centered_coordinates = coordinates - np.mean(coordinates, axis=0)
+    # Use PCA to find the principal components
+    _, _, V = np.linalg.svd(centered_coordinates)
+    # The first principal component (V[0]) is the vec of the best-fit line
+    direction_vector = V[0]
+    return direction_vector
+
+
 def get_plane_normal(points):
     """Calculate the plane which best fits a cloud of points.
 
