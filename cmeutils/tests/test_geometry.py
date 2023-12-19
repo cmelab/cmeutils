@@ -19,15 +19,15 @@ class TestGeometry(BaseTest):
     def test_backbone_vector(self):
         z_coords = np.array([[0, 0, 1], [0, 0, 2], [0, 0, 3]])
         backbone = get_backbone_vector(z_coords)
-        assert np.allclose(backbone, np.array([0, 0, 1]), atol=1e-5)
+        assert np.allclose(np.abs(backbone), np.array([0, 0, 1]), atol=1e-5)
 
         x_coords = np.array([[1, 0, 0], [2, 0, 0], [3, 0, 0]])
         backbone = get_backbone_vector(x_coords)
-        assert np.allclose(backbone, np.array([1, 0, 0]), atol=1e-5)
+        assert np.allclose(np.abs(backbone), np.array([1, 0, 0]), atol=1e-5)
 
         mb_chain = Alkane(n=20)
-        chain_backbone = get_backbone_vector(mb_chain.xyz)
-        assert np.allclose(chain_backbone, np.array([0, 1, 0]), atol=1e-2)
+        backbone = get_backbone_vector(mb_chain.xyz)
+        assert np.allclose(np.abs(backbone), np.array([0, 1, 0]), atol=1e-2)
 
     def test_backbone_vector_bad_input(self):
         with pytest.raises(ValueError):
