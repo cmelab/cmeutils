@@ -3,9 +3,11 @@ import math
 import numpy as np
 import pytest
 from base_test import BaseTest
+from mbuild.lib.recipes import Alkane
 
 from cmeutils.geometry import (
     angle_between_vectors,
+    get_backbone_vector,
     get_plane_normal,
     moit,
     radial_grid_positions,
@@ -14,6 +16,23 @@ from cmeutils.geometry import (
 
 
 class TestGeometry(BaseTest):
+    def test_backbone_vector(self):
+        with pytest.raises(ValueError):
+            coordinates = np.array([1, 1, 1])
+            get_backbone_vector(coordinates)
+
+        z_coords = np.array([[0, 0, 1], [0, 0, 2], [0, 0, 3]])
+        backbone = get_backbone_vector(z_coords)
+        assert np.allclose(backbone, np.array([0, 0, 1]), atol=1e-5)
+
+        x_coords = np.array([[1, 0, 0], [2, 0, 0], [3, 0, 0]])
+        backbone = get_backbone_vector(x_coords)
+        assert np.allclose(backbone, np.array([1, 0, 0]), atol=1e-5)
+
+        mb_chain = Alkane(n=20)
+        chain_backbone = get_backbone_vector(mb_chain.xyz)
+        assert np.allclose(chain_backbone, np.array([0, 1, 0]), atol=1e-2)
+
     def test_moit(self):
         _moit = moit(points=[(-1, 0, 0), (1, 0, 0)], masses=[1, 1])
         assert np.array_equal(_moit, np.array([0, 2.0, 2.0]))

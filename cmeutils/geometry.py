@@ -26,7 +26,7 @@ def get_backbone_vector(coordinates):
     _, _, V = np.linalg.svd(centered_coordinates)
     # The first principal component (V[0]) is the vec of the best-fit line
     direction_vector = V[0]
-    return direction_vector
+    return np.abs(direction_vector)
 
 
 def get_plane_normal(points):
