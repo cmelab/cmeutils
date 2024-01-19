@@ -5,6 +5,7 @@ import numpy as np
 import packaging.version
 import pytest
 from base_test import BaseTest
+from gmso.external import from_mbuild, to_gsd_snapshot
 from mbuild.formats.hoomd_forcefield import to_hoomdsnapshot
 
 from cmeutils.gsd_utils import (
@@ -15,6 +16,7 @@ from cmeutils.gsd_utils import (
     get_all_types,
     get_molecule_cluster,
     get_type_position,
+    identify_snapshot_connections,
     snap_delete_types,
     update_rigid_snapshot,
     xml_to_gsd,
@@ -122,3 +124,114 @@ class TestGSD(BaseTest):
             old_snap.particles.position == new_snap.particles.position
         )
         assert np.all(old_snap.particles.image == new_snap.particles.image)
+
+    def test_identify_snapshot_connections_benzene(self):
+        benzene = mb.load("c1ccccc1", smiles=True)
+        topology = from_mbuild(benzene)
+        no_connection_snapshot, _ = to_gsd_snapshot(topology)
+        assert no_connection_snapshot.bonds.N == 12
+        assert no_connection_snapshot.angles.N == 0
+        assert no_connection_snapshot.dihedrals.N == 0
+        updated_snapshot = identify_snapshot_connections(no_connection_snapshot)
+
+        topology.identify_connections()
+        topology_snapshot, _ = to_gsd_snapshot(topology)
+        assert updated_snapshot.angles.N == topology_snapshot.angles.N
+        assert np.array_equal(
+            sorted(
+                updated_snapshot.angles.group,
+                key=lambda angle: (
+                    angle[1],
+                    angle[0],
+                    angle[2],
+                ),
+            ),
+            sorted(
+                topology_snapshot.angles.group,
+                key=lambda angle: (
+                    angle[1],
+                    angle[0],
+                    angle[2],
+                ),
+            ),
+        )
+        assert sorted(updated_snapshot.angles.types) == sorted(
+            topology_snapshot.angles.types
+        )
+        assert len(updated_snapshot.angles.typeid) == len(
+            topology_snapshot.angles.typeid
+        )
+        assert updated_snapshot.dihedrals.N == topology_snapshot.dihedrals.N
+        assert np.array_equal(
+            sorted(
+                updated_snapshot.dihedrals.group,
+                key=lambda angle: (
+                    angle[1],
+                    angle[0],
+                    angle[2],
+                ),
+            ),
+            sorted(
+                topology_snapshot.dihedrals.group,
+                key=lambda angle: (
+                    angle[1],
+                    angle[0],
+                    angle[2],
+                ),
+            ),
+        )
+        assert sorted(updated_snapshot.dihedrals.types) == sorted(
+            topology_snapshot.dihedrals.types
+        )
+        assert len(updated_snapshot.dihedrals.typeid) == len(
+            topology_snapshot.dihedrals.typeid
+        )
+
+    def test_identify_connection_thiophene(self):
+        thiophene = mb.load("c1cscc1", smiles=True)
+        topology = from_mbuild(thiophene)
+        no_connection_snapshot, _ = to_gsd_snapshot(topology)
+        updated_snapshot = identify_snapshot_connections(no_connection_snapshot)
+        assert updated_snapshot.angles.N == 13
+        assert sorted(updated_snapshot.angles.types) == sorted(
+            ["C-S-C", "H-C-S", "C-C-H", "C-C-S", "C-C-C"]
+        )
+
+        assert updated_snapshot.dihedrals.N == 16
+        assert sorted(updated_snapshot.dihedrals.types) == sorted(
+            [
+                "C-C-C-H",
+                "C-C-C-C",
+                "H-C-C-H",
+                "H-C-S-C",
+                "H-C-C-S",
+                "C-C-S-C",
+                "C-C-C-S",
+            ]
+        )
+
+    def test_identify_connection_no_dihedrals(self):
+        methane = mb.load("C", smiles=True)
+        topology = from_mbuild(methane)
+        no_connection_snapshot, _ = to_gsd_snapshot(topology)
+        assert no_connection_snapshot.bonds.N != 0
+        assert no_connection_snapshot.angles.N == 0
+        assert no_connection_snapshot.dihedrals.N == 0
+        updated_snapshot = identify_snapshot_connections(no_connection_snapshot)
+        assert updated_snapshot.angles.N == 6
+        assert updated_snapshot.angles.types == ["H-C-H"]
+        assert updated_snapshot.angles.typeid == [0, 0, 0, 0, 0, 0]
+        assert updated_snapshot.dihedrals.N == 0
+        assert updated_snapshot.dihedrals.types is None
+        assert updated_snapshot.dihedrals.typeid is None
+
+    def test_identify_connection_no_connections(self):
+        snapshot = gsd.hoomd.Frame()
+        snapshot.particles.N = 2
+        snapshot.particles.types = ["A", "B"]
+        snapshot.particles.typeid = [0, 1]
+        with pytest.warns(UserWarning):
+            updated_snapshot = identify_snapshot_connections(snapshot)
+            assert updated_snapshot.bonds.N == 0
+            assert updated_snapshot.angles.N == 0
+            assert updated_snapshot.dihedrals.N == 0
