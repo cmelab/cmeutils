@@ -422,10 +422,11 @@ def _fill_connection_info(snapshot, connections, type_):
     _connection_types = []
     _connection_typeid = []
     for conn in connections:
-        type = "-".join([p_types[p_typeid[i]] for i in conn])
-        types_inv = type[::-1]
+        conn_sites = [p_types[p_typeid[i]] for i in conn]
+        sorted_conn_sites = _sort_connection_by_name(conn_sites, type_)
+        type = "-".join(sorted_conn_sites)
         # check if type not in angle_types and types_inv not in angle_types:
-        if type not in _connection_types or types_inv not in _connection_types:
+        if type not in _connection_types:
             _connection_types.append(type)
             _connection_typeid.append(
                 max(_connection_typeid) + 1 if _connection_typeid else 0
@@ -435,13 +436,13 @@ def _fill_connection_info(snapshot, connections, type_):
 
     if type_ == "angles":
         snapshot.angles.N = len(connections)
-        snapshot.angles.M = len(_connection_types)
+        snapshot.angles.M = 3
         snapshot.angles.group = connections
         snapshot.angles.types = _connection_types
         snapshot.angles.typeid = _connection_typeid
     elif type_ == "dihedrals":
         snapshot.dihedrals.N = len(connections)
-        snapshot.dihedrals.M = len(_connection_types)
+        snapshot.dihedrals.M = 4
         snapshot.dihedrals.group = connections
         snapshot.dihedrals.types = _connection_types
         snapshot.dihedrals.typeid = _connection_typeid
@@ -449,6 +450,18 @@ def _fill_connection_info(snapshot, connections, type_):
 
 # The following functions are obtained from gmso/utils/connectivity.py with
 # minor modifications.
+def _sort_connection_by_name(conn_sites, type_):
+    if type_ == "angles":
+        site1, site3 = sorted([conn_sites[0], conn_sites[2]])
+        return [site1, conn_sites[1], site3]
+    elif type_ == "dihedrals":
+        site1, site2, site3, site4 = conn_sites
+        if site2 > site3 or (site2 == site3 and site1 > site4):
+            return [site4, site3, site2, site1]
+        else:
+            return [site1, site2, site3, site4]
+
+
 def _find_connections(bonds):
     """Identify all possible connections within a topology."""
     compound = nx.Graph()
@@ -503,7 +516,7 @@ def _detect_connections(compound_line_graph, type_="angle"):
             sorted_conn = match
         else:
             sorted_conn = match[::-1]
-        sorted_conn_matches.append(sorted_conn)
+        sorted_conn_matches.append(list(sorted_conn))
 
     # Final sorting the whole list
     if type_ == "angle":
@@ -555,11 +568,11 @@ def _format_subgraph_angle(m):
     (sort_by_n_connections, _) = _get_sorted_by_n_connections(m)
     ends = sorted([sort_by_n_connections[0], sort_by_n_connections[1]])
     middle = sort_by_n_connections[2]
-    return [
+    return (
         ends[0],
         middle,
         ends[1],
-    ]
+    )
 
 
 def _format_subgraph_dihedral(m):
@@ -591,7 +604,7 @@ def _format_subgraph_dihedral(m):
         mid2 = sort_by_n_connections[2]
 
     end = sort_by_n_connections[1]
-    return [start, mid1, mid2, end]
+    return (start, mid1, mid2, end)
 
 
 def _trim_duplicates(all_matches):
