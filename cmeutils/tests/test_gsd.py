@@ -239,7 +239,7 @@ class TestGSD(BaseTest):
     def test_identify_connections_pekk_cg(self, pekk_cg_gsd):
         with gsd.hoomd.open(pekk_cg_gsd) as traj:
             snap = traj[0]
-            assert snap.angles.types == [] 
+            assert snap.angles.types == []
             snap_with_connections = identify_snapshot_connections(snap)
             assert "K-E-K" in snap_with_connections.angles.types
             assert "E-K-K" in snap_with_connections.angles.types
