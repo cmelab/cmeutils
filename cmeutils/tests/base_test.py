@@ -54,6 +54,10 @@ class BaseTest:
         return path.join(asset_dir, "p3ht-cg.gsd")
 
     @pytest.fixture
+    def pekk_cg_gsd(self):
+        return path.join(asset_dir, "pekk-cg.gsd")
+
+    @pytest.fixture
     def mapping(self):
         return np.loadtxt(path.join(asset_dir, "mapping.txt"), dtype=int)
 
