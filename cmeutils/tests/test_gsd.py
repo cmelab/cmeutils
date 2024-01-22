@@ -235,3 +235,13 @@ class TestGSD(BaseTest):
             assert updated_snapshot.bonds.N == 0
             assert updated_snapshot.angles.N == 0
             assert updated_snapshot.dihedrals.N == 0
+
+    def test_identify_connections_pekk_cg(self, pekk_cg_gsd):
+        with gsd.hoomd.open(pekk_cg_gsd) as traj:
+            snap = traj[0]
+            assert snap.angles.types == [] 
+            snap_with_connections = identify_snapshot_connections(snap)
+            assert "K-E-K" in snap_with_connections.angles.types
+            assert "E-K-K" in snap_with_connections.angles.types
+            assert "K-E-K-K" in snap_with_connections.dihedrals.types
+            assert "E-K-K-E" in snap_with_connections.dihedrals.types
