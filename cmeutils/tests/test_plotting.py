@@ -14,6 +14,9 @@ class TestPlotting(BaseTest):
         sample = np.random.randn(100) * -1
         bin_c, bin_h = get_histogram(sample, normalize=True)
         assert all(bin_h <= 1)
+        bin_width = bin_c[1] - bin_c[0]
+        area = np.sum(bin_h * bin_width)
+        assert np.allclose(area, 1.0, atol=1e-3)
 
     def test_3dplot(self):
         x = [1, 2, 3, 4, 5]
