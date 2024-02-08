@@ -29,12 +29,8 @@ def get_histogram(data, normalize=False, bins="auto", x_range=None):
         Array of the bin height values
 
     """
-    if normalize:
-        density = True
-    else:
-        density = False
     bin_heights, bin_borders = np.histogram(
-        a=data, bins=bins, range=x_range, density=density
+        a=data, bins=bins, range=x_range, density=normalize
     )
     bin_widths = np.diff(bin_borders)
     bin_centers = bin_borders[:-1] + bin_widths / 2
