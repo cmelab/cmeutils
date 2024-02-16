@@ -3,7 +3,6 @@ from tempfile import NamedTemporaryFile
 
 import freud
 import gsd.hoomd
-import hoomd
 import networkx as nx
 import numpy as np
 from boltons.setutils import IndexedSet
@@ -255,6 +254,8 @@ def update_rigid_snapshot(snapshot, mb_compound):
         of the complete system
 
     """
+    import hoomd
+
     rigid_ids = [p.rigid_id for p in mb_compound.particles()]
     rigid_bodies = set(rigid_ids)
     # Total number of rigid body particles
