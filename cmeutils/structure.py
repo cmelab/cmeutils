@@ -726,7 +726,7 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
     return order, cl_idx
 
 
-def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_edge=0):
+def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_axis=0):
     """Calculate the concentration profile for two species
     along a spatial dimension.
 
@@ -757,12 +757,12 @@ def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_edge=0):
         Total particle count in each bin.
     """
 
-    L = snap.configuration.box[box_edge]
+    L = snap.configuration.box[box_axis]
     dl = L / n_bins
     d_profile = np.linspace(-L / 2 + dl, L / 2, n_bins)
 
-    A_pos = snap.particles.position[A_indices, box_edge]
-    B_pos = snap.particles.position[B_indices, box_edge]
+    A_pos = snap.particles.position[A_indices, box_axis]
+    B_pos = snap.particles.position[B_indices, box_axis]
     A_count, _ = np.histogram(A_pos, bins=d_profile, density=False)
     B_count, _ = np.histogram(B_pos, bins=d_profile, density=False)
 
