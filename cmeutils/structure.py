@@ -755,6 +755,30 @@ def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_axis=0):
         Particle count for species B in each bin.
     total_count : numpy array
         Total particle count in each bin.
+
+    Notes
+    -----
+    Use this to create a concentration profile plot of "left" species
+    and "right" species in the simulations volume.
+
+    Example::
+        # Plot the concentration profile for a snapshot with 200 particles
+        # "left" species are particles 0-99 and "right" species are 100-199
+
+        from cmeutils.structure import concentration_profile
+        import matplotlib.pyplot as plt
+
+        x_range, left, right, total = concentration_profile(
+            snap=snapshot,
+            A_indices=range(0, 100),
+            B_indices=range(100, 200),
+            n_bins=50,
+            box_axis=0
+        )
+
+        plt.plot(x_range, left/total)
+        plt.plot(x_range, right/total)
+
     """
 
     L = snap.configuration.box[box_axis]
