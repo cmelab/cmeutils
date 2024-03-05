@@ -726,6 +726,60 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
     return order, cl_idx
 
 
+def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_edge=0):
+    """Calculate the concentration profile for two species
+    along a spatial dimension.
+
+    Parameters
+    ----------
+    snap : gsd.hoomd.Frame
+        A snapshot object containing particle information, including positions.
+    A_indices : numpy array
+        Indices of particles belonging to species A.
+    B_indices : numpy array
+        Indices of particles belonging to species B.
+    n_bins : int, optional, default 70
+        Number of bins for the concentration profile.
+    box_axis : int, optional, default 0
+        Index of the box edge along which the concentration
+        profile is calculated. Box indices are [x, y, z].
+
+    Returns
+    -------
+    d_profile : numpy array
+        Positions corresponding to the center of each bin
+        in the concentration profile.
+    A_count : numpy array
+        Particle count for species A in each bin.
+    B_count : numpy array
+        Particle count for species B in each bin.
+    total_count : numpy array
+        Total particle count in each bin.
+    """
+    L = snap.configuration.box[box_edge]
+    dl = L / n_bins
+    d_profile = np.arange(-L / 2 + dl, L / 2 - dl, dl)
+
+    A_count = np.zeros_like(d_profile)
+    B_count = np.zeros_like(d_profile)
+    total_count = np.zeros_like(d_profile)
+
+    A_pos = snap.particles.position[A_indices]
+    B_pos = snap.particles.position[B_indices]
+    for p in A_pos:
+        bin_index = np.where(d_profile < p[0])[0][-1]
+        A_count[bin_index] += 1
+        total_count[bin_index] += 1
+
+    for p in B_pos:
+        bin_index = np.where(d_profile < p[0])[0][-1]
+        B_count[bin_index] += 1
+        total_count[bin_index] += 1
+
+    total_count[np.where(total_count == 0)[0]] = 1
+    return d_profile, A_count, B_count, total_count
+
+
 def all_atom_rdf(
     gsdfile,
     start=0,
