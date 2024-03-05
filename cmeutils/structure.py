@@ -741,8 +741,8 @@ def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_axis=0):
     n_bins : int, optional, default 70
         Number of bins for the concentration profile.
     box_axis : int, optional, default 0
-        Index of the box edge along which the concentration
-        profile is calculated. Box indices are [x, y, z].
+        Index of the box edge that the concentration profile is calculated.
+        Options are 0, 1, or 2 which correspond to [x, y, z].
 
     Returns
     -------
@@ -759,7 +759,7 @@ def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_axis=0):
     Notes
     -----
     Use this to create a concentration profile plot of "left" species
-    and "right" species in the simulations volume.
+    and "right" species in the simulation's volume.
 
     Example::
         # Plot the concentration profile for a snapshot with 200 particles
