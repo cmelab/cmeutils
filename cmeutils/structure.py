@@ -726,6 +726,75 @@ def order_parameter(aa_gsd, cg_gsd, mapping, r_max, a_max, large=6, start=-10):
     return order, cl_idx
 
 
+def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_axis=0):
+    """Calculate the concentration profile for two species
+    along a spatial dimension.
+
+    Parameters
+    ----------
+    snap : gsd.hoomd.Frame
+        A snapshot object containing particle information, including positions.
+    A_indices : numpy array
+        Indices of particles belonging to species A.
+    B_indices : numpy array
+        Indices of particles belonging to species B.
+    n_bins : int, optional, default 70
+        Number of bins for the concentration profile.
+    box_axis : int, optional, default 0
+        Index of the box edge that the concentration profile is calculated.
+        Options are 0, 1, or 2 which correspond to [x, y, z].
+
+    Returns
+    -------
+    d_profile : numpy array
+        Positions corresponding to the center of each bin
+        in the concentration profile.
+    A_count : numpy array
+        Particle count for species A in each bin.
+    B_count : numpy array
+        Particle count for species B in each bin.
+    total_count : numpy array
+        Total particle count in each bin.
+
+    Notes
+    -----
+    Use this to create a concentration profile plot of "left" species
+    and "right" species in the simulation's volume.
+
+    Example::
+        # Plot the concentration profile for a snapshot with 200 particles
+        # "left" species are particles 0-99 and "right" species are 100-199
+
+        from cmeutils.structure import concentration_profile
+        import matplotlib.pyplot as plt
+
+        x_range, left, right, total = concentration_profile(
+            snap=snapshot,
+            A_indices=range(0, 100),
+            B_indices=range(100, 200),
+            n_bins=50,
+            box_axis=0
+        )
+
+        plt.plot(x_range, left/total)
+        plt.plot(x_range, right/total)
+
+    """
+
+    L = snap.configuration.box[box_axis]
+    dl = L / n_bins
+    d_profile = np.linspace(-L / 2 + dl, L / 2, n_bins)
+
+    A_pos = snap.particles.position[A_indices, box_axis]
+    B_pos = snap.particles.position[B_indices, box_axis]
+    A_count, _ = np.histogram(A_pos, bins=d_profile, density=False)
+    B_count, _ = np.histogram(B_pos, bins=d_profile, density=False)
+
+    total_count = A_count + B_count
+
+    return d_profile[:-1], A_count, B_count, total_count
+
+
 def all_atom_rdf(
     gsdfile,
     start=0,
