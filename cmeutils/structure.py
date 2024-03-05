@@ -756,28 +756,19 @@ def concentration_profile(snap, A_indices, B_indices, n_bins=70, box_edge=0):
     total_count : numpy array
         Total particle count in each bin.
     """
+
     L = snap.configuration.box[box_edge]
     dl = L / n_bins
-    d_profile = np.arange(-L / 2 + dl, L / 2 - dl, dl)
+    d_profile = np.linspace(-L / 2 + dl, L / 2, n_bins)
 
-    A_count = np.zeros_like(d_profile)
-    B_count = np.zeros_like(d_profile)
-    total_count = np.zeros_like(d_profile)
+    A_pos = snap.particles.position[A_indices, box_edge]
+    B_pos = snap.particles.position[B_indices, box_edge]
+    A_count, _ = np.histogram(A_pos, bins=d_profile, density=False)
+    B_count, _ = np.histogram(B_pos, bins=d_profile, density=False)
 
-    A_pos = snap.particles.position[A_indices]
-    B_pos = snap.particles.position[B_indices]
-    for p in A_pos:
-        bin_index = np.where(d_profile < p[0])[0][-1]
-        A_count[bin_index] += 1
-        total_count[bin_index] += 1
+    total_count = A_count + B_count
 
-    for p in B_pos:
-        bin_index = np.where(d_profile < p[0])[0][-1]
-        B_count[bin_index] += 1
-        total_count[bin_index] += 1
-
-    total_count[np.where(total_count == 0)[0]] = 1
-    return d_profile, A_count, B_count, total_count
+    return d_profile[:-1], A_count, B_count, total_count
 
 
 def all_atom_rdf(
