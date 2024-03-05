@@ -12,6 +12,15 @@ asset_dir = path.join(path.dirname(__file__), "assets")
 
 class BaseTest:
     @pytest.fixture
+    def slab_snapshot(self):
+        frame = gsd.hoomd.Frame()
+        A_positions = np.random.uniform(-5, 0, size=(20, 3))
+        B_positions = np.random.uniform(0, 5, size=(20, 3))
+        frame.particles.position = np.concatenate([A_positions, B_positions])
+        frame.configuration.box = np.array([10.0, 10.0, 10.0, 0, 0, 0])
+        return frame
+
+    @pytest.fixture
     def gsdfile(self, tmp_path):
         filename = tmp_path / "test.gsd"
         create_gsd(filename)

@@ -8,6 +8,7 @@ from cmeutils.structure import (
     all_atom_rdf,
     angle_distribution,
     bond_distribution,
+    concentration_profile,
     diffraction_pattern,
     dihedral_distribution,
     get_centers,
@@ -258,3 +259,17 @@ class TestStructure(BaseTest):
         new_gsdfile = "centers.gsd"
         centers = get_centers(gsdfile, new_gsdfile)
         assert isinstance(centers, type(None))
+
+    def test_conc_profiel(self, slab_snapshot):
+        A_indices = np.arange(20)
+        B_indices = np.arange(20, 40)
+        d_profile, A_count, B_count, total_count = concentration_profile(
+            slab_snapshot, A_indices, B_indices, n_bins=5, box_axis=0
+        )
+        assert (
+            len(d_profile) == len(A_count) == len(B_count) == len(total_count)
+        )
+        assert (A_count / total_count)[0] == 1
+        assert (A_count / total_count)[-1] == 0
+        assert (B_count / total_count)[-1] == 1
+        assert (B_count / total_count)[0] == 0
