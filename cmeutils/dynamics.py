@@ -8,6 +8,24 @@ import numpy as np
 from cmeutils import gsd_utils
 
 
+def tensile_test(gsd_file, period, tensile_axis, ref_energy=1, ref_distance=1):
+    # Get initial box info and initial stress average
+    tensor_index_map = {0: 0, 1: 3, 2: 5}
+    with gsd.hoomd.open(gsd_file) as traj:
+        n_frames = len(traj)
+        # init_snap = traj[0]
+        # init_length = init_snap.configuration.box[tensile_axis]
+        # Store relevant stress tensor value for each frame
+        frame_stress_data = np.zeros(n_frames)
+        for idx, snap in enumerate(traj):
+            frame_stress_data[idx] = snap.log[
+                "md/compute/ThermodynamicQuantities/pressure_tensor"
+            ][tensor_index_map[tensile_axis]]
+
+    # window_means = np.zeros(n_frames // period)
+    # window_stds = np.zeros(n_frames // period)
+
+
 def msd_from_gsd(
     gsdfile, atom_types="all", start=0, stop=-1, msd_mode="window"
 ):
