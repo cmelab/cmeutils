@@ -4,26 +4,54 @@ import freud
 import gsd
 import gsd.hoomd
 import numpy as np
+import scipy
 
 from cmeutils import gsd_utils
 
 
-def tensile_test(gsd_file, period, tensile_axis, ref_energy=1, ref_distance=1):
+def tensile_test(
+    gsd_file,
+    period,
+    tensile_axis,
+    ref_energy=1,
+    ref_distance=1,
+    enforce_sampling=False,
+):
     # Get initial box info and initial stress average
     tensor_index_map = {0: 0, 1: 3, 2: 5}
     with gsd.hoomd.open(gsd_file) as traj:
         n_frames = len(traj)
-        # init_snap = traj[0]
-        # init_length = init_snap.configuration.box[tensile_axis]
+        init_snap = traj[0]
+        init_length = init_snap.configuration.box[tensile_axis]
+        print(init_length)
         # Store relevant stress tensor value for each frame
         frame_stress_data = np.zeros(n_frames)
+        frame_box_data = np.zeros(n_frames)
         for idx, snap in enumerate(traj):
             frame_stress_data[idx] = snap.log[
                 "md/compute/ThermodynamicQuantities/pressure_tensor"
             ][tensor_index_map[tensile_axis]]
+            frame_box_data[idx] = snap.configuration.box[tensile_axis]
 
-    # window_means = np.zeros(n_frames // period)
-    # window_stds = np.zeros(n_frames // period)
+    # Perform stress sampling
+    window_means = np.zeros(n_frames // period)
+    window_stds = np.zeros(n_frames // period)
+    window_sems = np.zeros(n_frames // period)
+    box_lengths = set(frame_box_data)
+    for idx, box_length in box_lengths:
+        indices = np.where(frame_box_data == box_length)[0]
+        stress = frame_stress_data[indices]
+        if enforce_sampling:  # Use cmeutils.sampling, throw error?
+            pass
+        else:  # Use use the last half of the stress values
+            cut = -len(stress) // 2
+            avg_stress = np.mean(stress[cut:])
+            std_stress = np.std(stress[cut:])
+            sem_stress = scipy.stats.sem(stress[cut:])
+
+        window_means[idx] = avg_stress
+        window_stds[idx] = std_stress
+        window_sems[idx] = sem_stress
 
 
 def msd_from_gsd(
