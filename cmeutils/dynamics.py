@@ -4,6 +4,7 @@ import freud
 import gsd
 import gsd.hoomd
 import numpy as np
+import unyt as u
 import scipy
 
 from cmeutils import gsd_utils
@@ -12,8 +13,8 @@ from cmeutils import gsd_utils
 def tensile_test(
     gsd_file,
     tensile_axis,
-    ref_energy=1,
-    ref_distance=1,
+    ref_energy=None,
+    ref_distance=None,
     enforce_sampling=False,
 ):
     # Get initial box info and initial stress average
@@ -32,15 +33,20 @@ def tensile_test(
             frame_box_data[idx] = snap.configuration.box[tensile_axis]
 
     # Perform stress sampling
-    box_lengths = set(frame_box_data)
+    box_lengths = np.unique(frame_box_data)
     strain = np.zeros(len(box_lengths))
     window_means = np.zeros(len(box_lengths))
     window_stds = np.zeros(len(box_lengths))
     window_sems = np.zeros(len(box_lengths))
+    if ref_energy and ref_distance:
+        conv_factor = ref_energy.to("J/mol") / (ref_distance.to("m")**3 * u.Avogadros_number_mks)
+        conv_factor *= 1e-6
+    else:
+        conv_factor = 1
     for idx, box_length in enumerate(box_lengths):
         strain[idx] = (box_length - init_length) / init_length
         indices = np.where(frame_box_data == box_length)[0]
-        stress = frame_stress_data[indices]
+        stress = frame_stress_data[indices] * conv_factor
         if enforce_sampling:  # Use cmeutils.sampling, throw error?
             pass
         else:  # Use use the last half of the stress values
@@ -52,6 +58,8 @@ def tensile_test(
         window_means[idx] = avg_stress
         window_stds[idx] = std_stress
         window_sems[idx] = sem_stress
+
+
     return strain, -window_means, window_stds, window_sems
 
 
