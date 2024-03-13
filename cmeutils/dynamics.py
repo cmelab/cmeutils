@@ -11,7 +11,6 @@ from cmeutils import gsd_utils
 
 def tensile_test(
     gsd_file,
-    period,
     tensile_axis,
     ref_energy=1,
     ref_distance=1,
@@ -23,7 +22,6 @@ def tensile_test(
         n_frames = len(traj)
         init_snap = traj[0]
         init_length = init_snap.configuration.box[tensile_axis]
-        print(init_length)
         # Store relevant stress tensor value for each frame
         frame_stress_data = np.zeros(n_frames)
         frame_box_data = np.zeros(n_frames)
@@ -34,11 +32,13 @@ def tensile_test(
             frame_box_data[idx] = snap.configuration.box[tensile_axis]
 
     # Perform stress sampling
-    window_means = np.zeros(n_frames // period)
-    window_stds = np.zeros(n_frames // period)
-    window_sems = np.zeros(n_frames // period)
     box_lengths = set(frame_box_data)
-    for idx, box_length in box_lengths:
+    strain = np.zeros(len(box_lengths))
+    window_means = np.zeros(len(box_lengths))
+    window_stds = np.zeros(len(box_lengths))
+    window_sems = np.zeros(len(box_lengths))
+    for idx, box_length in enumerate(box_lengths):
+        strain[idx] = (box_length - init_length) / init_length
         indices = np.where(frame_box_data == box_length)[0]
         stress = frame_stress_data[indices]
         if enforce_sampling:  # Use cmeutils.sampling, throw error?
@@ -52,6 +52,7 @@ def tensile_test(
         window_means[idx] = avg_stress
         window_stds[idx] = std_stress
         window_sems[idx] = sem_stress
+    return strain, -window_means, window_stds, window_sems
 
 
 def msd_from_gsd(
