@@ -408,13 +408,25 @@ def trim_snapshot_molecules(parent_snapshot, mol_indices):
     new_snap.particles.N = sum(len(i) for i in mol_indices)
 
     # Write out particle info
-    for attr in ["position", "mass", "velocity", "orientation", "image", "diameter", "angmom", "typeid"]:
+    for attr in [
+        "position",
+        "mass",
+        "velocity",
+        "orientation",
+        "image",
+        "diameter",
+        "angmom",
+        "typeid",
+    ]:
         setattr(
             new_snap.particles,
             attr,
             np.concatenate(
-                list(getattr(parent_snapshot.particles, attr)[i] for i in mol_indices)
-            )
+                list(
+                    getattr(parent_snapshot.particles, attr)[i]
+                    for i in mol_indices
+                )
+            ),
         )
     new_snap.particles.types = parent_snapshot.particles.types
 
@@ -429,9 +441,13 @@ def trim_snapshot_molecules(parent_snapshot, mol_indices):
     mol_bond_groups = []
     mol_bond_ids = []
     for count, indices in enumerate(mol_indices):
-        mask = np.any(np.isin(parent_snapshot.bonds.group, indices.flatten()), axis=1)
+        mask = np.any(
+            np.isin(parent_snapshot.bonds.group, indices.flatten()), axis=1
+        )
         parent_mol_bonds = parent_snapshot.bonds.group[np.where(mask)[0]]
-        parent_mol_bond_typeids = parent_snapshot.bonds.typeid[np.where(mask)[0]]
+        parent_mol_bond_typeids = parent_snapshot.bonds.typeid[
+            np.where(mask)[0]
+        ]
         new_mol_bonds = np.vectorize(particle_index_map.get)(parent_mol_bonds)
         mol_bond_groups.append(new_mol_bonds)
         mol_bond_ids.append(parent_mol_bond_typeids)
@@ -445,9 +461,13 @@ def trim_snapshot_molecules(parent_snapshot, mol_indices):
     mol_angle_groups = []
     mol_angle_ids = []
     for count, indices in enumerate(mol_indices):
-        mask = np.any(np.isin(parent_snapshot.angles.group, indices.flatten()), axis=1)
+        mask = np.any(
+            np.isin(parent_snapshot.angles.group, indices.flatten()), axis=1
+        )
         parent_mol_angles = parent_snapshot.angles.group[np.where(mask)[0]]
-        parent_mol_angle_typeids = parent_snapshot.angles.typeid[np.where(mask)[0]]
+        parent_mol_angle_typeids = parent_snapshot.angles.typeid[
+            np.where(mask)[0]
+        ]
         new_mol_angles = np.vectorize(particle_index_map.get)(parent_mol_angles)
         mol_angle_groups.append(new_mol_angles)
         mol_angle_ids.append(parent_mol_angle_typeids)
@@ -461,10 +481,18 @@ def trim_snapshot_molecules(parent_snapshot, mol_indices):
     mol_dihedral_groups = []
     mol_dihedral_ids = []
     for count, indices in enumerate(mol_indices):
-        mask = np.any(np.isin(parent_snapshot.dihedrals.group, indices.flatten()), axis=1)
-        parent_mol_dihedrals = parent_snapshot.dihedrals.group[np.where(mask)[0]]
-        parent_mol_dihedral_typeids = parent_snapshot.dihedrals.typeid[np.where(mask)[0]]
-        new_mol_dihedrals = np.vectorize(particle_index_map.get)(parent_mol_dihedrals)
+        mask = np.any(
+            np.isin(parent_snapshot.dihedrals.group, indices.flatten()), axis=1
+        )
+        parent_mol_dihedrals = parent_snapshot.dihedrals.group[
+            np.where(mask)[0]
+        ]
+        parent_mol_dihedral_typeids = parent_snapshot.dihedrals.typeid[
+            np.where(mask)[0]
+        ]
+        new_mol_dihedrals = np.vectorize(particle_index_map.get)(
+            parent_mol_dihedrals
+        )
         mol_dihedral_groups.append(new_mol_dihedrals)
         mol_dihedral_ids.append(parent_mol_dihedral_typeids)
 
@@ -475,6 +503,7 @@ def trim_snapshot_molecules(parent_snapshot, mol_indices):
 
     new_snap.validate()
     return new_snap
+
 
 def identify_snapshot_connections(snapshot):
     """Identify angle and dihedral connections in a snapshot from bonds.
