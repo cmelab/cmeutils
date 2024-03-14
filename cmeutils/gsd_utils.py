@@ -440,7 +440,7 @@ def trim_snapshot_molecules(parent_snapshot, mol_indices):
     # Write out bond info
     mol_bond_groups = []
     mol_bond_ids = []
-    for count, indices in enumerate(mol_indices):
+    for indices in mol_indices:
         mask = np.any(
             np.isin(parent_snapshot.bonds.group, indices.flatten()), axis=1
         )
@@ -460,7 +460,7 @@ def trim_snapshot_molecules(parent_snapshot, mol_indices):
     # Write out angle info
     mol_angle_groups = []
     mol_angle_ids = []
-    for count, indices in enumerate(mol_indices):
+    for indices in mol_indices:
         mask = np.any(
             np.isin(parent_snapshot.angles.group, indices.flatten()), axis=1
         )
@@ -480,7 +480,7 @@ def trim_snapshot_molecules(parent_snapshot, mol_indices):
     # Write out dihedral info
     mol_dihedral_groups = []
     mol_dihedral_ids = []
-    for count, indices in enumerate(mol_indices):
+    for indices in mol_indices:
         mask = np.any(
             np.isin(parent_snapshot.dihedrals.group, indices.flatten()), axis=1
         )
