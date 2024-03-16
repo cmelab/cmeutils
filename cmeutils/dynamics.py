@@ -34,10 +34,10 @@ def tensile_test(
 
     # Perform stress sampling
     box_lengths = np.unique(frame_box_data)
-    strain = np.zeros(len(box_lengths))
-    window_means = np.zeros(len(box_lengths))
-    window_stds = np.zeros(len(box_lengths))
-    window_sems = np.zeros(len(box_lengths))
+    strain = np.zeros_like(box_lengths, dtype=float)
+    window_means = np.zeros_like(box_lengths, dtype=float)
+    window_stds = np.zeros_like(box_lengths, dtype=float)
+    window_sems = np.zeros_like(box_lengths, dtype=float)
     if ref_energy and ref_distance:
         conv_factor = ref_energy.to("J/mol") / (ref_distance.to("m")**3 * u.Avogadros_number_mks)
         conv_factor *= 1e-6
@@ -58,7 +58,6 @@ def tensile_test(
         window_means[idx] = avg_stress
         window_stds[idx] = std_stress
         window_sems[idx] = sem_stress
-
 
     return strain, -window_means, window_stds, window_sems
 
