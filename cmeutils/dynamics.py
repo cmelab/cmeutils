@@ -4,8 +4,8 @@ import freud
 import gsd
 import gsd.hoomd
 import numpy as np
-import unyt as u
 import scipy
+import unyt as u
 
 from cmeutils import gsd_utils
 
@@ -17,6 +17,28 @@ def tensile_test(
     ref_distance=None,
     enforce_sampling=False,
 ):
+    if ref_energy or ref_distance:
+        if not all([ref_energy, ref_distance]):
+            raise RuntimeError(
+                "Both ref_energy and ref_distnace must be defined."
+            )
+        if not (
+            isinstance(ref_energy, u.array.unyt_quantity)
+            and isinstance(ref_distance, u.array.unyt_quantity)
+        ):
+            raise ValueError(
+                "ref_energy and ref_distance should be given as "
+                "unyt.array.unyt_quantity."
+            )
+        # Units of Pa
+        conv_factor = ref_energy.to("J/mol") / (
+            ref_distance.to("m") ** 3 * u.Avogadros_number_mks
+        )
+        # Units of MPa
+        conv_factor *= 1e-6
+    else:
+        conv_factor = 1
+
     # Get initial box info and initial stress average
     tensor_index_map = {0: 0, 1: 3, 2: 5}
     with gsd.hoomd.open(gsd_file) as traj:
@@ -38,11 +60,6 @@ def tensile_test(
     window_means = np.zeros_like(box_lengths, dtype=float)
     window_stds = np.zeros_like(box_lengths, dtype=float)
     window_sems = np.zeros_like(box_lengths, dtype=float)
-    if ref_energy and ref_distance:
-        conv_factor = ref_energy.to("J/mol") / (ref_distance.to("m")**3 * u.Avogadros_number_mks)
-        conv_factor *= 1e-6
-    else:
-        conv_factor = 1
     for idx, box_length in enumerate(box_lengths):
         strain[idx] = (box_length - init_length) / init_length
         indices = np.where(frame_box_data == box_length)[0]
