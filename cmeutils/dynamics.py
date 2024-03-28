@@ -65,18 +65,18 @@ def tensile_test(
         indices = np.where(frame_box_data == box_length)[0]
         stress = frame_stress_data[indices] * conv_factor
         if bootstrap_sampling:
-            bootstrap_means = []
-            n_data_points = len(strain)
+            n_data_points = len(stress)
             n_samples = 5
             window_size = n_data_points // 5
+            bootstrap_means = []
             for i in range(n_samples):
                 start = np.random.randint(
                     low=0, high=(n_data_points - window_size)
                 )
-                window_sample = strain[
+                window_sample = stress[
                     start : start + window_size  # noqa: E203
                 ]
-                bootstrap_means.append(window_sample)
+                bootstrap_means.append(np.mean(window_sample))
             avg_stress = np.mean(bootstrap_means)
             std_stress = np.std(bootstrap_means)
             sem_stress = scipy.stats.sem(bootstrap_means)
