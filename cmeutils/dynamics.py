@@ -15,7 +15,7 @@ def tensile_test(
     tensile_axis,
     ref_energy=None,
     ref_distance=None,
-    enforce_sampling=False,
+    bootstrap_sampling=False,
 ):
     if ref_energy or ref_distance:
         if not all([ref_energy, ref_distance]):
@@ -64,8 +64,22 @@ def tensile_test(
         strain[idx] = (box_length - init_length) / init_length
         indices = np.where(frame_box_data == box_length)[0]
         stress = frame_stress_data[indices] * conv_factor
-        if enforce_sampling:  # Use cmeutils.sampling, throw error?
-            pass
+        if bootstrap_sampling:
+            bootstrap_means = []
+            n_data_points = len(strain)
+            n_samples = 5
+            window_size = n_data_points // 5
+            for i in range(n_samples):
+                start = np.random.randint(
+                    low=0, high=(n_data_points - window_size)
+                )
+                window_sample = strain[
+                    start : start + window_size  # noqa: E203
+                ]
+                bootstrap_means.append(window_sample)
+            avg_stress = np.mean(bootstrap_means)
+            std_stress = np.std(bootstrap_means)
+            sem_stress = scipy.stats.sem(bootstrap_means)
         else:  # Use use the last half of the stress values
             cut = -len(stress) // 2
             avg_stress = np.mean(stress[cut:])
