@@ -113,4 +113,4 @@ def autocorr1D(array):
     """
     ft = np.fft.rfft(array - np.average(array))
     acorr = np.fft.irfft(ft * np.conjugate(ft)) / (len(array) * np.var(array))
-    return acorr[0 : len(acorr) // 2]
+    return acorr[0 : len(acorr) // 2] # noqa: E203
