@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
+import scipy
 
-from cmeutils.sampling import equil_sample, is_equilibrated
+from cmeutils.sampling import autocorr1D, equil_sample, is_equilibrated
 from cmeutils.tests.base_test import BaseTest
 
 
@@ -82,3 +83,28 @@ class TestSampler(BaseTest):
             [equil_data, uncorr_indices, prod_start, Neff] = equil_sample(
                 data, threshold_fraction=0.75, threshold_neff=10000
             )
+
+    def test_autocorr1D(self):
+        randoms = np.random.randint(100, size=(100))
+        integers = np.array(np.arange(100))
+
+        autocorrelation_randoms = autocorr1D(randoms)
+        autocorrelation_integers = autocorr1D(integers)
+
+        def expfunc(x, a):
+            return np.exp(-x / a)
+
+        x_values = np.array(range(len(autocorrelation_integers)))
+
+        exp_coeff_randoms = scipy.optimize.curve_fit(
+            expfunc, x_values, autocorrelation_randoms
+        )[0][0]
+        exp_coeff_int = scipy.optimize.curve_fit(
+            expfunc, x_values, autocorrelation_integers
+        )[0][0]
+
+        assert (
+            round(autocorrelation_integers[0], 10)
+            and round(autocorrelation_randoms[0], 10) == 1
+        )
+        assert exp_coeff_int > 5 and exp_coeff_randoms < 1
