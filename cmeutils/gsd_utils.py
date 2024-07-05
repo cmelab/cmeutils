@@ -129,11 +129,21 @@ def get_molecule_cluster(gsd_file=None, snap=None, gsd_frame=-1):
     n_query_points = n_points = snap.particles.N
     query_point_indices = snap.bonds.group[:, 0]
     point_indices = snap.bonds.group[:, 1]
-    distances = system.box.compute_distances(
-        system.points[query_point_indices], system.points[point_indices]
+    box = freud.box.Box(
+        snap.configuration.box[0],
+        snap.configuration.box[1],
+        snap.configuration.box[2],
+    )
+    vectors = box.wrap(
+        snap.particles.position[query_point_indices]
+        - snap.particles.position[point_indices]
     )
     nlist = freud.NeighborList.from_arrays(
-        n_query_points, n_points, query_point_indices, point_indices, distances
+        num_query_points=n_query_points,
+        num_points=n_points,
+        query_point_indices=query_point_indices,
+        point_indices=point_indices,
+        vectors=vectors,
     )
     cluster = freud.cluster.Cluster()
     cluster.compute(system=system, neighbors=nlist)
