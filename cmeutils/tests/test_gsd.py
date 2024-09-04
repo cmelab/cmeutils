@@ -50,7 +50,7 @@ class TestGSD(BaseTest):
     def test_create_rigid_snapshot(self):
         benzene = mb.load("c1ccccc1", smiles=True)
         benzene.name = "Benzene"
-        box = mb.fill_box(benzene, 5, box=[1, 1, 1])
+        box = mb.fill_box(benzene, 5, box=[3, 3, 3], seed=42)
         box.label_rigid_bodies(discrete_bodies="Benzene")
 
         rigid_init_snap = create_rigid_snapshot(box)
@@ -60,7 +60,7 @@ class TestGSD(BaseTest):
     def test_update_rigid_snapshot(self):
         benzene = mb.load("c1ccccc1", smiles=True)
         benzene.name = "Benzene"
-        box = mb.fill_box(benzene, 5, box=[1, 1, 1])
+        box = mb.fill_box(benzene, 5, box=[3, 3, 3], seed=42)
         box.label_rigid_bodies(discrete_bodies="Benzene")
 
         rigid_init_snap = create_rigid_snapshot(box)
