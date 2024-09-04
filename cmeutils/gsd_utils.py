@@ -24,9 +24,17 @@ def frame_to_freud_system(frame, ref_length=None):
     if ref_length is None:
         ref_length = 1
     box = frame.configuration.box
+    freud_box = freud.box.Box(
+        Lx=box[0] * ref_length,
+        Ly=box[1] * ref_length,
+        Lz=box[2] * ref_length,
+        xy=box[3],
+        xz=box[4],
+        yz=box[5],
+    )
     box[0:3] *= ref_length
     xyz = frame.particles.position * ref_length
-    return freud.locality.NeighborQuery.from_system(system=(box, xyz))
+    return freud.locality.AABBQuery(box=freud_box, points=xyz)
 
 
 def get_type_position(
