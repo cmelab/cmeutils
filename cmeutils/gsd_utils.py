@@ -318,7 +318,7 @@ def update_rigid_snapshot(snapshot, mb_compound):
     return snapshot, rigid
 
 
-def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
+def ellipsoid_gsd(gsd_file, new_file, ellipsoid_types, lpar, lperp):
     """Add needed information to GSD file to visualize ellipsoids.
 
     Saves a new GSD file with lpar and lperp values populated
@@ -330,6 +330,9 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
         Path to the original GSD file containing trajectory information
     new_file : str
         Path and filename of the new GSD file
+    ellipsoid_types : str or list of str
+        The particle types (i.e. names) of particles to be drawn
+        as ellipsoids.
     lpar : float
         Value of lpar of the ellipsoids
     lperp : float
@@ -339,11 +342,19 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
     with gsd.hoomd.open(new_file, "w") as new_t:
         with gsd.hoomd.open(gsd_file) as old_t:
             for snap in old_t:
-                snap.particles.type_shapes = [
-                    {"type": "Ellipsoid", "a": lpar, "b": lperp, "c": lperp},
-                    {"type": "Sphere", "diameter": 0.01},
-                    {"type": "Sphere", "diameter": 0.01},
-                ]
+                shape_dicts_list = []
+                for ptype in snap.particles.types:
+                    if ptype == ellipsoid_types or ptype in ellipsoid_types:
+                        shapes_dict = {
+                            "type": "Ellipsoid",
+                            "a": lpar,
+                            "b": lperp,
+                            "c": lperp,
+                        }
+                    else:
+                        shapes_dict = {"type": "Sphere", "diameter": 0.001}
+                    shape_dicts_list.append(shapes_dict)
+                snap.particles.type_shapes = shape_dicts_list
                 snap.validate()
                 new_t.append(snap)
 
