@@ -38,11 +38,31 @@ class TestGSD(BaseTest):
         freud_sys = frame_to_freud_system(frame)
         assert isinstance(freud_sys, freud.locality.NeighborQuery)
 
-    def test_ellipsoid_gsd(self, butane_gsd):
-        ellipsoid_gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
+    def test_ellipsoid_gsd(self, pekk_cg_gsd):
+        ellipsoid_gsd(
+            gsd_file=pekk_cg_gsd,
+            new_file="ellipsoid.gsd",
+            ellipsoid_types="E",
+            lperp=0.5,
+            lpar=1.0,
+        )
         with gsd.hoomd.open(name="ellipsoid.gsd", mode="r") as f:
             snap = f[-1]
         assert snap.particles.type_shapes[0]["type"] == "Ellipsoid"
+        assert snap.particles.type_shapes[1]["type"] == "Sphere"
+
+    def test_ellipsoid_gsd_multiple_types(self, pekk_cg_gsd):
+        ellipsoid_gsd(
+            gsd_file=pekk_cg_gsd,
+            new_file="ellipsoid.gsd",
+            ellipsoid_types=["E", "K"],
+            lperp=0.5,
+            lpar=1.0,
+        )
+        with gsd.hoomd.open(name="ellipsoid.gsd", mode="r") as f:
+            snap = f[-1]
+        assert snap.particles.type_shapes[0]["type"] == "Ellipsoid"
+        assert snap.particles.type_shapes[1]["type"] == "Ellipsoid"
 
     def test_get_type_position(self, gsdfile):
         pos_array = get_type_position(gsd_file=gsdfile, typename="A")
