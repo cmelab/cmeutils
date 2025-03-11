@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.2", "versioningit"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cmeutils"
+description = "A collection of helper functions for the CME Lab at Boise State University."
+readme = "README.md"
+authors = [
+  {name = "Jenny Fothergill", email = "jennyfothergill@boisestate.edu"},
+  {name = "Chris Jones", email = "chrisjones4@u.boisestate.edu"}
+]
+license= {text = "GPLv3"}
+classifiers=[
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+urls = {Homepage = "https://github.com/cmelab/cmeutils"}
+requires-python = ">=3.10"
+dynamic = ["version"]
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages]
+find = {namespaces = false}
+
+[tool.versioningit]
+default-version = "1+unknown"
+
+[tool.versioningit.format]
+distance = "{base_version}+{distance}.{vcs}{rev}"
+dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
+distance-dirty = "{base_version}+{distance}.{vcs}{rev}.dirty"
+
+[tool.versioningit.vcs]
+method = "git"
+match = ["*"]
+default-tag = "0.0.0"
