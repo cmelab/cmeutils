@@ -7,8 +7,6 @@ import networkx as nx
 import numpy as np
 from boltons.setutils import IndexedSet
 
-from cmeutils.geometry import moit
-
 
 def frame_to_freud_system(frame, ref_length=None):
     """Creates a freud system given a gsd.hoomd.Frame.
@@ -217,108 +215,7 @@ def snap_delete_types(snap, delete_types):
     return new_snap
 
 
-def create_rigid_snapshot(mb_compound):
-    """Preps a hoomd snapshot to store rigid body information
-
-    This method relies on using built-in mBuild methods to
-    create the rigid body information.
-
-    Parameters
-    ----------
-    mb_compound : mbuild.Compound, required
-        mBuild compound containing the rigid body information
-        of the complete system
-
-    Returns
-    -------
-    hoomd.Snapshot
-        A snapshot that contains the needed place-holder particles
-        to set up a rigid body simulation in HoomdBlue Version 3.
-        Pass this snapshot into the `init_snap` parameter
-        of mBuild's `create_hoomd_forcefield` function.
-
-    """
-    import hoomd
-
-    rigid_ids = [p.rigid_id for p in mb_compound.particles()]
-    rigid_bodies = set(rigid_ids)
-    # Total number of rigid particles
-    N_mols = len(rigid_bodies)
-    init_snap = hoomd.Snapshot()
-    # Create place holder spots in the snapshot for rigid centers
-    init_snap.particles.types = ["R"]
-    init_snap.particles.N = N_mols
-    return init_snap
-
-
-def update_rigid_snapshot(snapshot, mb_compound):
-    """Update a snapshot prepared for rigid bodies with system informaiton
-
-    Parameters
-    ----------
-    snapshot : gsd.hoomd.Frame
-        The snapshot returned from create_hoomd_forcefield
-        or create_hoomd_simulation in mBuild
-    mb_compound : mbuild.Compound, required
-        mBuild compound containing the rigid body information
-        of the complete system
-
-    """
-    import hoomd
-
-    rigid_ids = [p.rigid_id for p in mb_compound.particles()]
-    rigid_bodies = set(rigid_ids)
-    # Total number of rigid body particles
-    N_mols = len(rigid_bodies)
-    N_p = [rigid_ids.count(i) for i in rigid_bodies]
-    # Right now, we're assuming each molecule has the same num of particles
-    assert len(set(N_p)) == 1
-    N_p = N_p[0]  # Number of particles per molecule
-    mol_inds = [
-        np.arange(N_mols + i * N_p, N_mols + i * N_p + N_p)
-        for i in range(N_mols)
-    ]
-
-    for i, inds in enumerate(mol_inds):
-        total_mass = np.sum(snapshot.particles.mass[inds])
-        com = (
-            np.sum(
-                snapshot.particles.position[inds]
-                * snapshot.particles.mass[inds, np.newaxis],
-                axis=0,
-            )
-            / total_mass
-        )
-        snapshot.particles.position[i] = com
-        snapshot.particles.body[i] = i
-        snapshot.particles.body[inds] = i * np.ones_like(inds)
-        snapshot.particles.mass[i] = np.sum(snapshot.particles.mass[inds])
-        snapshot.particles.moment_inertia[i] = moit(
-            snapshot.particles.position[inds],
-            snapshot.particles.mass[inds],
-            center=com,
-        )
-
-    rigid = hoomd.md.constrain.Rigid()
-    inds = mol_inds[0]
-    r_pos = snapshot.particles.position[0]
-    c_pos = snapshot.particles.position[inds]
-    c_pos -= r_pos
-    c_pos = [tuple(i) for i in c_pos]
-    c_types = [
-        snapshot.particles.types[i] for i in snapshot.particles.typeid[inds]
-    ]
-    c_orient = [tuple(i) for i in snapshot.particles.orientation[inds]]
-
-    rigid.body["R"] = {
-        "constituent_types": c_types,
-        "positions": c_pos,
-        "orientations": c_orient,
-    }
-    return snapshot, rigid
-
-
-def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
+def ellipsoid_gsd(gsd_file, new_file, ellipsoid_types, lpar, lperp):
     """Add needed information to GSD file to visualize ellipsoids.
 
     Saves a new GSD file with lpar and lperp values populated
@@ -330,6 +227,9 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
         Path to the original GSD file containing trajectory information
     new_file : str
         Path and filename of the new GSD file
+    ellipsoid_types : str or list of str
+        The particle types (i.e. names) of particles to be drawn
+        as ellipsoids.
     lpar : float
         Value of lpar of the ellipsoids
     lperp : float
@@ -339,11 +239,19 @@ def ellipsoid_gsd(gsd_file, new_file, lpar, lperp):
     with gsd.hoomd.open(new_file, "w") as new_t:
         with gsd.hoomd.open(gsd_file) as old_t:
             for snap in old_t:
-                snap.particles.type_shapes = [
-                    {"type": "Ellipsoid", "a": lpar, "b": lperp, "c": lperp},
-                    {"type": "Sphere", "diameter": 0.01},
-                    {"type": "Sphere", "diameter": 0.01},
-                ]
+                shape_dicts_list = []
+                for ptype in snap.particles.types:
+                    if ptype == ellipsoid_types or ptype in ellipsoid_types:
+                        shapes_dict = {
+                            "type": "Ellipsoid",
+                            "a": lpar,
+                            "b": lperp,
+                            "c": lperp,
+                        }
+                    else:
+                        shapes_dict = {"type": "Sphere", "diameter": 0.001}
+                    shape_dicts_list.append(shapes_dict)
+                snap.particles.type_shapes = shape_dicts_list
                 snap.validate()
                 new_t.append(snap)
 

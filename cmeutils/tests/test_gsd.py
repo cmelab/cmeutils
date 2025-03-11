@@ -6,11 +6,9 @@ import packaging.version
 import pytest
 from base_test import BaseTest
 from gmso.external import from_mbuild, to_gsd_snapshot
-from mbuild.formats.hoomd_forcefield import to_hoomdsnapshot
 
 from cmeutils.gsd_utils import (
     _validate_inputs,
-    create_rigid_snapshot,
     ellipsoid_gsd,
     frame_to_freud_system,
     get_all_types,
@@ -18,7 +16,6 @@ from cmeutils.gsd_utils import (
     get_type_position,
     identify_snapshot_connections,
     snap_delete_types,
-    update_rigid_snapshot,
     xml_to_gsd,
 )
 
@@ -41,33 +38,31 @@ class TestGSD(BaseTest):
         freud_sys = frame_to_freud_system(frame)
         assert isinstance(freud_sys, freud.locality.NeighborQuery)
 
-    def test_ellipsoid_gsd(self, butane_gsd):
-        ellipsoid_gsd(butane_gsd, "ellipsoid.gsd", 0.5, 1.0)
+    def test_ellipsoid_gsd(self, pekk_cg_gsd):
+        ellipsoid_gsd(
+            gsd_file=pekk_cg_gsd,
+            new_file="ellipsoid.gsd",
+            ellipsoid_types="E",
+            lperp=0.5,
+            lpar=1.0,
+        )
         with gsd.hoomd.open(name="ellipsoid.gsd", mode="r") as f:
             snap = f[-1]
         assert snap.particles.type_shapes[0]["type"] == "Ellipsoid"
+        assert snap.particles.type_shapes[1]["type"] == "Sphere"
 
-    def test_create_rigid_snapshot(self):
-        benzene = mb.load("c1ccccc1", smiles=True)
-        benzene.name = "Benzene"
-        box = mb.fill_box(benzene, 5, box=[3, 3, 3], seed=42)
-        box.label_rigid_bodies(discrete_bodies="Benzene")
-
-        rigid_init_snap = create_rigid_snapshot(box)
-        assert rigid_init_snap.particles.N == 5
-        assert rigid_init_snap.particles.types == ["R"]
-
-    def test_update_rigid_snapshot(self):
-        benzene = mb.load("c1ccccc1", smiles=True)
-        benzene.name = "Benzene"
-        box = mb.fill_box(benzene, 5, box=[3, 3, 3], seed=42)
-        box.label_rigid_bodies(discrete_bodies="Benzene")
-
-        rigid_init_snap = create_rigid_snapshot(box)
-        _snapshot, refs = to_hoomdsnapshot(box, hoomd_snapshot=rigid_init_snap)
-        snap, rigid_obj = update_rigid_snapshot(_snapshot, box)
-        assert snap.particles.N == 65
-        assert np.array_equal(snap.particles.typeid[0:5], np.array([0] * 5))
+    def test_ellipsoid_gsd_multiple_types(self, pekk_cg_gsd):
+        ellipsoid_gsd(
+            gsd_file=pekk_cg_gsd,
+            new_file="ellipsoid.gsd",
+            ellipsoid_types=["E", "K"],
+            lperp=0.5,
+            lpar=1.0,
+        )
+        with gsd.hoomd.open(name="ellipsoid.gsd", mode="r") as f:
+            snap = f[-1]
+        assert snap.particles.type_shapes[0]["type"] == "Ellipsoid"
+        assert snap.particles.type_shapes[1]["type"] == "Ellipsoid"
 
     def test_get_type_position(self, gsdfile):
         pos_array = get_type_position(gsd_file=gsdfile, typename="A")

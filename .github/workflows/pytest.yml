@@ -2,13 +2,13 @@ name: pytest
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'cmeutils/**'
       - environment-dev.yml
       - .github/workflows/pytest.yml
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'cmeutils/**'
       - environment-dev.yml

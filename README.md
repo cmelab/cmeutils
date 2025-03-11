@@ -1,7 +1,7 @@
 # CME Lab Utilies
 [![build](https://github.com/cmelab/cmeutils/actions/workflows/build.yml/badge.svg)](https://github.com/cmelab/cmeutils/actions/workflows/build.yml)
 [![pytest](https://github.com/cmelab/cmeutils/actions/workflows/pytest.yml/badge.svg)](https://github.com/cmelab/cmeutils/actions/workflows/pytest.yml)
-[![codecov](https://codecov.io/gh/cmelab/cmeutils/branch/master/graph/badge.svg?token=WPJGJX23I7)](https://codecov.io/gh/cmelab/cmeutils)
+[![codecov](https://codecov.io/gh/cmelab/cmeutils/branch/main/graph/badge.svg?token=WPJGJX23I7)](https://codecov.io/gh/cmelab/cmeutils)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/cmeutils/badges/version.svg)](https://anaconda.org/conda-forge/cmeutils)
 
 Helpful functions used by the [CME Lab](https://www.boisestate.edu/coen-cmelab/).
