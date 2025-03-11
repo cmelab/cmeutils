@@ -6,11 +6,9 @@ import packaging.version
 import pytest
 from base_test import BaseTest
 from gmso.external import from_mbuild, to_gsd_snapshot
-from mbuild.formats.hoomd_forcefield import to_hoomdsnapshot
 
 from cmeutils.gsd_utils import (
     _validate_inputs,
-    create_rigid_snapshot,
     ellipsoid_gsd,
     frame_to_freud_system,
     get_all_types,
@@ -18,7 +16,6 @@ from cmeutils.gsd_utils import (
     get_type_position,
     identify_snapshot_connections,
     snap_delete_types,
-    update_rigid_snapshot,
     xml_to_gsd,
 )
 
@@ -46,28 +43,6 @@ class TestGSD(BaseTest):
         with gsd.hoomd.open(name="ellipsoid.gsd", mode="r") as f:
             snap = f[-1]
         assert snap.particles.type_shapes[0]["type"] == "Ellipsoid"
-
-    def test_create_rigid_snapshot(self):
-        benzene = mb.load("c1ccccc1", smiles=True)
-        benzene.name = "Benzene"
-        box = mb.fill_box(benzene, 5, box=[3, 3, 3], seed=42)
-        box.label_rigid_bodies(discrete_bodies="Benzene")
-
-        rigid_init_snap = create_rigid_snapshot(box)
-        assert rigid_init_snap.particles.N == 5
-        assert rigid_init_snap.particles.types == ["R"]
-
-    def test_update_rigid_snapshot(self):
-        benzene = mb.load("c1ccccc1", smiles=True)
-        benzene.name = "Benzene"
-        box = mb.fill_box(benzene, 5, box=[3, 3, 3], seed=42)
-        box.label_rigid_bodies(discrete_bodies="Benzene")
-
-        rigid_init_snap = create_rigid_snapshot(box)
-        _snapshot, refs = to_hoomdsnapshot(box, hoomd_snapshot=rigid_init_snap)
-        snap, rigid_obj = update_rigid_snapshot(_snapshot, box)
-        assert snap.particles.N == 65
-        assert np.array_equal(snap.particles.typeid[0:5], np.array([0] * 5))
 
     def test_get_type_position(self, gsdfile):
         pos_array = get_type_position(gsd_file=gsdfile, typename="A")
