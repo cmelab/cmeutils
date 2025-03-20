@@ -21,7 +21,7 @@ repos:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
-        exclude: 'grits/tests/assets/.*'
+        exclude: 'cmeutils/tests/assets/.*'
   - repo: https://github.com/pycqa/isort
     rev: 6.0.1
     hooks:
@@ -29,4 +29,4 @@ repos:
         name: isort (python)
         args:
           [ --profile=black, --line-length=80 ]
-        exclude: 'grits/tests/assets/.* '
+        exclude: 'cmeutils/tests/assets/.* '
