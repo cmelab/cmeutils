@@ -33,9 +33,9 @@ def msd_from_gsd(
     with gsd.hoomd.open(gsdfile, "r") as trajectory:
         init_box = trajectory[start].configuration.box
         final_box = trajectory[stop].configuration.box
-        assert all(
-            [i == j for i, j in zip(init_box, final_box)]
-        ), f"The box is not consistent over the range {start}:{stop}"
+        assert all([i == j for i, j in zip(init_box, final_box)]), (
+            f"The box is not consistent over the range {start}:{stop}"
+        )
 
         positions = []
         images = []

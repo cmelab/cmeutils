@@ -187,8 +187,7 @@ def bond_distribution(
     for snap in trajectory[start:stop]:
         if name not in snap.bonds.types and name_rev not in snap.bonds.types:
             raise ValueError(
-                f"Bond types {name} or {name_rev} not found "
-                "snap.bonds.types."
+                f"Bond types {name} or {name_rev} not found snap.bonds.types."
             )
         for idx, bond in enumerate(snap.bonds.typeid):
             bond_name = snap.bonds.types[bond]

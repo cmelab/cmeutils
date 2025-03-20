@@ -279,7 +279,7 @@ def spherical_grid_positions(
                 z = init_position[2] + np.round(
                     radius * np.cos(d_phi), decimals=3
                 )
-                if not (x, y, z) in grid_positions:
+                if (x, y, z) not in grid_positions:
                     grid_positions.append((x, y, z))
 
     return np.asarray(grid_positions)
