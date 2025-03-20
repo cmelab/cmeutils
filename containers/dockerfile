@@ -8,6 +8,6 @@ WORKDIR /cmeutils
 
 RUN micromamba install -y -n base -f environment.yml && \
     micromamba clean --all --yes && \
-    pip install install -e .
+    pip install -e .
 
 WORKDIR /home
