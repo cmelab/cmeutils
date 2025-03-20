@@ -10,7 +10,7 @@ dependencies:
   - mbuild >=0.16.4
   - numpy
   - pip
-  - python >= 3.10,<3.12
+  - python >= 3.10,<=3.12
   - matplotlib
   - pre-commit
   - pymbar >= 4.0
