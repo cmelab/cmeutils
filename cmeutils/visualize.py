@@ -1,6 +1,13 @@
+import os
+import shutil
+
+import ffmpeg
 import fresnel
 import gsd.hoomd
+import matplotlib
 import numpy as np
+
+from cmeutils.structure import diffraction_pattern
 
 
 class FresnelGSD:
@@ -434,3 +441,55 @@ class FresnelGSD:
             samples=samples,
             light_samples=light_samples,
         )
+
+
+def diffraction_pattern_movie(
+    gsdfile,
+    start,
+    stop,
+    stride,
+    views,
+    ref_length,
+    grid_size,
+    output_size,
+    mov_file_name,
+    framerate,
+    clean_up=True,
+):
+    """"""
+    matplotlib.use("Agg")
+    img_path = os.path.join(os.getcwd(), "images/")
+    os.mkdir(img_path)
+    for idx, frame in enumerate(range(start, stop, stride)):
+        dp = diffraction_pattern(
+            gsdfile=gsdfile,
+            views=views,
+            start=frame,
+            stop=frame,
+            ref_length=ref_length,
+            grid_size=grid_size,
+            output_size=output_size,
+        )
+        dp.plot().figure.savefig(os.path.join(img_path, f"{idx}.png"))
+
+    movie_maker(
+        file_dir=img_path,
+        img_file_type="png",
+        mov_file_name=mov_file_name,
+        framerate=framerate,
+    )
+    # Remove dir and images
+    if clean_up:
+        shutil.rmtree(img_path)
+
+
+def movie_maker(
+    file_dir, img_file_type, mov_file_name, pattern_type="glob", framerate=25
+):
+    """"""
+    input_arg = f"{file_dir}*.{img_file_type}"
+    (
+        ffmpeg.input(input_arg, pattern_type=pattern_type, framerate=framerate)
+        .output(mov_file_name)
+        .run()
+    )
