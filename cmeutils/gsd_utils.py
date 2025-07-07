@@ -244,9 +244,9 @@ def ellipsoid_gsd(gsd_file, new_file, ellipsoid_types, lpar, lperp):
                     if ptype == ellipsoid_types or ptype in ellipsoid_types:
                         shapes_dict = {
                             "type": "Ellipsoid",
-                            "a": lpar,
+                            "a": lperp,
                             "b": lperp,
-                            "c": lperp,
+                            "c": lpar,
                         }
                     else:
                         shapes_dict = {"type": "Sphere", "diameter": 0.001}
