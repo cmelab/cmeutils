@@ -27,6 +27,7 @@ def angle_distribution(
     theta_min=0.0,
     theta_max=None,
     normalize=False,
+    as_probability=False,
     bins="auto",
 ):
     """Returns the bond angle distribution for a given triplet of particles
@@ -60,6 +61,12 @@ def angle_distribution(
     normalize : bool, default=False
         If set to True, normalizes the angle distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
+        If set to `True`, you are left with the probability density
+        function. See `as_probability` to convert the probability 
+        density function to a probability.
+    as_probability : bool, default=False
+        If set to `True`, then the PMF is multiplied by bin widths
+        to give a unitless probability.
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
@@ -121,6 +128,7 @@ def angle_distribution(
         bin_centers, bin_heights = get_histogram(
             data=np.array(angles),
             normalize=normalize,
+            as_probability=as_probability,
             bins=bins,
             x_range=(theta_min, theta_max),
         )
@@ -138,7 +146,8 @@ def bond_distribution(
     histogram=False,
     l_min=0.0,
     l_max=4.0,
-    normalize=True,
+    normalize=False,
+    as_probability=False,
     bins=100,
 ):
     """Returns the bond length distribution for a given bond pair
@@ -164,8 +173,14 @@ def bond_distribution(
     l_max : float, default = 5.0
         Sets the maximum bond length value to be included in the distribution
     normalize : bool, default=False
-        If set to True, normalizes the angle distribution by the
+        If set to True, normalizes the bond distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
+        If set to `True`, you are left with the probability density
+        function. See `as_probability` to convert the probability 
+        density function to a probability.
+    as_probability : bool, default=False
+        If set to `True`, then the PMF is multiplied by bin widths
+        to give a unitless probability.
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
@@ -213,6 +228,7 @@ def bond_distribution(
         bin_centers, bin_heights = get_histogram(
             data=np.array(bonds),
             normalize=normalize,
+            as_probability=as_probability,
             bins=bins,
             x_range=(l_min, l_max),
         )
@@ -232,6 +248,7 @@ def dihedral_distribution(
     degrees=False,
     histogram=False,
     normalize=False,
+    as_probability=False,
     bins="auto",
 ):
     """Returns the bond angle distribution for a given triplet of particles
@@ -259,6 +276,12 @@ def dihedral_distribution(
     normalize : bool, default=False
         If set to True, normalizes the dihedral distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
+        If set to `True`, you are left with the probability density
+        function. See `as_probability` to convert the probability 
+        density function to a probability.
+    as_probability : bool, default=False
+        If set to `True`, then the PMF is multiplied by bin widths
+        to give a unitless probability.
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
@@ -313,6 +336,7 @@ def dihedral_distribution(
         bin_centers, bin_heights = get_histogram(
             data=np.array(dihedrals),
             normalize=normalize,
+            as_probability=as_probability,
             bins=bins,
             x_range=(-np.pi, np.pi),
         )

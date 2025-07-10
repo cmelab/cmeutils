@@ -2,7 +2,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def get_histogram(data, normalize=False, bins="auto", x_range=None):
+def get_histogram(
+        data,
+        normalize=False,
+        as_probability=False,
+        bins="auto",
+        x_range=None
+):
     """Bins a 1-D array of data into a histogram using
     the numpy.histogram method.
 
@@ -10,10 +16,17 @@ def get_histogram(data, normalize=False, bins="auto", x_range=None):
     ----------
     data : 1-D numpy.array, required
         Array of data used to generate the histogram
-    normalize : boolean, default=False
+    normalize : bool, default=False
         If set to true, normalizes the histogram bin heights
         by the sum of data so that the distribution adds
-        up to 1
+        up to 1. This gives a probability density function (PDF)
+        where the bin_heights represents the probability density.
+        See `as_probability` to convert from density to per-bin
+        probability.
+    as_probability : bool, default=False
+        If `True`, converts the normalized PDF into a probability mass
+        function (PMF) by multiplying each bin heigh by its corresponding
+        bin width.
     bins : float, int, or str, default="auto"
         Method used by numpy to determine bin borders.
         Check the numpy.histogram docs for more details.
@@ -34,6 +47,8 @@ def get_histogram(data, normalize=False, bins="auto", x_range=None):
     )
     bin_widths = np.diff(bin_borders)
     bin_centers = bin_borders[:-1] + bin_widths / 2
+    if as_probability:
+        bin_heights *= bin_widths
     return bin_centers, bin_heights
 
 
