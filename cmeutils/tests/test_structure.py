@@ -55,7 +55,7 @@ class TestStructure(BaseTest):
             "c3",
             histogram=True,
             normalize=True,
-            as_probability=False
+            as_probability=False,
         )
         bin_width = dihedrals[:, 0][1] - dihedrals[:, 0][0]
         assert np.allclose(np.sum(dihedrals[:, 1] * bin_width), 1, 1e-3)
@@ -69,7 +69,7 @@ class TestStructure(BaseTest):
             "c3",
             histogram=True,
             normalize=True,
-            as_probability=True
+            as_probability=True,
         )
         assert np.allclose(np.sum(dihedrals[:, 1]), 1, 1e-3)
 
@@ -163,7 +163,7 @@ class TestStructure(BaseTest):
             stop=1,
             histogram=True,
             normalize=True,
-            as_probability=False
+            as_probability=False,
         )
         bin_width = bonds_hist[:, 0][1] - bonds_hist[:, 0][0]
         assert np.allclose(np.sum(bonds_hist[:, 1] * bin_width), 1, 1e-3)
@@ -177,7 +177,7 @@ class TestStructure(BaseTest):
             stop=1,
             histogram=True,
             normalize=True,
-            as_probability=True
+            as_probability=True,
         )
         assert np.allclose(np.sum(bonds_hist[:, 1]), 1, 1e-3)
 
@@ -214,7 +214,7 @@ class TestStructure(BaseTest):
             stop=1,
             histogram=True,
             normalize=True,
-            as_probability=False
+            as_probability=False,
         )
         bin_width = angles_hist[:, 0][1] - angles_hist[:, 0][0]
         assert np.allclose(np.sum(angles_hist[:, 1] * bin_width), 1, 1e-3)
@@ -229,7 +229,7 @@ class TestStructure(BaseTest):
             stop=1,
             histogram=True,
             normalize=True,
-            as_probability=True
+            as_probability=True,
         )
         assert np.allclose(np.sum(angles_hist[:, 1]), 1, 1e-3)
 

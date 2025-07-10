@@ -62,7 +62,7 @@ def angle_distribution(
         If set to True, normalizes the angle distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
         If set to `True`, you are left with the probability density
-        function. See `as_probability` to convert the probability 
+        function. See `as_probability` to convert the probability
         density function to a probability.
     as_probability : bool, default=False
         If set to `True`, then the PMF is multiplied by bin widths
@@ -176,7 +176,7 @@ def bond_distribution(
         If set to True, normalizes the bond distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
         If set to `True`, you are left with the probability density
-        function. See `as_probability` to convert the probability 
+        function. See `as_probability` to convert the probability
         density function to a probability.
     as_probability : bool, default=False
         If set to `True`, then the PMF is multiplied by bin widths
@@ -277,7 +277,7 @@ def dihedral_distribution(
         If set to True, normalizes the dihedral distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
         If set to `True`, you are left with the probability density
-        function. See `as_probability` to convert the probability 
+        function. See `as_probability` to convert the probability
         density function to a probability.
     as_probability : bool, default=False
         If set to `True`, then the PMF is multiplied by bin widths

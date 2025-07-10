@@ -3,11 +3,7 @@ import numpy as np
 
 
 def get_histogram(
-        data,
-        normalize=False,
-        as_probability=False,
-        bins="auto",
-        x_range=None
+    data, normalize=False, as_probability=False, bins="auto", x_range=None
 ):
     """Bins a 1-D array of data into a histogram using
     the numpy.histogram method.
