@@ -21,6 +21,38 @@ from cmeutils.tests.base_test import BaseTest
 
 
 class TestStructure(BaseTest):
+    def test_bad_combo(self, butane_gsd):
+        with pytest.raises(ValueError):
+            dihedrals = dihedral_distribution(
+                butane_gsd,
+                "c3",
+                "c3",
+                "c3",
+                "c3",
+                histogram=True,
+                normalize=False,
+                as_probability=True,
+            )
+        with pytest.raises(ValueError):
+            angles = angle_distribution(
+                butane_gsd,
+                "c3",
+                "c3",
+                "c3",
+                histogram=True,
+                normalize=False,
+                as_probability=True,
+            )
+        with pytest.raises(ValueError):
+            bonds = bond_distribution(
+                butane_gsd,
+                "c3",
+                "c3",
+                histogram=True,
+                normalize=False,
+                as_probability=True,
+            )
+
     def test_dihedral_distribution_deg(self, butane_gsd):
         dihedrals = dihedral_distribution(
             butane_gsd, "c3", "c3", "c3", "c3", start=0, stop=1, degrees=True

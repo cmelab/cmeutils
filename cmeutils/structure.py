@@ -79,7 +79,21 @@ def angle_distribution(
         If histogram is False, Array of actual bond angles in degrees
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
+    Notes
+    -----
+    Results based on parameter combinations:
+    
+    | histogram | normalize | as_probability | Result                  |
+    |-----------|-----------|----------------|-------------------------|
+    | True      | False     | False          | Raw bin counts          |
+    | True      | True      | False          | PDF                     |
+    | True      | True      | True           | PMF                     |
+    | False     | False     | False          | Array of angles         |
+    | True      | False     | True           | Invalid                 |
+
     """
+    if as_probability and not normalize:
+        raise ValueError("`normalize` must be `True` to use `as_probability=True`")
     if not degrees and theta_max is None:
         theta_max = np.pi
     elif degrees and theta_max is None:
@@ -193,7 +207,22 @@ def bond_distribution(
         If histogram is False, Array of actual bond angles in degrees
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
+    Notes
+    -----
+    Results based on parameter combinations:
+    
+    | histogram | normalize | as_probability | Result                  |
+    |-----------|-----------|----------------|-------------------------|
+    | True      | False     | False          | Raw bin counts          |
+    | True      | True      | False          | PDF                     |
+    | True      | True      | True           | PMF                     |
+    | False     | False     | False          | Array of bond lengths   |
+    | True      | False     | True           | Invalid                 |
+
     """
+    if as_probability and not normalize:
+        raise ValueError("`normalize` must be `True` to use `as_probability=True`")
+
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name])
     name_rev = "-".join([B_name, A_name])
@@ -294,7 +323,21 @@ def dihedral_distribution(
         If histogram is False, Array of actual dihedral angles
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
+    Notes
+    -----
+    Results based on parameter combinations:
+    
+    | histogram | normalize | as_probability | Result                  |
+    |-----------|-----------|----------------|-------------------------|
+    | True      | False     | False          | Raw bin counts          |
+    | True      | True      | False          | PDF                     |
+    | True      | True      | True           | PMF                     |
+    | False     | False     | False          | Array of dihedral angles|
+    | True      | False     | True           | Invalid                 |
     """
+    if as_probability and not normalize:
+        raise ValueError("`normalize` must be `True` to use `as_probability=True`")
+
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name, C_name, D_name])
     name_rev = "-".join([D_name, C_name, B_name, A_name])
