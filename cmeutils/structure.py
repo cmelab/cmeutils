@@ -82,7 +82,7 @@ def angle_distribution(
     Notes
     -----
     Results based on parameter combinations:
-    
+
     | histogram | normalize | as_probability | Result                  |
     |-----------|-----------|----------------|-------------------------|
     | True      | False     | False          | Raw bin counts          |
@@ -93,7 +93,9 @@ def angle_distribution(
 
     """
     if as_probability and not normalize:
-        raise ValueError("`normalize` must be `True` to use `as_probability=True`")
+        raise ValueError(
+            "`normalize` must be `True` to use `as_probability=True`"
+        )
     if not degrees and theta_max is None:
         theta_max = np.pi
     elif degrees and theta_max is None:
@@ -210,7 +212,7 @@ def bond_distribution(
     Notes
     -----
     Results based on parameter combinations:
-    
+
     | histogram | normalize | as_probability | Result                  |
     |-----------|-----------|----------------|-------------------------|
     | True      | False     | False          | Raw bin counts          |
@@ -221,7 +223,9 @@ def bond_distribution(
 
     """
     if as_probability and not normalize:
-        raise ValueError("`normalize` must be `True` to use `as_probability=True`")
+        raise ValueError(
+            "`normalize` must be `True` to use `as_probability=True`"
+        )
 
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name])
@@ -326,7 +330,7 @@ def dihedral_distribution(
     Notes
     -----
     Results based on parameter combinations:
-    
+
     | histogram | normalize | as_probability | Result                  |
     |-----------|-----------|----------------|-------------------------|
     | True      | False     | False          | Raw bin counts          |
@@ -336,7 +340,9 @@ def dihedral_distribution(
     | True      | False     | True           | Invalid                 |
     """
     if as_probability and not normalize:
-        raise ValueError("`normalize` must be `True` to use `as_probability=True`")
+        raise ValueError(
+            "`normalize` must be `True` to use `as_probability=True`"
+        )
 
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name, C_name, D_name])
