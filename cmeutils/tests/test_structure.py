@@ -361,3 +361,15 @@ class TestStructure(BaseTest):
         assert (A_count / total_count)[-1] == 0
         assert (B_count / total_count)[-1] == 1
         assert (B_count / total_count)[0] == 0
+
+    def test_strides(self, gsdfile_bond):
+        bonds = bond_distribution(
+            gsdfile_bond,
+            "A",
+            "B",
+            histogram=False,
+            stride=2
+        )
+        assert len(bonds) == 10 
+        gsd_rdf(gsdfile_bond, "A", "B", stride=5)
+        structure_factor(gsdfile_bond, k_min=0.2, k_max=5, stride=2)
