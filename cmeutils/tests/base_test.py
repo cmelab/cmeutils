@@ -94,7 +94,7 @@ def create_frame(i, add_bonds, images, seed=42):
     s.configuration.box = [3, 3, 3, 0, 0, 0]
     if add_bonds:
         s.bonds.N = 3
-        s.bonds.types = ["AB", "BB"]
+        s.bonds.types = ["A-B", "B-B"]
         s.bonds.typeid = [0, 0, 1]
         s.bonds.group = [[0, 2], [1, 3], [3, 4]]
     if images:

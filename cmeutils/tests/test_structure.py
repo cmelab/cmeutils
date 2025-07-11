@@ -21,6 +21,38 @@ from cmeutils.tests.base_test import BaseTest
 
 
 class TestStructure(BaseTest):
+    def test_bad_combo(self, butane_gsd):
+        with pytest.raises(ValueError):
+            dihedral_distribution(
+                butane_gsd,
+                "c3",
+                "c3",
+                "c3",
+                "c3",
+                histogram=True,
+                normalize=False,
+                as_probability=True,
+            )
+        with pytest.raises(ValueError):
+            angle_distribution(
+                butane_gsd,
+                "c3",
+                "c3",
+                "c3",
+                histogram=True,
+                normalize=False,
+                as_probability=True,
+            )
+        with pytest.raises(ValueError):
+            bond_distribution(
+                butane_gsd,
+                "c3",
+                "c3",
+                histogram=True,
+                normalize=False,
+                as_probability=True,
+            )
+
     def test_dihedral_distribution_deg(self, butane_gsd):
         dihedrals = dihedral_distribution(
             butane_gsd, "c3", "c3", "c3", "c3", start=0, stop=1, degrees=True
@@ -45,6 +77,33 @@ class TestStructure(BaseTest):
         )
         for phi in dihedrals[:, 0]:
             assert -math.pi <= phi <= math.pi
+
+    def test_dihedral_distribution_pdf(self, butane_gsd):
+        dihedrals = dihedral_distribution(
+            butane_gsd,
+            "c3",
+            "c3",
+            "c3",
+            "c3",
+            histogram=True,
+            normalize=True,
+            as_probability=False,
+        )
+        bin_width = dihedrals[:, 0][1] - dihedrals[:, 0][0]
+        assert np.allclose(np.sum(dihedrals[:, 1] * bin_width), 1, 1e-3)
+
+    def test_dihedral_distribution_pmf(self, butane_gsd):
+        dihedrals = dihedral_distribution(
+            butane_gsd,
+            "c3",
+            "c3",
+            "c3",
+            "c3",
+            histogram=True,
+            normalize=True,
+            as_probability=True,
+        )
+        assert np.allclose(np.sum(dihedrals[:, 1]), 1, 1e-3)
 
     def test_angle_distribution_deg(self, p3ht_gsd):
         angles = angle_distribution(p3ht_gsd, "cc", "ss", "cc", degrees=True)
@@ -127,7 +186,7 @@ class TestStructure(BaseTest):
         assert bonds_hist.ndim == 2
         assert bonds_no_hist.ndim == 1
 
-    def test_bond_dist_normalize(self, p3ht_gsd):
+    def test_bond_dist_pdf(self, p3ht_gsd):
         bonds_hist = bond_distribution(
             p3ht_gsd,
             "cc",
@@ -136,9 +195,23 @@ class TestStructure(BaseTest):
             stop=1,
             histogram=True,
             normalize=True,
+            as_probability=False,
         )
         bin_width = bonds_hist[:, 0][1] - bonds_hist[:, 0][0]
         assert np.allclose(np.sum(bonds_hist[:, 1] * bin_width), 1, 1e-3)
+
+    def test_bond_dist_pmf(self, p3ht_gsd):
+        bonds_hist = bond_distribution(
+            p3ht_gsd,
+            "cc",
+            "ss",
+            start=0,
+            stop=1,
+            histogram=True,
+            normalize=True,
+            as_probability=True,
+        )
+        assert np.allclose(np.sum(bonds_hist[:, 1]), 1, 1e-3)
 
     def test_bond_range_outside(self, p3ht_gsd):
         with pytest.warns(UserWarning):
@@ -163,7 +236,7 @@ class TestStructure(BaseTest):
         assert angles_hist.ndim == 2
         assert angles_no_hist.ndim == 1
 
-    def test_angle_dist_normalize(self, p3ht_gsd):
+    def test_angle_dist_pdf(self, p3ht_gsd):
         angles_hist = angle_distribution(
             p3ht_gsd,
             "cc",
@@ -173,9 +246,24 @@ class TestStructure(BaseTest):
             stop=1,
             histogram=True,
             normalize=True,
+            as_probability=False,
         )
         bin_width = angles_hist[:, 0][1] - angles_hist[:, 0][0]
         assert np.allclose(np.sum(angles_hist[:, 1] * bin_width), 1, 1e-3)
+
+    def test_angle_dist_pmf(self, p3ht_gsd):
+        angles_hist = angle_distribution(
+            p3ht_gsd,
+            "cc",
+            "ss",
+            "cc",
+            start=0,
+            stop=1,
+            histogram=True,
+            normalize=True,
+            as_probability=True,
+        )
+        assert np.allclose(np.sum(angles_hist[:, 1]), 1, 1e-3)
 
     def test_angle_range_outside(self, p3ht_gsd):
         with pytest.warns(UserWarning):
@@ -273,3 +361,11 @@ class TestStructure(BaseTest):
         assert (A_count / total_count)[-1] == 0
         assert (B_count / total_count)[-1] == 1
         assert (B_count / total_count)[0] == 0
+
+    def test_strides(self, gsdfile_bond):
+        bonds = bond_distribution(
+            gsdfile_bond, "A", "B", histogram=False, stride=2
+        )
+        assert len(bonds) == 10
+        gsd_rdf(gsdfile_bond, "A", "B", stride=5)
+        structure_factor(gsdfile_bond, k_min=0.2, k_max=5, stride=2)
