@@ -22,11 +22,13 @@ def angle_distribution(
     C_name,
     start=0,
     stop=-1,
+    stride=1,
     degrees=False,
     histogram=False,
     theta_min=0.0,
     theta_max=None,
     normalize=False,
+    as_probability=False,
     bins="auto",
 ):
     """Returns the bond angle distribution for a given triplet of particles
@@ -35,32 +37,41 @@ def angle_distribution(
     ----------
     gsdfile : str
         Filename of the GSD trajectory.
-    A_name, B_name, C_name : str
+    A_name, B_name, C_name : str, required
         Name(s) of particles that form the angle triplet
         (found in gsd.hoomd.Frame.particles.types)
         They must be given in the same order as they form the angle
-    start : int
+    start : int, default = 0
         Starting frame index for accumulating bond lengths.
-        Negative numbers index from the end. (default 0)
-    stop : int
-        Final frame index for accumulating bond lengths. (default -1)
+        Negative numbers index from the end.
+    stop : int, default = -1
+        Final frame index for accumulating bond lengths.
+    stride : int, default = 1
+        The stride size when iterating through start:stop
     degrees : bool, default=False
         If True, the angle values are returned in degrees.
         if False, the angle values are returned in radians.
-    histogram : bool, default=False
+    histogram : bool, default = False
         If set to True, places the resulting angles into a histogram
-        and retrums the histogram's bin centers and heights as
+        and retrims the histogram's bin centers and heights as
         opposed to the actual calcualted angles.
+        If set to False, an array of the actual angles measured is returned.
     theta_min : float, default = 0.0
         Sets the minimum theta value to be included in the distribution
     theta_max : float, default = None
         Sets the maximum theta value to be included in the distribution
         If left as None, then theta_max will be either pi radians or
         180 degrees depending on the value set for the degrees parameter
-    normalize : bool, default=False
+    normalize : bool, default = False
         If set to True, normalizes the angle distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
-    bins : float, int, or str,  default="auto"
+        If set to `True`, you are left with the probability density
+        function (PDF). See `as_probability` to convert the probability
+        density function to a probability.
+    as_probability : bool, default = False
+        If set to `True`, then the PDF is multiplied by bin widths
+        to give a unitless probability.
+    bins : float, int, or str,  default = "auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
         bins based on the ideal bin size for the data.
@@ -69,10 +80,26 @@ def angle_distribution(
     Returns
     -------
     1-D numpy.array  or 2-D numpy.array
-        If histogram is False, Array of actual bond angles in degrees
+        If histogram is False, Array of actual bond angles.
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
+    Notes
+    -----
+    Results based on parameter combinations:
+
+    | histogram | normalize | as_probability | Result          |
+    |-----------|-----------|----------------|-----------------|
+    | True      | False     | False          | Raw bin counts  |
+    | True      | True      | False          | PDF             |
+    | True      | True      | True           | PMF             |
+    | False     | False     | False          | Array of angles |
+    | True      | False     | True           | Invalid         |
+
     """
+    if as_probability and not normalize:
+        raise ValueError(
+            "`normalize` must be `True` to use `as_probability=True`"
+        )
     if not degrees and theta_max is None:
         theta_max = np.pi
     elif degrees and theta_max is None:
@@ -83,7 +110,7 @@ def angle_distribution(
     name_rev = "-".join([C_name, B_name, A_name])
 
     angles = []
-    for snap in trajectory[start:stop]:
+    for snap in trajectory[start:stop:stride]:
         if name not in snap.angles.types and name_rev not in snap.angles.types:
             raise ValueError(
                 f"Angles {name} or {name_rev} not found in "
@@ -121,6 +148,7 @@ def angle_distribution(
         bin_centers, bin_heights = get_histogram(
             data=np.array(angles),
             normalize=normalize,
+            as_probability=as_probability,
             bins=bins,
             x_range=(theta_min, theta_max),
         )
@@ -135,10 +163,12 @@ def bond_distribution(
     B_name,
     start=0,
     stop=-1,
+    stride=1,
     histogram=False,
     l_min=0.0,
     l_max=4.0,
-    normalize=True,
+    normalize=False,
+    as_probability=False,
     bins=100,
 ):
     """Returns the bond length distribution for a given bond pair
@@ -147,26 +177,35 @@ def bond_distribution(
     ----------
     gsdfile : str
         Filename of the GSD trajectory.
-    A_name, B_name : str
+    A_name, B_name : str, required
         Name(s) of particles that form the bond pair
         (found in gsd.hoomd.Frame.particles.types)
-    start : int
+    start : int, default = 0
         Starting frame index for accumulating bond lengths.
-        Negative numbers index from the end. (default 0)
-    stop : int
-        Final frame index for accumulating bond lengths. (default -1)
-    histogram : bool, default=False
+        Negative numbers index from the end.
+    stop : int, default = -1
+        Final frame index for accumulating bond lengths.
+    stride : int, default = 1
+        The stride size when iterating through start:stop
+    histogram : bool, default = False
         If set to True, places the resulting bonds into a histogram
         and retrums the histogram's bin centers and heights as
         opposed to the actual calcualted bonds.
+        If set to False, an array of the actual lengths measured is returned.
     l_min : float, default = 0.0
         Sets the minimum bond length to be included in the distribution
     l_max : float, default = 5.0
         Sets the maximum bond length value to be included in the distribution
-    normalize : bool, default=False
-        If set to True, normalizes the angle distribution by the
+    normalize : bool, default = False
+        If set to True, normalizes the bond distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
-    bins : float, int, or str,  default="auto"
+        If set to `True`, you are left with the probability density
+        function (PDF). See `as_probability` to convert the probability
+        density function to a probability.
+    as_probability : bool, default = False
+        If set to `True`, then the PDF is multiplied by bin widths
+        to give a unitless probability.
+    bins : float, int, or str,  default = "auto"
         The number of bins to use when finding the distribution
         of bond angles. Using "auto" will set the number of
         bins based on the ideal bin size for the data.
@@ -175,16 +214,33 @@ def bond_distribution(
     Returns
     -------
     1-D numpy.array  or 2-D numpy.array
-        If histogram is False, Array of actual bond angles in degrees
+        If histogram is False, Array of actual bond lengths.
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
+    Notes
+    -----
+    Results based on parameter combinations:
+
+    | histogram | normalize | as_probability | Result                |
+    |-----------|-----------|----------------|-----------------------|
+    | True      | False     | False          | Raw bin counts        |
+    | True      | True      | False          | PDF                   |
+    | True      | True      | True           | PMF                   |
+    | False     | False     | False          | Array of bond lengths |
+    | True      | False     | True           | Invalid               |
+
     """
+    if as_probability and not normalize:
+        raise ValueError(
+            "`normalize` must be `True` to use `as_probability=True`"
+        )
+
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name])
     name_rev = "-".join([B_name, A_name])
 
     bonds = []
-    for snap in trajectory[start:stop]:
+    for snap in trajectory[start:stop:stride]:
         if name not in snap.bonds.types and name_rev not in snap.bonds.types:
             raise ValueError(
                 f"Bond types {name} or {name_rev} not found snap.bonds.types."
@@ -213,6 +269,7 @@ def bond_distribution(
         bin_centers, bin_heights = get_histogram(
             data=np.array(bonds),
             normalize=normalize,
+            as_probability=as_probability,
             bins=bins,
             x_range=(l_min, l_max),
         )
@@ -229,12 +286,14 @@ def dihedral_distribution(
     D_name,
     start=0,
     stop=-1,
+    stride=1,
     degrees=False,
     histogram=False,
     normalize=False,
+    as_probability=False,
     bins="auto",
 ):
-    """Returns the bond angle distribution for a given triplet of particles
+    """Returns the bond dihedral distribution for a given quadruplett of particles
 
     Parameters
     ----------
@@ -248,7 +307,9 @@ def dihedral_distribution(
         Starting frame index for accumulating bond lengths.
         Negative numbers index from the end. (default 0)
     stop : int
-        Final frame index for accumulating bond lengths. (default -1)
+        Final frame index for accumulating bond dihedrals. (default -1)
+    stride : int
+        The stride size when iterating through start:stop
     degrees : bool, default=False
         If True, the angle values are returned in degrees.
         if False, the angle values are returned in radians.
@@ -256,12 +317,19 @@ def dihedral_distribution(
         If set to True, places the resulting angles into a histogram
         and retrums the histogram's bin centers and heights as
         opposed to the actual calcualted angles.
+        If set to False, an array of the actual angles measured is returned.
     normalize : bool, default=False
         If set to True, normalizes the dihedral distribution by the
         sum of the bin heights, so that the distribution adds up to 1.
+        If set to `True`, you are left with the probability density
+        function (PDF). See `as_probability` to convert the probability
+        density function to a probability.
+    as_probability : bool, default=False
+        If set to `True`, then the PDF is multiplied by bin widths
+        to give a unitless probability.
     bins : float, int, or str,  default="auto"
         The number of bins to use when finding the distribution
-        of bond angles. Using "auto" will set the number of
+        of dihedral angles. Using "auto" will set the number of
         bins based on the ideal bin size for the data.
         See the numpy.histogram docs for more details.
 
@@ -271,13 +339,29 @@ def dihedral_distribution(
         If histogram is False, Array of actual dihedral angles
         If histogram is True, returns a 2D array of bin centers and bin heights.
 
+    Notes
+    -----
+    Results based on parameter combinations:
+
+    | histogram | normalize | as_probability | Result                   |
+    |-----------|-----------|----------------|--------------------------|
+    | True      | False     | False          | Raw bin counts           |
+    | True      | True      | False          | PDF                      |
+    | True      | True      | True           | PMF                      |
+    | False     | False     | False          | Array of dihedral angles |
+    | True      | False     | True           | Invalid                  |
     """
+    if as_probability and not normalize:
+        raise ValueError(
+            "`normalize` must be `True` to use `as_probability=True`"
+        )
+
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
     name = "-".join([A_name, B_name, C_name, D_name])
     name_rev = "-".join([D_name, C_name, B_name, A_name])
 
     dihedrals = []
-    for snap in trajectory[start:stop]:
+    for snap in trajectory[start:stop:stride]:
         if (
             name not in snap.dihedrals.types
             and name_rev not in snap.dihedrals.types
@@ -313,6 +397,7 @@ def dihedral_distribution(
         bin_centers, bin_heights = get_histogram(
             data=np.array(dihedrals),
             normalize=normalize,
+            as_probability=as_probability,
             bins=bins,
             x_range=(-np.pi, np.pi),
         )
@@ -370,6 +455,7 @@ def gsd_rdf(
     B_name,
     start=0,
     stop=-1,
+    stride=1,
     r_max=None,
     r_min=0,
     bins=100,
@@ -397,6 +483,8 @@ def gsd_rdf(
     stop : int
         Final frame index for accumulating the RDF. If None, the last frame
         will be used. (default -1)
+    stride : int, default = 1
+        The stride size when iterating through start:stop
     r_max : float
         Maximum radius of RDF. If None, half of the maximum box size is used.
         (default -1)
@@ -431,7 +519,7 @@ def gsd_rdf(
             molecules_A = molecules[type_A]
             molecules_B = molecules[type_B]
 
-        for snap in trajectory[start:stop]:
+        for snap in trajectory[start:stop:stride]:
             A_pos = snap.particles.position[type_A]
             if A_name == B_name:
                 B_pos = A_pos
@@ -471,6 +559,7 @@ def structure_factor(
     k_max,
     start=0,
     stop=-1,
+    stride=1,
     bins=100,
     method="direct",
     ref_length=None,
@@ -485,12 +574,13 @@ def structure_factor(
         Maximum value to include in the calculation.
     k_min : float, required
         Minimum value included in the calculation
-    start : int, default 0
+    start : int, default = 0
         Starting frame index for accumulating the Sq. Negative numbers index
         from the end.
-    stop : int, optional default None
-        Final frame index for accumulating the Sq. If None, the last frame
-        will be used.
+    stop : int, optional default = -1
+        Final frame index for accumulating the Sq.
+    stride : int, default = 1
+        The stride size when iterating through start:stop
     bins : int, optional default 100
         Number of bins to use when calculating the Sq.
         Used as the `bins` parameter in `StaticStructureFactorDirect` or
@@ -527,7 +617,7 @@ def structure_factor(
             f"Optional methods are `debye` or `direct`, you chose {method}"
         )
     with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
-        for frame in trajectory[start:stop]:
+        for frame in trajectory[start:stop:stride]:
             system = frame_to_freud_system(frame=frame, ref_length=ref_length)
             sf.compute(system=system, reset=False)
     return sf
@@ -538,6 +628,7 @@ def diffraction_pattern(
     views,
     start=0,
     stop=-1,
+    stride=1,
     ref_length=None,
     grid_size=1024,
     output_size=None,
@@ -556,18 +647,19 @@ def diffraction_pattern(
     views : list, required
         List of orientations (quarternions) to average over.
         See cmeutils.structure.get_quarternions
-    start : int, default 0
+    start : int, default = 0
         Starting frame index for accumulating the Sq. Negative numbers index
         from the end.
-    stop : int, optional default None
-        Final frame index for accumulating the Sq. If None, the last frame
-        will be used.
-    ref_length : float, optional, default None
+    stop : int, optional default = -1
+        Final frame index for accumulating the Sq.
+    stride : int, default = 1
+        The stride size when iterating through start:stop
+    ref_length : float, optional, default = None
         Set a reference length to convert from reduced units to real units.
         If None, uses 1 by default.
-    grid_size : unsigned int, optional, default 1024
+    grid_size : unsigned int, optional, default = 1024
         Resolution of the diffraction grid.
-    output_size : unsigned int, optional, default None
+    output_size : unsigned int, optional, default = None
         Resolution of the output diffraction image.
 
     Returns
@@ -581,7 +673,7 @@ def diffraction_pattern(
         grid_size=grid_size, output_size=output_size
     )
     with gsd.hoomd.open(gsdfile) as trajectory:
-        for frame in trajectory[start:stop]:
+        for frame in trajectory[start:stop:stride]:
             system = frame_to_freud_system(frame=frame, ref_length=ref_length)
             for view in views:
                 dp.compute(system=system, view_orientation=view, reset=False)
@@ -799,6 +891,7 @@ def all_atom_rdf(
     gsdfile,
     start=0,
     stop=-1,
+    stride=1,
     r_max=None,
     r_min=0,
     bins=100,
@@ -821,6 +914,8 @@ def all_atom_rdf(
     stop : int, default -1
         Final frame index for accumulating the RDF. If None, the last frame
         will be used.
+    stride : int, default 1
+        The stride size when iterating through start:stop
     r_max : float, default None
         Maximum radius of RDF. If None, half of the maximum box size is used.
     r_min : float, default 0
@@ -840,6 +935,6 @@ def all_atom_rdf(
                 np.max(snap.configuration.box[:3]) * 0.5, 0, dtype=np.float32
             )
         rdf = freud.density.RDF(bins=bins, r_max=r_max, r_min=r_min)
-        for snap in trajectory[start:stop]:
+        for snap in trajectory[start:stop:stride]:
             rdf.compute(snap, reset=False)
     return rdf
