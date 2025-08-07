@@ -1,4 +1,4 @@
-name: cmeutils-dev
+name: cmeutils
 channels:
   - conda-forge
 dependencies:
