@@ -1,16 +1,16 @@
-name: cmeutils
+name: cmeutils-dev
 channels:
   - conda-forge
 dependencies:
-  - freud >= 3.0,<3.2
-  - gmso >=0.11.2
+  - freud>=3.4
+  - gmso >=0.14.0
   - fresnel >=0.13.5
   - gsd >=3.0
-  - hoomd >=4.0
-  - mbuild >=0.16.4
-  - numpy
+  - hoomd >=5.0
+  - mbuild >=1.0
+  - numpy >=2.0,<2.3
   - pip
-  - python >= 3.10,<=3.12
+  - python >= 3.10,<=3.13
   - matplotlib
   - pymbar >= 4.0
   - rowan
