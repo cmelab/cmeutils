@@ -85,6 +85,7 @@ def get_rdf(
         # Build up pair exclusions if exclude_bond_depth or exclude_all_bonded
         # Reuse these for each frame's RDF unless update_bond_graph = True
         # If the bonding topology isn't changing, we only need to get bond graph and excluded pairs once
+        rdf_correction = 1
         if exclude_bond_depth:
             max_idx = snap.particles.N
             bond_graph = snapshot_to_graph(snap)
@@ -96,6 +97,14 @@ def get_rdf(
                 [i * max_idx + j for i, j in excluded_pairs]
             )
 
+            n_excluded = len(excluded_pairs)
+            if A_name == B_name or not any([A_name, B_name]): # Using same type or all particles
+                n_total_pairs = len(type_A_indices) * (len(type_A_indices) - 1) / 2
+            else: # RDF is not between same types, or using all particles
+                n_total_pairs = len(type_A_indices) * len(type_B_indices)
+            # Overwrite default value only if using exclude_bond_depth
+            rdf_correction = n_total_pairs / (n_total_pairs - n_excluded)
+
         for snap in trajectory[start:stop:stride]:
             A_xyz = snap.particles.position[type_A_indices]
             B_xyz = snap.particles.position[type_B_indices]
@@ -106,6 +115,7 @@ def get_rdf(
             aq = freud.locality.AABBQuery.from_system(system)
             query_args = {"r_max": r_max, "exclude_ii": exclude_ii}
             nlist = aq.query(B_xyz, query_args).toNeighborList()
+            # 
 
             # Create new bond graph and excluded pairs for each frame.
             # Only needed if bond topology is changing, set by ``update_bond_graph``
@@ -117,6 +127,7 @@ def get_rdf(
                 excluded_pairs_encoded = np.array(
                     [i * max_idx + j for i, j in excluded_pairs]
                 )
+                n_excluded = len(excluded_pairs)
 
             # Filter excluded pairs from all pairs in nlist
             if exclude_bond_depth:
@@ -129,7 +140,7 @@ def get_rdf(
                 )
 
             rdf.compute(aq, neighbors=nlist, reset=False)
-    return rdf
+    return rdf, rdf_correction
 
 
 def get_excluded_pairs(bond_graph, excluded_bond_depth):
