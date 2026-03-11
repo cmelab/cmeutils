@@ -98,9 +98,13 @@ def get_rdf(
             )
 
             n_excluded = len(excluded_pairs)
-            if A_name == B_name or not any([A_name, B_name]): # Using same type or all particles
-                n_total_pairs = len(type_A_indices) * (len(type_A_indices) - 1) / 2
-            else: # RDF is not between same types, or using all particles
+            if A_name == B_name or not any(
+                [A_name, B_name]
+            ):  # Using same type or all particles
+                n_total_pairs = (
+                    len(type_A_indices) * (len(type_A_indices) - 1) / 2
+                )
+            else:  # RDF is not between same types, or using all particles
                 n_total_pairs = len(type_A_indices) * len(type_B_indices)
             # Overwrite default value only if using exclude_bond_depth
             rdf_correction = n_total_pairs / (n_total_pairs - n_excluded)
@@ -115,7 +119,7 @@ def get_rdf(
             aq = freud.locality.AABBQuery.from_system(system)
             query_args = {"r_max": r_max, "exclude_ii": exclude_ii}
             nlist = aq.query(B_xyz, query_args).toNeighborList()
-            # 
+            #
 
             # Create new bond graph and excluded pairs for each frame.
             # Only needed if bond topology is changing, set by ``update_bond_graph``
