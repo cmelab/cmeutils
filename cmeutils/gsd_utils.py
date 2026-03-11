@@ -8,6 +8,17 @@ import numpy as np
 from boltons.setutils import IndexedSet
 
 
+def snapshot_to_graph(snap):
+    graph = nx.Graph()
+    positions = snap.particles.position
+    type_ids = snap.particles.typeid
+    types = snap.particles.types
+    for i in range(snap.particles.N):
+        graph.add_node(i, type=types[type_ids[i]], pos=positions[i])
+    graph.add_edges_from(snap.bonds.group)
+    return graph
+
+
 def frame_to_freud_system(frame, ref_length=None):
     """Creates a freud system given a gsd.hoomd.Frame.
 
