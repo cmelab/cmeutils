@@ -4,7 +4,7 @@ import gsd.hoomd
 import networkx as nx
 import numpy as np
 
-from cmeutils.gsd_utils import frame_to_freud_system, snapshot_to_graph
+from cmeutils.gsd_utils import snapshot_to_graph
 
 
 def get_rdf(
@@ -54,7 +54,7 @@ def get_rdf(
         )
 
     with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
-        # Grab the first snapshot for some book-keeping. 
+        # Grab the first snapshot for some book-keeping.
         snap = trajectory[start]
 
         # Use a value just less than half the minimum box length.
@@ -74,10 +74,12 @@ def get_rdf(
             # If excluding by bond depth, these need to be passed into filter_nlist
             type_A_indices = np.where(type_A)[0]
             type_B_indices = np.where(type_B)[0]
-            exclude_ii = (A_name == B_name)
-        else: # Use all particles for this RDF
-            type_A = type_B = np.ones(snap.particles.N, dtype=bool) # Array of True at all indices 
-            type_A_indices = type_B_indices = np.arange(snap.particles.N) 
+            exclude_ii = A_name == B_name
+        else:  # Use all particles for this RDF
+            type_A = type_B = np.ones(
+                snap.particles.N, dtype=bool
+            )  # Array of True at all indices
+            type_A_indices = type_B_indices = np.arange(snap.particles.N)
             exclude_ii = True
 
         # Build up pair exclusions if exclude_bond_depth or exclude_all_bonded
@@ -90,12 +92,14 @@ def get_rdf(
             excluded_pairs = get_excluded_pairs(bond_graph, exclude_bond_depth)
             # Map information of sequence of tuples to an array of unique ints.
             # This is used for faster filtering in filter_nlist() (vectorized instead of for loop)
-            excluded_pairs_encoded = np.array([i * max_idx + j for i, j in excluded_pairs])
+            excluded_pairs_encoded = np.array(
+                [i * max_idx + j for i, j in excluded_pairs]
+            )
 
         for snap in trajectory[start:stop:stride]:
             A_xyz = snap.particles.position[type_A_indices]
             B_xyz = snap.particles.position[type_B_indices]
-            
+
             # Build up the complete neighborlist
             box = snap.configuration.box
             system = (box, A_xyz)
@@ -107,9 +111,13 @@ def get_rdf(
             # Only needed if bond topology is changing, set by ``update_bond_graph``
             if update_bond_graph:
                 bond_graph = snapshot_to_graph(snap)
-                excluded_pairs = get_excluded_pairs(bond_graph, exclude_bond_depth)
-                excluded_pairs_encoded = np.array([i * max_idx + j for i, j in excluded_pairs])
-            
+                excluded_pairs = get_excluded_pairs(
+                    bond_graph, exclude_bond_depth
+                )
+                excluded_pairs_encoded = np.array(
+                    [i * max_idx + j for i, j in excluded_pairs]
+                )
+
             # Filter excluded pairs from all pairs in nlist
             if exclude_bond_depth:
                 nlist = filter_nlist(
@@ -117,7 +125,7 @@ def get_rdf(
                     excluded_pairs_encoded=excluded_pairs_encoded,
                     query_indices=type_A_indices,
                     point_indices=type_B_indices,
-                    max_idx=snap.particles.N
+                    max_idx=snap.particles.N,
                 )
 
             rdf.compute(aq, neighbors=nlist, reset=False)
@@ -126,19 +134,23 @@ def get_rdf(
 
 def get_excluded_pairs(bond_graph, excluded_bond_depth):
     """Returns a set of (i, j) pairs to exclude based on step distance of a bond graph."""
-    #TODO: Vecotrize this instead of doing 2 for loops? Maybe just don't worry about it until there is a reason to
+    # TODO: Vecotrize this instead of doing 2 for loops? Maybe just don't worry about it until there is a reason to
     # Not a big deal if bonds aren't changing as its only done once.
     excluded_pairs = set()
     for i in bond_graph.nodes:
-        lengths = nx.single_source_shortest_path_length(bond_graph, i, cutoff=excluded_bond_depth)
+        lengths = nx.single_source_shortest_path_length(
+            bond_graph, i, cutoff=excluded_bond_depth
+        )
         for j, dist in lengths.items():
-            # use j > 1 for 2 reasons: skip adding the same pair twice and its used in filter_nlist 
+            # use j > 1 for 2 reasons: skip adding the same pair twice and its used in filter_nlist
             if j > i and dist <= excluded_bond_depth:
                 excluded_pairs.add((i, j))
     return excluded_pairs
 
 
-def filter_nlist(nlist, excluded_pairs_encoded, query_indices, point_indices, max_idx):
+def filter_nlist(
+    nlist, excluded_pairs_encoded, query_indices, point_indices, max_idx
+):
     """Filter a freud NeighborList by removing excluded pairs.
 
     Handles the index space mismatch between the NeighborList (which uses
@@ -171,7 +183,7 @@ def filter_nlist(nlist, excluded_pairs_encoded, query_indices, point_indices, ma
     # Local indices of the neighborlist, since it was created after filtering particle type
     i_local = nlist.query_point_indices
     j_local = nlist.point_indices
-    
+
     # excluded_pair indices are global, they came from the the bond graph of all particles
     # Convert i_local and j_local to global indices so we can look up against excluded_pairs
     i_global = query_indices[i_local]
