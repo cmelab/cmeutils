@@ -9,6 +9,13 @@ from boltons.setutils import IndexedSet
 
 
 def snapshot_to_graph(snap):
+    """Convert a HOOMD snapshot into a networkx bond graph.
+
+    Parameters
+    ----------
+    snap : gsd.hoomd.Frame, required
+        Snapshot (frame) containing particle positions and bond groups.
+    """
     graph = nx.Graph()
     positions = snap.particles.position
     type_ids = snap.particles.typeid
