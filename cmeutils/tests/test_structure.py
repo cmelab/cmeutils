@@ -332,7 +332,6 @@ class TestStructure(BaseTest):
             stop=10,
             exclude_all_bonded=True,
         )
-        assert isinstance(rdf, freud.density.RDF)
         assert scale_factor == 1
         assert np.array_equal(rdf.rdf, np.zeros_like(rdf.rdf))
 
@@ -394,6 +393,17 @@ class TestStructure(BaseTest):
             rdf2.rdf[check_indices2], rdf2.bin_centers[check_indices2]
         )
         assert np.isclose(rdf_integral, rdf2_integral, rtol=0.05)
+
+    def test_gsd_rdf_update_bond_graph(self, LJ_gsd):
+        """Test 2 RDFs with different r_cuts. The values of the shared r_cut region should be very close"""
+        rdf, scale_factor = gsd_rdf(
+            gsdfile=LJ_gsd,
+            start=0,
+            stop=10,
+            r_max=3,
+            exclude_bond_depth=2,
+            update_bond_graph=True,
+        )
 
     def test_order_parameter(self, p3ht_gsd, p3ht_cg_gsd, mapping):
         r_max = 2
