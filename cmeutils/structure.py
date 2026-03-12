@@ -429,8 +429,8 @@ def gsd_rdf(
     same molecule to be used in the RDF calculations. Bond depth is counted in
     terms of steps away on a connected bond graph.
 
-    For example, ``excluded_bond_depth=1`` excludes pairs directly bonded together,
-    ``excluded_bond_depth=2`` excludes both pairs (i, j) and (i, k) in (i-j-k), and so on.
+    For example, ``exclude_bond_depth=1`` excludes pairs directly bonded together,
+    ``exclude_bond_depth=2`` excludes both pairs (i, j) and (i, k) in (i-j-k), and so on.
     This can be set to any positive integer value, and isn't limited to particles belonging
     to the same bond, angle or dihedral. To exclude all intramolecular pairs use
     the ``exclude_all_bonded`` parameter instead.
@@ -464,8 +464,8 @@ def gsd_rdf(
         RDF calculation.
     update_bond_graph : bool, optional (default False)
         Updates the bond graph to find excluded pairs for each
-        frame used in the RDF calclation. This may significantly
-        slow the RDF calcualtion. This should always be False
+        frame used in the RDF calculation. This may significantly
+        slow the RDF calculation. This should always be False
         unless the bonds in the trajectory are changing.
 
     Returns
@@ -478,9 +478,9 @@ def gsd_rdf(
     """
     if any([A_name, B_name]) and not all([A_name, B_name]):
         raise ValueError(
-            "If A_name or B_name is given, the other must be defined as well."
-            "To calculate an RDF between the same bead type, set A_name and B_name equal to the same value."
-            "To calculate an RDF between all possible pairs, leave both as ``None``."
+            "If A_name or B_name is given, the other must be defined as well. "
+            "To calculate an RDF between the same bead type, set A_name and B_name equal to the same value. "
+            "To calculate an RDF between all possible pairs, leave both as ``None``. "
         )
 
     if all([exclude_bond_depth, exclude_all_bonded]):
@@ -524,7 +524,7 @@ def gsd_rdf(
         if exclude_bond_depth or exclude_all_bonded:
             max_idx = snap.particles.N
             bond_graph = snapshot_to_graph(snap)
-            # This gives a seuqunce of tuples [(1, 4), (5, 8)...(i, j)]
+            # This gives a seuquence of tuples [(1, 4), (5, 8)...(i, j)]
             excluded_pairs = get_excluded_pairs(
                 bond_graph, exclude_bond_depth, exclude_all_bonded
             )
@@ -565,10 +565,10 @@ def gsd_rdf(
 
             # Create new bond graph and excluded pairs for each frame.
             # Only needed if bond topology is changing, set by ``update_bond_graph``
-            if update_bond_graph:
+            if update_bond_graph and (exclude_bond_depth or exclude_all_bonded):
                 bond_graph = snapshot_to_graph(snap)
                 excluded_pairs = get_excluded_pairs(
-                    bond_graph, exclude_bond_depth
+                    bond_graph, exclude_bond_depth, exclude_all_bonded
                 )
                 excluded_pairs_encoded = np.array(
                     [i * max_idx + j for i, j in excluded_pairs]
@@ -883,8 +883,6 @@ def get_excluded_pairs(
     bond_graph, excluded_bond_depth=None, exclude_all_bonded=False
 ):
     """Returns a set of (i, j) pairs to exclude based on step distance of a bond graph."""
-    # TODO: Vecotrize this instead of doing 2 for loops? Maybe just don't worry about it until there is a reason to
-    # Not a big deal if bonds aren't changing as its only done once.
     excluded_pairs = set()
     if excluded_bond_depth:
         for i in bond_graph.nodes:
