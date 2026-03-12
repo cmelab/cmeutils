@@ -521,11 +521,13 @@ def gsd_rdf(
         # Reuse these for each frame's RDF unless update_bond_graph = True
         # If the bonding topology isn't changing, we only need to get bond graph and excluded pairs once
         rdf_correction = 1
-        if exclude_bond_depth:
+        if exclude_bond_depth or exclude_all_bonded:
             max_idx = snap.particles.N
             bond_graph = snapshot_to_graph(snap)
             # This gives a seuqunce of tuples [(1, 4), (5, 8)...(i, j)]
-            excluded_pairs = get_excluded_pairs(bond_graph, exclude_bond_depth)
+            excluded_pairs = get_excluded_pairs(
+                bond_graph, exclude_bond_depth, exclude_all_bonded
+            )
             # Map information of sequence of tuples to an array of unique ints.
             # This is used for faster filtering in filter_nlist() (vectorized instead of for loop)
             excluded_pairs_encoded = np.array(
@@ -542,7 +544,12 @@ def gsd_rdf(
             else:  # RDF is not between same types, or using all particles
                 n_total_pairs = len(type_A_indices) * len(type_B_indices)
             # Overwrite default value only if using exclude_bond_depth
-            rdf_correction = n_total_pairs / (n_total_pairs - n_excluded)
+            if n_total_pairs == n_excluded:
+                warnings.warn(
+                    "Exclusions resulted in no pairs being used to calculate this RDF."
+                )
+            else:
+                rdf_correction = n_total_pairs / (n_total_pairs - n_excluded)
 
         for snap in trajectory[start:stop:stride]:
             A_xyz = snap.particles.position[type_A_indices]
@@ -569,7 +576,7 @@ def gsd_rdf(
                 n_excluded = len(excluded_pairs)
 
             # Filter excluded pairs from all pairs in nlist
-            if exclude_bond_depth:
+            if exclude_bond_depth or exclude_all_bonded:
                 nlist = filter_nlist(
                     nlist=nlist,
                     excluded_pairs_encoded=excluded_pairs_encoded,

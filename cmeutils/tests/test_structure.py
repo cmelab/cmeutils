@@ -325,6 +325,17 @@ class TestStructure(BaseTest):
         rdf.rdf
         assert scale_factor == 1
 
+    def test_gsd_rdf_exclude_all_bonded(self, AB_chain_gsd):
+        rdf, scale_factor = gsd_rdf(
+            gsdfile=AB_chain_gsd,
+            start=0,
+            stop=10,
+            exclude_all_bonded=True,
+        )
+        assert isinstance(rdf, freud.density.RDF)
+        assert scale_factor == 1
+        assert np.array_equal(rdf.rdf, np.zeros_like(rdf.rdf))
+
     def test_gsd_rdf_exclusions(self, AB_chain_gsd):
         """Exclude bonded neighbor."""
         rdf, scale_factor = gsd_rdf(
