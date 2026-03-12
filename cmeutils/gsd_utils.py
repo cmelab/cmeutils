@@ -8,6 +8,24 @@ import numpy as np
 from boltons.setutils import IndexedSet
 
 
+def snapshot_to_graph(snap):
+    """Convert a HOOMD snapshot into a networkx bond graph.
+
+    Parameters
+    ----------
+    snap : gsd.hoomd.Frame, required
+        Snapshot (frame) containing particle positions and bond groups.
+    """
+    graph = nx.Graph()
+    positions = snap.particles.position
+    type_ids = snap.particles.typeid
+    types = snap.particles.types
+    for i in range(snap.particles.N):
+        graph.add_node(i, type=types[type_ids[i]], pos=positions[i])
+    graph.add_edges_from(snap.bonds.group)
+    return graph
+
+
 def frame_to_freud_system(frame, ref_length=None):
     """Creates a freud system given a gsd.hoomd.Frame.
 
@@ -333,6 +351,50 @@ def identify_snapshot_connections(snapshot):
             type_="dihedrals",
         )
     return snapshot
+
+
+def get_centers(gsdfile, new_gsdfile):
+    """Create a gsd file containing the molecule centers from an existing gsd
+     file.
+
+
+    This function calculates the centers of a trajectory given a GSD file
+    and stores them into a new GSD file just for centers. By default it will
+    calculate the centers of an entire trajectory.
+
+    Parameters
+    ----------
+    gsdfile : str
+        Filename of the GSD trajectory.
+    new_gsdfile : str
+        Filename of new GSD for centers.
+    """
+    with (
+        gsd.hoomd.open(new_gsdfile, "w") as new_traj,
+        gsd.hoomd.open(gsdfile, "r") as traj,
+    ):
+        snap = traj[0]
+        cluster_idx = get_molecule_cluster(snap=snap)
+        for snap in traj:
+            new_snap = gsd.hoomd.Frame()
+            new_snap.configuration.box = snap.configuration.box
+            f_box = freud.box.Box.from_box(snap.configuration.box)
+            # Use the freud box to unwrap the particle positions
+            unwrapped_positions = f_box.unwrap(
+                snap.particles.position, snap.particles.image
+            )
+            uw_centers = []
+            for i in range(max(cluster_idx) + 1):
+                cluster_uw_pos = unwrapped_positions[np.where(cluster_idx == i)]
+                uw_centers.append(np.mean(cluster_uw_pos, axis=0))
+            uw_centers = np.stack(uw_centers)
+            new_snap.particles.position = f_box.wrap(uw_centers)
+            new_snap.particles.N = len(uw_centers)
+            new_snap.particles.types = ["A"]
+            new_snap.particles.image = f_box.get_images(uw_centers)
+            new_snap.particles.typeid = np.zeros(len(uw_centers))
+            new_snap.validate()
+            new_traj.append(new_snap)
 
 
 def _fill_connection_info(snapshot, connections, type_):

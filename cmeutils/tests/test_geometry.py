@@ -9,6 +9,7 @@ from cmeutils.geometry import (
     angle_between_vectors,
     get_backbone_vector,
     get_plane_normal,
+    get_quaternions,
     moit,
     radial_grid_positions,
     spherical_grid_positions,
@@ -37,6 +38,17 @@ class TestGeometry(BaseTest):
     def test_moit(self):
         _moit = moit(points=[(-1, 0, 0), (1, 0, 0)], masses=[1, 1])
         assert np.array_equal(_moit, np.array([0, 2.0, 2.0]))
+
+    def test_get_quaternions(self):
+        with pytest.raises(ValueError):
+            get_quaternions(0)
+
+        with pytest.raises(ValueError):
+            get_quaternions(5.3)
+
+        qs = get_quaternions()
+        assert len(qs) == 20
+        assert len(qs[0]) == 4
 
     def test_get_plane_normal(self):
         points = np.array([[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0]])
