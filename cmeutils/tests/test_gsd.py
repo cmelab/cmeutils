@@ -12,6 +12,7 @@ from cmeutils.gsd_utils import (
     ellipsoid_gsd,
     frame_to_freud_system,
     get_all_types,
+    get_centers,
     get_molecule_cluster,
     get_type_position,
     identify_snapshot_connections,
@@ -32,6 +33,11 @@ except ImportError:
 
 
 class TestGSD(BaseTest):
+    def test_get_centers(self, gsdfile):
+        new_gsdfile = "centers.gsd"
+        centers = get_centers(gsdfile, new_gsdfile)
+        assert isinstance(centers, type(None))
+
     def test_frame_to_freud_system(self, butane_gsd):
         with gsd.hoomd.open(butane_gsd) as traj:
             frame = traj[0]

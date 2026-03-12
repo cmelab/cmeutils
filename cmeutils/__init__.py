@@ -6,6 +6,5 @@ __all__ = [
     "gsd_utils",
     "structure",
     "dynamics",
-    "rdf",
     "visualize",
 ]
