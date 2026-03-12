@@ -1,3 +1,5 @@
+import itertools
+
 import freud
 import gsd
 import gsd.hoomd
@@ -23,6 +25,17 @@ def get_rdf(
 ):
     """Uses freud's RDF module to calculate an RDF averaged over a GSD file.
 
+    Notes
+    -----
+    This method lets you set a bond-depth exclusion to prevent neighbors of the
+    same molecule to be used in the RDF calculations. Bond depth is counted in
+    terms of steps away on a connected bond graph.
+
+    For example, ``excluded_bond_depth=1`` excludes pairs directly bonded together,
+    ``excluded_bond_depth=2`` excludes both pairs (i, j) and (i, k) in (i-j-k), and so on.
+    This can be set to any positive integer value, and isn't limited to particles belonging
+    to the same bond, angle or dihedral. To exclude all intramolecular pairs use
+    the ``exclude_all_bonded`` parameter instead.
 
     Parameters
     ----------
@@ -45,12 +58,36 @@ def get_rdf(
         Minimum radius of RDF. (default 0)
     bins : int
         Number of bins to use when calculating the RDF. (default 100)
+    exclude_bond_depth : int, optional (default None)
+        Excludes all pairs within a depth (distance on a bond graph)
+        from the RDF calculation.
+    exclude_all_bonded : bool, optional (default False)
+        Excludes all pairs belonging to the same molecule from the
+        RDF calculation.
+    update_bond_graph : bool, optional (default False)
+        Updates the bond graph to find excluded pairs for each
+        frame used in the RDF calclation. This may significantly
+        slow the RDF calcualtion. This should always be False
+        unless the bonds in the trajectory are changing.
+
+    Returns
+    -------
+    tuple(rdf, rdf_correction) : (freud.density.RDF, float)
+        Calculated RDF. Access r values with ``rdf.bin_centers`` and g(r) with ``rdf.rdf``
+        rdf_correction is always 1 unless ``exclude_bond_depth`` or ``exclude_all_bonded`` are used.
+        This corrects the g(r) normalization to account for excluded pairs.
+        To include this in the results, g(r) = rdf.rdf * rdf_correction
     """
     if any([A_name, B_name]) and not all([A_name, B_name]):
         raise ValueError(
             "If A_name or B_name is given, the other must be defined as well."
             "To calculate an RDF between the same bead type, set A_name and B_name equal to the same value."
             "To calculate an RDF between all possible pairs, leave both as ``None``."
+        )
+
+    if all([exclude_bond_depth, exclude_all_bonded]):
+        raise ValueError(
+            "Only use one of excluded_bond_depth and exclude_all_bonded."
         )
 
     with gsd.hoomd.open(gsdfile, mode="r") as trajectory:
@@ -147,18 +184,26 @@ def get_rdf(
     return rdf, rdf_correction
 
 
-def get_excluded_pairs(bond_graph, excluded_bond_depth):
+def get_excluded_pairs(
+    bond_graph, excluded_bond_depth=None, exclude_all_bonded=False
+):
     """Returns a set of (i, j) pairs to exclude based on step distance of a bond graph."""
     # TODO: Vecotrize this instead of doing 2 for loops? Maybe just don't worry about it until there is a reason to
     # Not a big deal if bonds aren't changing as its only done once.
     excluded_pairs = set()
-    for i in bond_graph.nodes:
-        lengths = nx.single_source_shortest_path_length(
-            bond_graph, i, cutoff=excluded_bond_depth
-        )
-        for j, dist in lengths.items():
-            # use j > 1 for 2 reasons: skip adding the same pair twice and its used in filter_nlist
-            if j > i and dist <= excluded_bond_depth:
+    if excluded_bond_depth:
+        for i in bond_graph.nodes:
+            lengths = nx.single_source_shortest_path_length(
+                bond_graph, i, cutoff=excluded_bond_depth
+            )
+            for j, dist in lengths.items():
+                # use j > i for 2 reasons: skip adding the same pair twice and its used in filter_nlist
+                if j > i and dist <= excluded_bond_depth:
+                    excluded_pairs.add((i, j))
+    elif exclude_all_bonded:
+        for component in nx.connected_components(bond_graph):
+            component = sorted(component)
+            for i, j in itertools.combinations(component, 2):
                 excluded_pairs.add((i, j))
     return excluded_pairs
 
