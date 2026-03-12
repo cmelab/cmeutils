@@ -295,6 +295,24 @@ class TestStructure(BaseTest):
         with pytest.raises(ValueError):
             structure_factor(gsdfile_bond, k_min=0.2, k_max=5, method="a")
 
+    def test_rdf_bad_args(self, AB_chain_gsd):
+        with pytest.raises(ValueError):
+            gsd_rdf(
+                gsdfile=AB_chain_gsd,
+                start=0,
+                stop=10,
+                exclude_bond_depth=2,
+                exclude_all_bonded=True,
+            )
+
+        with pytest.raises(ValueError):
+            gsd_rdf(
+                gsdfile=AB_chain_gsd,
+                A_name="A",
+                start=0,
+                stop=10,
+            )
+
     def test_gsd_rdf(self, AB_chain_gsd):
         rdf, scale_factor = gsd_rdf(
             gsdfile=AB_chain_gsd,
