@@ -419,7 +419,6 @@ def gsd_rdf(
     bins=100,
     exclude_bond_depth=None,
     exclude_all_bonded=False,
-    update_bond_graph=False,
 ):
     """Uses freud's RDF module to calculate an RDF averaged over a GSD file.
 
@@ -462,16 +461,11 @@ def gsd_rdf(
     exclude_all_bonded : bool, optional (default False)
         Excludes all pairs belonging to the same molecule from the
         RDF calculation.
-    update_bond_graph : bool, optional (default False)
-        Updates the bond graph to find excluded pairs for each
-        frame used in the RDF calculation. This may significantly
-        slow the RDF calculation. This should always be False
-        unless the bonds in the trajectory are changing.
 
     Returns
     -------
     tuple(rdf, rdf_correction) : (freud.density.RDF, float)
-        Calculated RDF. Access r values with ``rdf.bin_centers`` and g(r) with ``rdf.rdf``
+        Access r values with ``rdf.bin_centers`` and g(r) with ``rdf.rdf``
         rdf_correction is always 1 unless ``exclude_bond_depth`` or ``exclude_all_bonded`` are used.
         This corrects the g(r) normalization to account for excluded pairs.
         To include this in the results, g(r) = rdf.rdf * rdf_correction
@@ -518,7 +512,7 @@ def gsd_rdf(
             exclude_ii = True
 
         # Build up pair exclusions if exclude_bond_depth or exclude_all_bonded
-        # Reuse these for each frame's RDF unless update_bond_graph = True
+        # Reuse these for each frame's RDF
         # If the bonding topology isn't changing, we only need to get bond graph and excluded pairs once
         rdf_correction = 1
         if exclude_bond_depth or exclude_all_bonded:
@@ -561,19 +555,6 @@ def gsd_rdf(
             aq = freud.locality.AABBQuery.from_system(system)
             query_args = {"r_max": r_max, "exclude_ii": exclude_ii}
             nlist = aq.query(B_xyz, query_args).toNeighborList()
-            #
-
-            # Create new bond graph and excluded pairs for each frame.
-            # Only needed if bond topology is changing, set by ``update_bond_graph``
-            if update_bond_graph and (exclude_bond_depth or exclude_all_bonded):
-                bond_graph = snapshot_to_graph(snap)
-                excluded_pairs = get_excluded_pairs(
-                    bond_graph, exclude_bond_depth, exclude_all_bonded
-                )
-                excluded_pairs_encoded = np.array(
-                    [i * max_idx + j for i, j in excluded_pairs]
-                )
-                n_excluded = len(excluded_pairs)
 
             # Filter excluded pairs from all pairs in nlist
             if exclude_bond_depth or exclude_all_bonded:
