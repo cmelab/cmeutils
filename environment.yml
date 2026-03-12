@@ -8,7 +8,7 @@ dependencies:
   - gsd >=3.0
   - hoomd >=5.0
   - mbuild >=1.0
-  - numpy >=2.0,<2.3
+  - numpy >=2.0
   - pip
   - python >= 3.10,<=3.13
   - matplotlib
