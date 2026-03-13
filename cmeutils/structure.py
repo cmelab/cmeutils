@@ -561,8 +561,8 @@ def gsd_rdf(
                 nlist = filter_nlist(
                     nlist=nlist,
                     excluded_pairs_encoded=excluded_pairs_encoded,
-                    query_indices=type_A_indices,
-                    point_indices=type_B_indices,
+                    query_indices=type_B_indices,
+                    point_indices=type_A_indices,
                     max_idx=snap.particles.N,
                 )
 

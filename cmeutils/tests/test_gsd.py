@@ -17,6 +17,7 @@ from cmeutils.gsd_utils import (
     get_type_position,
     identify_snapshot_connections,
     snap_delete_types,
+    snapshot_to_graph,
     xml_to_gsd,
 )
 
@@ -33,6 +34,20 @@ except ImportError:
 
 
 class TestGSD(BaseTest):
+    def test_snapshot_to_graph(self, pekk_cg_gsd, p3ht_gsd):
+        # Test on a GSD file with a single chain
+        with gsd.hoomd.open(pekk_cg_gsd) as traj:
+            snap = traj[0]
+            graph = snapshot_to_graph(snap)
+            assert snap.particles.N == graph.number_of_nodes()
+            assert snap.bonds.N == graph.number_of_edges()
+        # Test on a GSD file with multiple independent chains
+        with gsd.hoomd.open(p3ht_gsd) as traj:
+            snap = traj[0]
+            graph = snapshot_to_graph(snap)
+            assert snap.particles.N == graph.number_of_nodes()
+            assert snap.bonds.N == graph.number_of_edges()
+
     def test_get_centers(self, gsdfile):
         new_gsdfile = "centers.gsd"
         centers = get_centers(gsdfile, new_gsdfile)
