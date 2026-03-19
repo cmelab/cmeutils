@@ -528,7 +528,13 @@ def gsd_rdf(
                 [i * max_idx + j for i, j in excluded_pairs]
             )
 
-            n_excluded = len(excluded_pairs)
+            n_excluded = sum(
+                1
+                for i, j in excluded_pairs
+                if (i in type_A and j in type_B)
+                or (j in type_A and i in type_B)
+            )
+
             if A_name == B_name or not any(
                 [A_name, B_name]
             ):  # Using same type or all particles
