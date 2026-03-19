@@ -502,13 +502,16 @@ def gsd_rdf(
             # These 2 *_indices variables store global particle indices (Before filtering by type)
             # If excluding by bond depth, these need to be passed into filter_nlist
             type_A_indices = np.where(type_A)[0]
+            type_A_set = set(type_A_indices)
             type_B_indices = np.where(type_B)[0]
+            type_B_set = set(type_B_indices)
             exclude_ii = A_name == B_name
         else:  # Use all particles for this RDF
             type_A = type_B = np.ones(
                 snap.particles.N, dtype=bool
             )  # Array of True at all indices
             type_A_indices = type_B_indices = np.arange(snap.particles.N)
+            type_A_set = type_B_set = type_A_indices
             exclude_ii = True
 
         # Build up pair exclusions if exclude_bond_depth or exclude_all_bonded
@@ -528,7 +531,14 @@ def gsd_rdf(
                 [i * max_idx + j for i, j in excluded_pairs]
             )
 
-            n_excluded = len(excluded_pairs)
+            # Only count excluded pairs if they are being used in the RDF calculation
+            n_excluded = sum(
+                1
+                for i, j in excluded_pairs
+                if (i in type_A_set and j in type_B_set)
+                or (j in type_A_set and i in type_B_set)
+            )
+
             if A_name == B_name or not any(
                 [A_name, B_name]
             ):  # Using same type or all particles

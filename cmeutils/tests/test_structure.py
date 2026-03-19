@@ -365,6 +365,32 @@ class TestStructure(BaseTest):
         rdf_values = rdf.rdf[zero_indices]
         assert np.allclose(rdf_values, zero_array)
 
+    def test_gsd_rdf_normalization(self, AB_chain_gsd):
+        # Chain has 10 particles total
+        # All pairs are being used, N total = (10 * 9) / 2 = 45
+        # Exclude bond depth of 1 should exclude all bonded pairs = 9
+        # 45 / (45 - 9) = 1.25
+        rdf, scale_factor = gsd_rdf(
+            gsdfile=AB_chain_gsd,
+            start=0,
+            stop=10,
+            exclude_bond_depth=1,
+            exclude_all_bonded=False,
+        )
+        assert np.isclose(scale_factor, 1.25)
+
+        # Excl bond depth of 2 should result in 9 (bonds) + 8 (angles) exclusions
+        # 45 / (45 - 17) = 1.607
+
+        rdf, scale_factor = gsd_rdf(
+            gsdfile=AB_chain_gsd,
+            start=0,
+            stop=10,
+            exclude_bond_depth=2,
+            exclude_all_bonded=False,
+        )
+        assert np.isclose(scale_factor, 1.6071428571428572)
+
     def test_gsd_rdf_r_max(self, LJ_gsd):
         """Test 2 RDFs with different r_cuts. The values of the shared r_cut region should be very close"""
         rdf, scale_factor = gsd_rdf(
