@@ -51,7 +51,7 @@ class TestGSD(BaseTest):
     def test_get_centers(self, gsdfile):
         new_gsdfile = "centers.gsd"
         centers = get_centers(gsdfile, new_gsdfile)
-        assert isinstance(centers, type(None))
+        assert centers is None
 
     def test_frame_to_freud_system(self, butane_gsd):
         with gsd.hoomd.open(butane_gsd) as traj:
