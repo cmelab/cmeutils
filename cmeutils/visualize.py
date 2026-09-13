@@ -19,7 +19,7 @@ class FresnelGSD:
         metal=0,
         up=(0, 0, 1),
         unwrap_positions=False,
-        device=fresnel.Device(),
+        device=None,
         show_box=True,
         box_radius=0.05,
     ):
@@ -63,14 +63,17 @@ class FresnelGSD:
             If True, the particle positions are unwrapped in the image
             This requires the GSD file snapshot contain accurate values for
             gsd.hoomd.Frame.particles.image
-        device, fresnel.Device(), optional
+        device, None, optional
             Set the device to be used by the scene and in rendering.
+            If left as `None`, automatically set to fresnel.Device().
         show_box: bool, optional, default True
             If True, the box is shown in the visualization.
         box_radius: float, optional, default 0.02
             The radius of the box lines.
 
         """
+        if device is None:
+            device = (fresnel.Device(),)
         self.scene = fresnel.Scene()
         self.gsd_file = gsd_file
         with gsd.hoomd.open(gsd_file) as traj:
@@ -135,7 +138,7 @@ class FresnelGSD:
     @color_dict.setter
     def color_dict(self, value):
         if not isinstance(value, dict):
-            raise ValueError(
+            raise TypeError(
                 "Pass in a dicitonary with "
                 "keys of particle type, values of color"
             )
@@ -171,7 +174,7 @@ class FresnelGSD:
     @unwrap_positions.setter
     def unwrap_positions(self, value):
         if not isinstance(value, bool):
-            raise ValueError(
+            raise TypeError(
                 "Set to True or False where "
                 "True uses unwrapped particle positions"
             )

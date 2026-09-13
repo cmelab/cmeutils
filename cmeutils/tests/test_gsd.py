@@ -51,7 +51,7 @@ class TestGSD(BaseTest):
     def test_get_centers(self, gsdfile):
         new_gsdfile = "centers.gsd"
         centers = get_centers(gsdfile, new_gsdfile)
-        assert isinstance(centers, type(None))
+        assert centers is None
 
     def test_frame_to_freud_system(self, butane_gsd):
         with gsd.hoomd.open(butane_gsd) as traj:
@@ -248,9 +248,9 @@ class TestGSD(BaseTest):
         snapshot.particles.typeid = [0, 1]
         with pytest.warns(UserWarning):
             updated_snapshot = identify_snapshot_connections(snapshot)
-            assert updated_snapshot.bonds.N == 0
-            assert updated_snapshot.angles.N == 0
-            assert updated_snapshot.dihedrals.N == 0
+        assert updated_snapshot.bonds.N == 0
+        assert updated_snapshot.angles.N == 0
+        assert updated_snapshot.dihedrals.N == 0
 
     def test_identify_connections_pekk_cg(self, pekk_cg_gsd):
         with gsd.hoomd.open(pekk_cg_gsd) as traj:

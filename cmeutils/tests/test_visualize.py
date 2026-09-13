@@ -69,11 +69,11 @@ class TestFresnelGSD(BaseTest):
             p3ht_fresnel.view_axis = 10
 
     def test_bad_color_dict(self, p3ht_fresnel):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             p3ht_fresnel.color_dict = np.array([0.1, 0.1, 0.1])
 
     def test_set_bad_unwrap_pos(self, p3ht_fresnel):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             p3ht_fresnel.unwrap_positions = "true"
 
     def set_set_colors(self, p3ht_fresnel):

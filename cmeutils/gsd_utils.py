@@ -254,24 +254,26 @@ def ellipsoid_gsd(gsd_file, new_file, ellipsoid_types, lpar, lperp):
         Value of lperp of the ellipsoids
 
     """
-    with gsd.hoomd.open(new_file, "w") as new_t:
-        with gsd.hoomd.open(gsd_file) as old_t:
-            for snap in old_t:
-                shape_dicts_list = []
-                for ptype in snap.particles.types:
-                    if ptype == ellipsoid_types or ptype in ellipsoid_types:
-                        shapes_dict = {
-                            "type": "Ellipsoid",
-                            "a": lperp,
-                            "b": lperp,
-                            "c": lpar,
-                        }
-                    else:
-                        shapes_dict = {"type": "Sphere", "diameter": 0.001}
-                    shape_dicts_list.append(shapes_dict)
-                snap.particles.type_shapes = shape_dicts_list
-                snap.validate()
-                new_t.append(snap)
+    with (
+        gsd.hoomd.open(new_file, "w") as new_t,
+        gsd.hoomd.open(gsd_file) as old_t,
+    ):
+        for snap in old_t:
+            shape_dicts_list = []
+            for ptype in snap.particles.types:
+                if ptype == ellipsoid_types or ptype in ellipsoid_types:
+                    shapes_dict = {
+                        "type": "Ellipsoid",
+                        "a": lperp,
+                        "b": lperp,
+                        "c": lpar,
+                    }
+                else:
+                    shapes_dict = {"type": "Sphere", "diameter": 0.001}
+                shape_dicts_list.append(shapes_dict)
+            snap.particles.type_shapes = shape_dicts_list
+            snap.validate()
+            new_t.append(snap)
 
 
 def xml_to_gsd(xmlfile, gsdfile):
