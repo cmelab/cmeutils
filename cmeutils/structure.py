@@ -107,8 +107,8 @@ def angle_distribution(
         theta_max = 180
 
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
-    name = "-".join([A_name, B_name, C_name])
-    name_rev = "-".join([C_name, B_name, A_name])
+    name = f"{A_name}-{B_name}-{C_name}"
+    name_rev = f"{C_name}-{B_name}-{A_name}"
 
     angles = []
     for snap in trajectory[start:stop:stride]:
@@ -237,8 +237,8 @@ def bond_distribution(
         )
 
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
-    name = "-".join([A_name, B_name])
-    name_rev = "-".join([B_name, A_name])
+    name = f"{A_name}-{B_name}"
+    name_rev = f"{B_name}-{A_name}"
 
     bonds = []
     for snap in trajectory[start:stop:stride]:
@@ -358,8 +358,8 @@ def dihedral_distribution(
         )
 
     trajectory = gsd.hoomd.open(gsd_file, mode="r")
-    name = "-".join([A_name, B_name, C_name, D_name])
-    name_rev = "-".join([D_name, C_name, B_name, A_name])
+    name = f"{A_name}-{B_name}-{C_name}-{D_name}"
+    name_rev = f"{D_name}-{C_name}-{B_name}-{A_name}"
 
     dihedrals = []
     for snap in trajectory[start:stop:stride]:
