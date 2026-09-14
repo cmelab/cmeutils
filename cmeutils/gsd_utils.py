@@ -174,9 +174,9 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
         try:
             with gsd.hoomd.open(name=gsd_file, mode="r") as f:
                 snap = f[gsd_frame]
-        except Exception as e:
+        except Exception:
             print("Unable to open the gsd_file")
-            raise e
+            raise
     elif snap:
         assert isinstance(snap, gsd.hoomd.Frame)
     return snap
@@ -493,7 +493,7 @@ def _detect_connections(compound_line_graph, type_="angle"):
         conn_matches = _trim_duplicates(conn_matches)
 
     # Do more sorting of individual connection
-    sorted_conn_matches = list()
+    sorted_conn_matches = []
     for match in conn_matches:
         if match[0] < match[-1]:
             sorted_conn = match
@@ -526,7 +526,7 @@ def _detect_connections(compound_line_graph, type_="angle"):
 def _get_sorted_by_n_connections(m):
     """Return sorted by n connections for the matching graph."""
     small = nx.Graph()
-    for k, v in m.items():
+    for k in m:
         small.add_edge(k[0], k[1])
     return sorted(small.adj, key=lambda x: len(small[x])), small
 
