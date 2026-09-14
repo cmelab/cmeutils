@@ -322,7 +322,7 @@ class TestStructure(BaseTest):
             exclude_all_bonded=False,
         )
         assert isinstance(rdf, freud.density.RDF)
-        rdf.rdf
+        _ = rdf.rdf
         assert scale_factor == 1
 
     def test_gsd_rdf_exclude_all_bonded(self, AB_chain_gsd):
@@ -370,7 +370,7 @@ class TestStructure(BaseTest):
         # All pairs are being used, N total = (10 * 9) / 2 = 45
         # Exclude bond depth of 1 should exclude all bonded pairs = 9
         # 45 / (45 - 9) = 1.25
-        rdf, scale_factor = gsd_rdf(
+        _, scale_factor = gsd_rdf(
             gsdfile=AB_chain_gsd,
             start=0,
             stop=10,
@@ -382,7 +382,7 @@ class TestStructure(BaseTest):
         # Excl bond depth of 2 should result in 9 (bonds) + 8 (angles) exclusions
         # 45 / (45 - 17) = 1.607
 
-        rdf, scale_factor = gsd_rdf(
+        _, scale_factor = gsd_rdf(
             gsdfile=AB_chain_gsd,
             start=0,
             stop=10,
@@ -393,7 +393,7 @@ class TestStructure(BaseTest):
 
     def test_gsd_rdf_r_max(self, LJ_gsd):
         """Test 2 RDFs with different r_cuts. The values of the shared r_cut region should be very close"""
-        rdf, scale_factor = gsd_rdf(
+        rdf, _ = gsd_rdf(
             gsdfile=LJ_gsd,
             start=0,
             stop=10,
@@ -401,7 +401,7 @@ class TestStructure(BaseTest):
             exclude_bond_depth=0,
             exclude_all_bonded=False,
         )
-        rdf2, scale_factor2 = gsd_rdf(
+        rdf2, _ = gsd_rdf(
             gsdfile=LJ_gsd,
             start=0,
             stop=10,

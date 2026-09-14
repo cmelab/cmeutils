@@ -126,7 +126,7 @@ def get_plane_normal(points):
     assert points.shape[0] >= 3, "Need at least 3 points to calculate a plane."
     ctr = points.mean(axis=0)
     shiftpoints = points - ctr
-    U, S, Vt = svd(shiftpoints.T @ shiftpoints)
+    U, _S, _Vt = svd(shiftpoints.T @ shiftpoints)
     normal = U[:, -1]
     return ctr, normal
 
@@ -197,7 +197,7 @@ def dihedral_angle(pos1, pos2, pos3, pos4, degrees=False):
     return phi
 
 
-def moit(points, masses, center=np.zeros(3)):
+def moit(points, masses, center=(0, 0, 0)):
     """Calculates moment of inertia tensor (moit) for rigid bodies.
 
     Assumes rigid body center is at origin unless center is provided.
@@ -218,6 +218,7 @@ def moit(points, masses, center=np.zeros(3)):
         moment of inertia tensor for the rigid body center
 
     """
+    center = np.asarray(center)
     points -= center
     x = points[:, 0]
     y = points[:, 1]
@@ -231,7 +232,7 @@ def moit(points, masses, center=np.zeros(3)):
 def radial_grid_positions(
     init_radius,
     final_radius,
-    init_position=np.zeros(2),
+    init_position=(0, 0),
     n_circles=10,
     circle_slice=1,
     circle_coverage=2 * np.pi,
@@ -260,6 +261,7 @@ def radial_grid_positions(
         xy coordinates of the grid positions
     """
 
+    init_position = np.asarray(init_position)
     grid_positions = []
     for radius in np.linspace(init_radius, final_radius, n_circles):
         for d_theta in np.linspace(0, circle_coverage, circle_slice):
@@ -278,7 +280,7 @@ def radial_grid_positions(
 def spherical_grid_positions(
     init_radius,
     final_radius,
-    init_position=np.zeros(3),
+    init_position=None,
     n_circles=10,
     circle_slice=1,
     circle_coverage=2 * np.pi,
@@ -292,8 +294,9 @@ def spherical_grid_positions(
         initial radius of the grid (first circle)
     final_radius: float
         final radius of the grid (last circle)
-    init_position: numpy.ndarray (3,), default np.array([0,0,0])
+    init_position: numpy.ndarray (3,), default None
         initial position of the grid (center of the first circle)
+        If left as `None`, defaults to (0,0,0).
     n_circles: int, default 10
         number of circles in the grid
     circle_slice: int, default 1
@@ -308,7 +311,8 @@ def spherical_grid_positions(
     grid_positions: numpy.ndarray
         xyz coordinates of the grid positions
     """
-
+    if init_position is None:
+        init_position = np.zeros(3)
     z_slice = circle_slice * 2
     grid_positions = []
     for radius in np.linspace(init_radius, final_radius, n_circles):

@@ -63,7 +63,7 @@ class TestSampler(BaseTest):
 
     def test_return_trimmed_data(self, correlated_data_tau100_n10000):
         data = correlated_data_tau100_n10000
-        [equil_data, uncorr_indices, prod_start, Neff] = equil_sample(
+        [equil_data, _uncorr_indices, _prod_start, _Neff] = equil_sample(
             data, threshold_fraction=0.2, threshold_neff=10
         )
         assert np.shape(equil_data)[0] < np.shape(data)[0]
@@ -73,14 +73,14 @@ class TestSampler(BaseTest):
         with pytest.raises(
             ValueError, match=r"Property does not have requisite threshold"
         ):
-            [equil_data, uncorr_indices, prod_start, Neff] = equil_sample(
+            [_equil_data, _uncorr_indices, _prod_start, _Neff] = equil_sample(
                 data, threshold_fraction=0.98
             )
         with pytest.raises(
             ValueError,
             match=r"More production data is needed",
         ):
-            [equil_data, uncorr_indices, prod_start, Neff] = equil_sample(
+            [_equil_data, _uncorr_indices, _prod_start, _Neff] = equil_sample(
                 data, threshold_fraction=0.75, threshold_neff=10000
             )
 

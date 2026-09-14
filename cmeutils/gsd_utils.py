@@ -174,9 +174,9 @@ def _validate_inputs(gsd_file, snap, gsd_frame):
         try:
             with gsd.hoomd.open(name=gsd_file, mode="r") as f:
                 snap = f[gsd_frame]
-        except Exception as e:
+        except Exception:
             print("Unable to open the gsd_file")
-            raise e
+            raise
     elif snap:
         assert isinstance(snap, gsd.hoomd.Frame)
     return snap
@@ -254,24 +254,26 @@ def ellipsoid_gsd(gsd_file, new_file, ellipsoid_types, lpar, lperp):
         Value of lperp of the ellipsoids
 
     """
-    with gsd.hoomd.open(new_file, "w") as new_t:
-        with gsd.hoomd.open(gsd_file) as old_t:
-            for snap in old_t:
-                shape_dicts_list = []
-                for ptype in snap.particles.types:
-                    if ptype == ellipsoid_types or ptype in ellipsoid_types:
-                        shapes_dict = {
-                            "type": "Ellipsoid",
-                            "a": lperp,
-                            "b": lperp,
-                            "c": lpar,
-                        }
-                    else:
-                        shapes_dict = {"type": "Sphere", "diameter": 0.001}
-                    shape_dicts_list.append(shapes_dict)
-                snap.particles.type_shapes = shape_dicts_list
-                snap.validate()
-                new_t.append(snap)
+    with (
+        gsd.hoomd.open(new_file, "w") as new_t,
+        gsd.hoomd.open(gsd_file) as old_t,
+    ):
+        for snap in old_t:
+            shape_dicts_list = []
+            for ptype in snap.particles.types:
+                if ptype == ellipsoid_types or ptype in ellipsoid_types:
+                    shapes_dict = {
+                        "type": "Ellipsoid",
+                        "a": lperp,
+                        "b": lperp,
+                        "c": lpar,
+                    }
+                else:
+                    shapes_dict = {"type": "Sphere", "diameter": 0.001}
+                shape_dicts_list.append(shapes_dict)
+            snap.particles.type_shapes = shape_dicts_list
+            snap.validate()
+            new_t.append(snap)
 
 
 def xml_to_gsd(xmlfile, gsdfile):
@@ -491,7 +493,7 @@ def _detect_connections(compound_line_graph, type_="angle"):
         conn_matches = _trim_duplicates(conn_matches)
 
     # Do more sorting of individual connection
-    sorted_conn_matches = list()
+    sorted_conn_matches = []
     for match in conn_matches:
         if match[0] < match[-1]:
             sorted_conn = match
@@ -524,7 +526,7 @@ def _detect_connections(compound_line_graph, type_="angle"):
 def _get_sorted_by_n_connections(m):
     """Return sorted by n connections for the matching graph."""
     small = nx.Graph()
-    for k, v in m.items():
+    for k in m:
         small.add_edge(k[0], k[1])
     return sorted(small.adj, key=lambda x: len(small[x])), small
 
